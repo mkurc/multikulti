@@ -35,7 +35,7 @@
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-          <li><a class="navbar-brand" href="{{url_for("index_page")}}">Atlas roślin</a></li>
+          <li><a class="navbar-brand" href="{{url_for("index_page")}}">CABS multidock</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
@@ -87,21 +87,38 @@
 
 
 <div class="container">
-<form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
-    {{render_field(form.pdb)}}
-    {{render_field(form.email)}}
-    {{render_field(form.name)}}
-    {{render_checkbox_field(form.show)}}
-    {{form.csrf_token()}}
-    
-    <input type="submit" value="Go">
-</form>
+    <div class="row">
+        <div class="col-md-7">
+            lorem ipsum
+        </div>
+        <div class="col-md-5">
+            <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
+                {{render_field(form.name)}}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{render_field(form.pdb_receptor)}}
+                    </div>
+                    <div class="col-md-6">
+                        {{render_field(form.receptor_file)}}
+                    </div>
+                </div>
+                {{render_field(form.ligand_seq, style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
 
+                {{render_field(form.ligand_ss, style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                {{render_field(form.email)}}
+                {{form.jid}}
+                {{render_checkbox_field(form.show)}}
+                {{form.csrf_token()}}
+                
+                <input type="submit" class="btn btn-primary" value="Next step">
+            </form>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
 <div class="container">
-    <hr><small class="text-muted" style="float:right">Atlas roślin / klucz do oznaczania roślin</small>
+    <hr><small class="text-muted" style="float:right">LTB</small>
 </div>
 {%block jsdata %}
 <script src="{{url_for('static', filename='js/jquery.js')}}"></script>

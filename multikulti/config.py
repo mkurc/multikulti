@@ -13,17 +13,15 @@ import sqlite3
 production=True # production = paths on ptb2, False = discordia
 
 
-prefix = path.dirname(path.realpath(__file__))
+prefix = path.dirname(path.realpath(__file__))+"/"
 
 
 config = \
     dict(DATABASE=prefix+'database-full.db',
-         MAILS_DATABASE=prefix+'database-temporary.db',
-         BABEL_DEFAULT_LOCALE='pl',
-         UPLOADED=prefix+'upload/',
          CACHE=prefix+'cache/',
-         STATIC=prefix+'/static/',
-         ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg'],
+         STATIC=prefix+'static/',
+         ALLOWED_EXTENSIONS = ['pdb','PDB'],
+         UPLOAD_FOLDER=prefix+'upload/',
          IMAGES_DIRECTORY=prefix+'static/plant_photos/',
          DEBUG=True, 
          DEFAULT_MAIL_SENDER="biocomp@chem.uw.edu.pl",                      # FROM field in sent mail
