@@ -1,0 +1,156 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <title></title>
+    <style>
+span:hover {
+        background-color: yellow;
+} 
+span::selection {
+        color: red;
+            cursor: move;
+}
+
+span::-moz-selection {
+        background:yellow;
+            cursor: move;
+}
+    </style>
+<script src="jsmol/JSmol.min.js" type="text/javascript" charset="utf-8"></script>
+<script>
+var jmol="jmol";
+var jme = "jme";
+
+// 1/21/2013 10:54:15 PM -- adds image handling
+var jmolApplet0; // set up in HTML table, below
+// logic is set by indicating order of USE -- default is HTML5 for this test page, though
+var use = "HTML5" // JAVA HTML5 WEBGL IMAGE  are all options
+var s = document.location.search;
+
+// Developers: The debugCode flag is checked in j2s/core/core.z.js, 
+// and, if TRUE, skips loading the core methods, forcing those
+// to be read from their individual directories. Set this
+// true if you want to do some code debugging by inserting
+// System.out.println, document.title, or alert commands
+// anywhere in the Java or Jmol code.
+
+Jmol.debugCode = (s.indexOf("debugcode") >= 0);
+jmol_isReady = function(applet) {
+    var s_seq =  Jmol.evaluateVar(jmolApplet0, "{atomName=CA}.identify");
+    var seq = Jmol.evaluateVar(jmolApplet0, "{atomName=CA}.sequence");
+    var out = [];
+    var numbersout = [];
+    for (var i=0;i<seq.length;i++) {
+        var resid = s_seq[i].match(/](.*):/)[1];
+        //out[i] = "<span name='"+resid+"' id='seq"+resid+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+        if (resid%10==0) {
+            out[i] = "<span name='"+resid+"' id='seq"+resid+"' data-resid='"+resid+"' style='text-decoration: underline'>" + seq[i] + "</span>";
+        }
+        else{
+            out[i] = "<span name='"+resid+"' id='seq"+resid+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+        }
+    }
+    $("#sequenceSpan").html(out.join(''));
+
+    $('p span').bind('mouseenter', function() {
+        var v = $(this).data("resid");
+        //alert(v);
+        $("#wybrane").html(v);//html() = v;
+        Jmol.script(jmolApplet0,"select *;halos off;select "+v+";  halos on");
+        });
+
+
+//	Jmol._getElement(applet, "appletdiv").style.border="none";
+}	
+
+var JmolInfo = {
+	width: 400,
+	height: 400,
+	debug: true,
+	color: "snow",
+	addSelectionOptions: true,
+	serverURL: "http://www2.chemistry.msu.edu/faculty/reusch/VirtTxtJml/htmlJ/jsmol/jsmol.php",
+	use: "HTML5",
+	readyFunction: jmol_isReady,
+	script: "background snow;load 2pcy.pdb;restrict protein; cartoons only;color deepskyblue;color halos [255,0,0]",
+	jarPath: ".",
+	j2sPath: "./jsmol/j2s",
+	isSigned: false,
+	defaultModel: "",
+        console: "true", 
+}
+
+var JMEInfo = {  
+	use: "HTML5"
+ //,divId: "jmediv"
+	//,jarPath: "jme",
+	//,jarFile: "JME.jar"
+  //optional parameters
+  //,"options" : "query,nohydrogens"
+  //,"jme" : startingStructure 
+}
+</script>
+</head>
+
+<body>
+
+Sekwencja scaigniaeta ze struktury:
+
+<p style="font-family:monospace" id="sequenceSpan"></p>
+<p style="font-family:monospace" id="sequenceSpan2"></p>
+
+<a href="#" id="sele">dodaj więzy</a>
+<br>zakres wybranych:
+<table border=2>
+<div id="selected">
+</div>
+</table>
+
+<script>
+jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
+jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
+var lastPrompt=0;
+</script>
+</body>
+<script src="jquery.js"></script>
+
+
+<script type="text/javascript" charset="utf-8">
+    $("#sele").click(function () { // dodaj zaznaczenie do listy zaznaczen
+        var s = window.getSelection();
+        var selRange = s.getRangeAt(0);
+        var endRes0 = selRange.endContainer.parentNode.dataset['resid'];
+        var endRes1 = selRange.startContainer.parentNode.dataset['resid'];
+        // tutaj mozna iteracje po tym zakresie i zmienic styl sekwencji
+        var seqFrom = Math.min(endRes0, endRes1);
+        var seqTo = Math.max(endRes0, endRes1);
+        for (var i=seqFrom;i<=seqTo;i++) {
+            document.getElementById("seq"+i).style.color = "orange"; 
+        }
+
+        var prev = $("#selected").html();
+        v = prev + "<tr><td>" + selRange + "</td><td>" + seqFrom + " - " + seqTo + "</td></tr>";
+        $("#selected").html(v);//html() = v;
+
+
+
+        });
+
+var s2 = document.getElementById("sequenceSpan");
+s2.onmouseup = function() { // rob cos na zaznaczonym, po zaznaczeniu (np zaznacz w jsmolu)
+        var s = window.getSelection();
+        
+        var selRange = s.getRangeAt(0);
+        var endRes0 = selRange.endContainer.parentNode.dataset['resid'];
+        var endRes1 = selRange.startContainer.parentNode.dataset['resid'];
+        var seqFrom = Math.min(endRes0, endRes1);
+        var seqTo = Math.max(endRes0, endRes1);
+
+	Jmol.script(jmolApplet0,"select protein; color deepskyblue");
+        Jmol.script(jmolApplet0,"select "+seqFrom+"-"+seqTo+"; color [xfbb450]");
+};
+
+</script>
+
+</html>
