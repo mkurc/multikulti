@@ -93,19 +93,26 @@
         </div>
         <div class="col-md-5">
             <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
-                {{render_field(form.name)}}
                 <div class="row">
                     <div class="col-md-6">
-                        {{render_field(form.pdb_receptor)}}
+                        {{render_field(form.name, placeholder='Project name')}}
+                    </div>
+                    <div class="col-md-6">
+                        {{render_field(form.email, placeholder='john@doe.com')}}
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col-md-6">
+                        {{render_field(form.pdb_receptor, placeholder='2PCY:A')}}
                     </div>
                     <div class="col-md-6">
                         {{render_field(form.receptor_file)}}
                     </div>
                 </div>
-                {{render_field(form.ligand_seq, style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                {{render_field(form.ligand_seq, placeholder='ALA', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
 
-                {{render_field(form.ligand_ss, style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
-                {{render_field(form.email)}}
+                {{render_field(form.ligand_ss, placeholder='EHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
                 {{form.jid}}
                 {{render_checkbox_field(form.show)}}
                 {{form.csrf_token()}}
