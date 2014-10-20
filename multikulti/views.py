@@ -65,6 +65,8 @@ def structure_pdb_validator(form, field):
                     the structure (%s)' %(chain,pdbcode) )
         else:
             pdb = fetchPDBinfo(pdbcode,chain)
+    else:
+        raise ValidationError('Receptor structure is missing')
 
     missing = pdb.missing
     if len(missing)!=0:
@@ -83,16 +85,16 @@ def pdb_input_code_validator(form, field):
 
 class MyForm(Form):
     print input_pdb.extensions
-    name = StringField('Project name', validators=[DataRequired()])
-    pdb_receptor = StringField('Receptor PDB code (required)', \
+    name = StringField('Project name', validators=[Length(min=4,max=50),optional()])
+    pdb_receptor = StringField('PDB code', \
             validators=[pdb_input_code_validator, structure_pdb_validator])
-    receptor_file = FileField('OR Receptor PDB file (required)', \
+    receptor_file = FileField('OR PDB file', \
             validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
     ligand_seq = TextAreaField('Ligand sequence', \
             validators=[Length(min=3,max=60),DataRequired(),sequence_validator])
-    ligand_ss = TextAreaField('Ligand secondary structure (optional)', \
+    ligand_ss = TextAreaField('Ligand secondary structure', \
             validators=[Length(min=3,max=60),optional(),ss_validator])
-    email = StringField('E-mail address (optional)', 
+    email = StringField('E-mail address', 
             validators = [optional(), Email()])
     show = BooleanField('Do not show my job on the results page', default=False)
     jid = HiddenField(default=unique_id())

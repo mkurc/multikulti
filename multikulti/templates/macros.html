@@ -1,8 +1,8 @@
-{% macro render_field(field, label_visible=true) %}
+{% macro render_field(field, label_visible=true, R='') %}
 
     <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
         {% if (field.type != 'HiddenField' or field.type !='CSRFTokenField') and label_visible %}
-            <label for="{{ field.id }}" class="control-label">{{ field.label }}</label>
+        <label for="{{ field.id }}" class="control-label">{{ field.label }} {{R|safe}}</label>
         {% endif %}
         {{ field(class_='form-control', **kwargs) }}
         {% if field.errors %}

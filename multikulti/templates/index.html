@@ -1,8 +1,11 @@
 {% from 'macros.html' import render_field %}
 {% from 'macros.html' import render_checkbox_field %}
 <!doctype html>
-<html>
+<html lang='en'>
 <head>
+<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>
 {% if pdb %}
@@ -53,7 +56,7 @@
     </div><!--/.nav-collapse -->
   </div>
 </div>
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
             {% with infos = get_flashed_messages(category_filter=["info"]) %}
@@ -86,13 +89,102 @@
 {% block body %}
 
 
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-md-7">
-            lorem ipsum
+        <div class="col-md-8">
+            <div class="jumbotron">
+                <div class="row">
+                    <div class="col-md-12">
+                <h1>CABS doock</h1>
+        </div></div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <img width=100% src={{url_for('static',filename='img/CABSdock.svg')}}>
+                    </div>
+                    <div class="col-md-8">
+                        <p> This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                        <p><a href="#" class="btn btn-primary btn-lg" role="button">Learn more »</a></p>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-4">
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
             <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
+       
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                                Receptor
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{render_field(form.pdb_receptor, placeholder='2PCY:A')}}
+                            </div>
+                            <div class="col-md-6">
+
+
+    <div class="form-group {% if form.pdb_receptor.errors %}has-error{% endif %}">
+        <label for="{{ form.pdb_receptor.id }}" class="control-label">&nbsp;</label>
+                                <span class="btn btn-primary btn-file">
+                                    <input type=file id="{{ form.pdb_receptor.id }}" name="{{ form.pdb_receptor.id }}">
+                                    OR upload local PDB file
+                                    </span>
+        {% if form.pdb_receptor.errors %}
+            {% for e in form.pdb_receptor.errors %}
+                <p class="help-block">{{ e|safe }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+
+
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Ligand
+                    </div>
+                    <div class="panel-body">
+                        {{render_field(form.ligand_seq, placeholder='ALA', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+
+            </div>
+        </div>
+<div class="panel-group" id="accordion">
+  <div class="panel panel-warning">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+            Optional
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse">
+      <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
                         {{render_field(form.name, placeholder='Project name')}}
@@ -101,25 +193,24 @@
                         {{render_field(form.email, placeholder='john@doe.com')}}
                     </div>
                 </div>
-        
-                <div class="row">
-                    <div class="col-md-6">
-                        {{render_field(form.pdb_receptor, placeholder='2PCY:A')}}
-                    </div>
-                    <div class="col-md-6">
-                        {{render_field(form.receptor_file)}}
-                    </div>
-                </div>
-                {{render_field(form.ligand_seq, placeholder='ALA', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
-
                 {{render_field(form.ligand_ss, placeholder='EHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
-                {{form.jid}}
                 {{render_checkbox_field(form.show)}}
+      </div>
+    </div>
+  </div>
+</div>
+
+                {{form.jid}}
                 {{form.csrf_token()}}
+                <p class="help-block"><i class="fa fa-exclamation"></i> - required</p>
+                <hr>
                 
-                <input type="submit" class="btn btn-primary" value="Next step">
+                    <input type="submit" class="btn btn-block btn-success" value="Next step">
+                </div>
             </form>
         </div>
+    </div>
+</div>
     </div>
 </div>
 
