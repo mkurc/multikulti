@@ -16,8 +16,8 @@ var jmol_selected = [];
 var jmol_selected2 = [];
 var jmol_temporary_selected = [];
 var global_color_index = 0;
-//var colors = ["#FFBF00", "#A4C639", "#7FFFD4", "#FF9966", "#89CFF0", "#98777B", "#B5A642", "#FF007F", "#CC5500", "#006B3C", "#92A1CF", "#DFFF00", "#DE3163"];
-var colors = ["#428bca", "#5cb85c", "#5bc0de", "#f0ad4e", "#d9534f"]
+var colors = ["#FFBF00", "#A4C639", "#7FFFD4", "#FF9966", "#89CFF0", "#98777B", "#B5A642", "#FF007F", "#CC5500", "#006B3C", "#92A1CF", "#DFFF00", "#DE3163"];
+//var colors = ['active', 'success', 'warning', 'danger', 'info']
 var jmol="jmol";
 var jme = "jme";
 var jmolApplet0; // set up in HTML table, below
@@ -216,7 +216,7 @@ var lastPrompt=0;
                 }
                     var newRow = "<tr>" + "<td class='del'>" + 
                         "<a href='#' class='btn btn-xs btn-danger'><i class='fa fa-close'></i> del</a></td>" +
-                        "<td style='color:"+colors[global_color_index]+"'>"+selected.join(", ")+"</td>" +
+                        "<td ><span style='background-color:"+colors[global_color_index]+"'>"+selected.join(", ")+"</span></td>" +
                         "<td class='constr'>"+printList("ooo")+"</td>" +
                         "</tr>";
                     $('#constraintsTable > tbody > tr:last').before(newRow);
