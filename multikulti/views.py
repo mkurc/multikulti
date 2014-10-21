@@ -112,9 +112,9 @@ class MyForm(Form):
     show = BooleanField('Do not show my job on the results page', default=False)
     jid = HiddenField(default=unique_id())
 
-@app.route('/add_constraints')
-def index_constraints():
-    return render_template('page_not_found.html')
+@app.route('/add_constraints/<jid>/', methods=['GET','POST'])
+def index_constraints(jid):
+    return render_template('add_constraints.html',jid=jid)
 
 def add_init_data_to_db(form):
     jid = unique_id()
