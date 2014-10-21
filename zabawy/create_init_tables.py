@@ -26,7 +26,7 @@ def createTables():
                 email text,
                 ligand_sequence text NOT NULL, 
                 ligand_ss text, 
-                receptor_structure text, 
+                receptor_sequence text NOT NULL, 
                 hide integer(1) DEFAULT 0,
                 status text check(status IN ('pending', 'queue', 'running', 'error') )  NOT NULL DEFAULT 'pending',
                 project_name text NOT NULL,
@@ -35,25 +35,17 @@ def createTables():
                 numbering_ligand integer DEFAULT 1
                 ) ''')
 
-    cur.execute("DROP TABLE IF EXISTS constraints_ligand")
-    cur.execute("DROP TABLE IF EXISTS constraints_receptor")
+    cur.execute("DROP TABLE IF EXISTS constraints")
     cur.execute('''
-                CREATE TABLE constraints_ligand
+                CREATE TABLE constraints
                 ( id integer primary key,   
                   jid text NOT NULL,
                   res_i integer not null,
+                  res_i_chain text,
                   res_j integer not null,
-                  distance float not null,
-                  force float not null default 1.0,
-                  foreign key(jid) REFERENCES user_queue(jid)
-                  )
-    ''')
-    cur.execute('''
-                CREATE TABLE constraints_receptor
-                ( id integer primary key,   
-                  jid text NOT NULL,
-                  res_i integer not null,
-                  res_j integer not null,
+                  res_j_chain text,
+                  res_i_type text,
+                  res_j_type text,
                   distance float not null,
                   force float not null default 1.0,
                   foreign key(jid) REFERENCES user_queue(jid)

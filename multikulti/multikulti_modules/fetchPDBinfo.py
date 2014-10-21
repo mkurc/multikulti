@@ -81,7 +81,7 @@ class getCoordinates:
             return o
 
     def getCalfaPdbFormat(self,chain,output=''):
-        l = self.root.xpath("//PDBx:atom_siteCategory/PDBx:atom_site[not(PDBx:label_alt_id/text()) or PDBx:label_alt_id='A'][PDBx:auth_atom_id='CA'][PDBx:pdbx_PDB_model_num='1' or PDBx:pdbx_PDB_model_num='0'][PDBx:group_PDB='ATOM' or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='MSE') or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='ORN') or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='PCA') or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='DGL')][PDBx:auth_asym_id='"+chain+"']",namespaces=self.NS) # TODO moze byc zle - dodalem model_num=0 jako or. mozliwe ze wyciagnie dwa na raz
+        l = self.root.xpath("//PDBx:atom_siteCategory/PDBx:atom_site[not(PDBx:label_alt_id/text()) or PDBx:label_alt_id='A'][PDBx:auth_atom_id='CA' or PDBx:auth_atom_id='N' or PDBx:auth_atom_id='O' or PDBx:auth_atom_id='C'][PDBx:pdbx_PDB_model_num='1' or PDBx:pdbx_PDB_model_num='0'][PDBx:group_PDB='ATOM' or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='MSE') or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='ORN') or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='PCA') or (PDBx:group_PDB='HETATM' and PDBx:label_comp_id='DGL')][PDBx:auth_asym_id='"+chain+"']",namespaces=self.NS) # TODO moze byc zle - dodalem model_num=0 jako or. mozliwe ze wyciagnie dwa na raz
         o = ''
         r = []
         prev_seqid=999999999999999
@@ -111,7 +111,7 @@ class getCoordinates:
                 l = (int(seqid.text)-first_resid+1,str(seqname.text),str(chain),int(seqid.text)-first_resid+1,float(x.text),float(y.text),float(z.text),float(bfactor.text)) # chyba przenumerowanie
                 o+= "ATOM%7d  CA%5s%2s%4d%12.3f%8.3f%8.3f  1.00%6.2f           C\n"%l
         if output !='':
-            f = open(output,"w")
+            f = gzip.open(output,"wb")
             f.write(o)
             f.close()
         else:
@@ -134,79 +134,7 @@ class fetchPDBinfo:
         f.close()
         self.NS = {"PDBx":''+findxmlprefix(data)+''}
         self.root = etree.fromstring(data)
-        self.codification = { "ALA" : 'A',
-                 "CYS" : 'C',
-                 "ASP" : 'D',
-                 "GLU" : 'E',
-                 "PHE" : 'F',
-                 "GLY" : 'G',
-                 "HIS" : 'H',
-                 "ILE" : 'I',
-                 "LYS" : 'K',
-                 "LEU" : 'L',
-                 "MET" : 'M',
-                 "MSE" : 'M',
-                 "ASN" : 'N',
-                 "PYL" : 'O',
-                 "PRO" : 'P',
-                 "GLN" : 'Q',
-                 "ARG" : 'R',
-                 "SER" : 'S',
-                 "THR" : 'T',
-                 "SEC" : 'U',
-                 "VAL" : 'V',
-                 "TRP" : 'W',
-                 "5HP" : 'E',
-                 "ABA" : 'A',
-                 "AIB" : 'A',
-                 "BMT" : 'T',
-                 "CEA" : 'C',
-                 "CGU" : 'E',
-                 "CME" : 'C',
-                 "CRO" : 'X',
-                 "CSD" : 'C',
-                 "CSO" : 'C',
-                 "CSS" : 'C',
-                 "CSW" : 'C',
-                 "CSX" : 'C',
-                 "CXM" : 'M',
-                 "DAL" : 'A',
-                 "DAR" : 'R',
-                 "DCY" : 'C',
-                 "DGL" : 'E',
-                 "DGN" : 'Q',
-                 "DHI" : 'H',
-                 "DIL" : 'I',
-                 "DIV" : 'V',
-                 "DLE" : 'L',
-                 "DLY" : 'K',
-                 "DPN" : 'F',
-                 "DPR" : 'P',
-                 "DSG" : 'N',
-                 "DSN" : 'S',
-                 "DSP" : 'D',
-                 "DTH" : 'T',
-                 "DTR" : 'X',
-                 "DTY" : 'Y',
-                 "DVA" : 'V',
-                 "FME" : 'M',
-                 "HYP" : 'P',
-                 "KCX" : 'K',
-                 "LLP" : 'K',
-                 "MLE" : 'L',
-                 "MVA" : 'V',
-                 "NLE" : 'L',
-                 "OCS" : 'C',
-                 "ORN" : 'A',
-                 "PCA" : 'E',
-                 "PTR" : 'Y',
-                 "SAR" : 'G',
-                 "SEP" : 'S',
-                 "STY" : 'Y',
-                 "TPO" : 'T',
-                 "TPQ" : 'F',
-                 "TYS" : 'Y',
-                 "TYR" : 'Y' }
+        self.codification = { "ALA" : 'A', "CYS" : 'C', "ASP" : 'D', "GLU" : 'E', "PHE" : 'F', "GLY" : 'G', "HIS" : 'H', "ILE" : 'I', "LYS" : 'K', "LEU" : 'L', "MET" : 'M', "MSE" : 'M', "ASN" : 'N', "PYL" : 'O', "PRO" : 'P', "GLN" : 'Q', "ARG" : 'R', "SER" : 'S', "THR" : 'T', "SEC" : 'U', "VAL" : 'V', "TRP" : 'W', "5HP" : 'E', "ABA" : 'A', "AIB" : 'A', "BMT" : 'T', "CEA" : 'C', "CGU" : 'E', "CME" : 'C', "CRO" : 'X', "CSD" : 'C', "CSO" : 'C', "CSS" : 'C', "CSW" : 'C', "CSX" : 'C', "CXM" : 'M', "DAL" : 'A', "DAR" : 'R', "DCY" : 'C', "DGL" : 'E', "DGN" : 'Q', "DHI" : 'H', "DIL" : 'I', "DIV" : 'V', "DLE" : 'L', "DLY" : 'K', "DPN" : 'F', "DPR" : 'P', "DSG" : 'N', "DSN" : 'S', "DSP" : 'D', "DTH" : 'T', "DTR" : 'X', "DTY" : 'Y', "DVA" : 'V', "FME" : 'M', "HYP" : 'P', "KCX" : 'K', "LLP" : 'K', "MLE" : 'L', "MVA" : 'V', "NLE" : 'L', "OCS" : 'C', "ORN" : 'A', "PCA" : 'E', "PTR" : 'Y', "SAR" : 'G', "SEP" : 'S', "STY" : 'Y', "TPO" : 'T', "TPQ" : 'F', "TYS" : 'Y', "TYR" : 'Y' }
         self._getCAmissing()
         l = self.root.xpath("//PDBx:atom_siteCategory/PDBx:atom_site[PDBx:auth_atom_id='CA'][PDBx:pdbx_PDB_model_num='1' or PDBx:pdbx_PDB_model_num='0'][PDBx:group_PDB='ATOM']/PDBx:auth_asym_id",namespaces=self.NS) # TODO moze byc zle - dodalem model_num=0 jako or. mozliwe ze wyciagnie dwa na raz
         self.chains = set()

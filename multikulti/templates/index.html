@@ -135,24 +135,20 @@
 
                         <div class="row">
                             <div class="col-md-6">
-                                {{render_field(form.pdb_receptor, placeholder='2PCY:A')}}
+                                {{render_field(form.pdb_receptor, placeholder='2PCY')}}
                             </div>
                             <div class="col-md-6">
 
 
-    <div class="form-group {% if form.pdb_receptor.errors %}has-error{% endif %}">
-        <label for="{{ form.pdb_receptor.id }}" class="control-label">&nbsp;</label>
-                                <span class="btn btn-primary btn-file">
-                                    <input type=file id="{{ form.pdb_receptor.id }}" name="{{ form.pdb_receptor.id }}">
-                                    OR upload local PDB file
-                                    </span>
-        {% if form.pdb_receptor.errors %}
-            {% for e in form.pdb_receptor.errors %}
+    <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
+        or <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
+        <br><span class="btn btn-primary btn-file"><input type=file id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}"> Select file</span>
+                                {% if form.receptor_file.errors %}
+            {% for e in form.receptor_file.errors %}
                 <p class="help-block">{{ e|safe }}</p>
             {% endfor %}
         {% endif %}
     </div>
-
 
 
 
