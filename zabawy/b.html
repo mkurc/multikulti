@@ -1,0 +1,86 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+    <title></title>
+    <style>
+span:hover {
+background-color: yellow;
+} 
+span::selection {
+color: red;
+cursor: move;
+}
+
+span::-moz-selection {
+background:yellow;
+cursor: move;
+}
+.mono {
+    font-family:monospace;
+}
+    </style>
+</head>
+
+<body>
+
+<input type="button" id="toggleBoldButton" value="Toggle bold">
+        <input type="button" ontouchstart="highlightSelectedText();" onclick="highlightSelectedText();" value="Highlight selection">
+<strong>Receptor:</strong>
+<p style="font-family:monospace" id="sequenceSpan"></p>
+<p style="font-family:monospace" id="sequenceSpan2"></p>
+<p style="font-family:monospace" id="wybrane"></p>
+
+<div class="mono" data-chain="A" id="sequenceSpanA">
+<span data-resid="1">span1</span><span data-resid="2">span2</span><span data-resid="3">span3</span><span data-resid="4">span4</span> 
+</div>
+<div class="mono" data-chain="B" id="sequenceSpanB">
+<span>span1</span><span >span2</span><span>span3</span>
+</div>
+
+<br>zakres wybranych:
+<table border=2>
+<div id="selected">
+</div>
+</table>
+
+</body>
+<script src="jquery.js"></script>
+<script src="js/rangy/rangy-core.js"></script>
+    <script type="text/javascript">
+function getRangesAndChain(selection) {
+        var endRes0 = selection.endContainer.parentNode.dataset['resid'];
+        var endRes1 = selection.startContainer.parentNode.dataset['resid'];
+        var chain = selection.startContainer.parentNode.parentNode.dataset['chain'];
+        // tutaj mozna iteracje po tym zakresie i zmienic styl sekwencji
+        var seqFrom = Math.min(endRes0, endRes1);
+        var seqTo = Math.max(endRes0, endRes1);
+        return [chain,seqFrom, seqTo];
+}
+function colorSeq(chain, seqFrom, seqTo) {
+    var twojastara = $("#sequenceSpan"+chain+" > span");
+    twojastara.filter(function() {
+                    var rid = parseInt($(this).data("resid"));
+                    return rid >= seqFrom && rid <= seqTo;
+                    }).css({'color':'orange'});
+}
+function uncolorSeq(chain, seqFrom, seqTo) {
+    var twojastara = $("#sequenceSpan"+chain+" > span");
+    twojastara.filter(function() {
+                    var rid = parseInt($(this).data("resid"));
+                    return rid >= seqFrom && rid <= seqTo;
+                    }).css({'color':''});
+}
+function highlightSelectedText() {
+    if (window.getSelection) {  // all browsers, except IE before version 9
+            var currSelection = window.getSelection ();
+            for (var i = 0; i < currSelection.rangeCount; i++) {
+                var s = getRangesAndChain(currSelection.getRangeAt(i));
+                colorSeq( s[0], s[1], s[2]);
+                Jmol.script(jmolApplet0,"select "+s[1]+"-"+s[2]+":"+s[0]+"; color [xfbb450]");
+            }
+            currSelection.removeAllRanges ();
+    }
+}
+    </script>
+</html>
