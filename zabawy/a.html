@@ -17,8 +17,11 @@ span::-moz-selection {
             cursor: move;
 }
     </style>
+<script src="js/rangy/rangy-highlighter.js"></script>
 <script src="jsmol/JSmol.min.js" type="text/javascript" charset="utf-8"></script>
 <script>
+var jmol_selected = [];
+var jmol_selected2 = [];
 var jmol="jmol";
 var jme = "jme";
 
@@ -41,25 +44,43 @@ jmol_isReady = function(applet) {
     var seq = Jmol.evaluateVar(jmolApplet0, "{atomName=CA}.sequence");
     var out = [];
     var numbersout = [];
+        console.dir(s_seq);
+    var prevchain='FNORD';
     for (var i=0;i<seq.length;i++) {
         var resid = s_seq[i].match(/](.*):/)[1];
+        var chain = s_seq[i].match(/:(.*).CA/)[1];
         //out[i] = "<span name='"+resid+"' id='seq"+resid+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
         if (resid%10==0) {
-            out[i] = "<span name='"+resid+"' id='seq"+resid+"' data-resid='"+resid+"' style='text-decoration: underline'>" + seq[i] + "</span>";
+            if (chain!=prevchain) {
+                prevchain=chain;
+                out[i] = "</div><div data-chain='"+chain+"' id='sequenceSpan'"+chain+"'><br><strong>"+chain+"</strong>: <span name='"+resid+"' data-chain='"+chain+"' id='seq"+resid+""+chain+"' data-resid='"+resid+"' style='text-decoration: underline'>" + seq[i] + "</span>";
+            } else{
+                out[i] = "<span name='"+resid+"' data-chain='"+chain+"' id='seq"+resid+""+chain+"' data-resid='"+resid+"' style='text-decoration: underline'>" + seq[i] + "</span>";
+            }
+
         }
         else{
-            out[i] = "<span name='"+resid+"' id='seq"+resid+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+            if (chain!=prevchain) {
+                prevchain=chain;
+                out[i] = "</div><div data-chain='"+chain+"' id='sequenceSpan'"+chain+"'><br><strong>"+chain+"</strong>: <span name='"+resid+"' id='seq"+resid+""+chain+"' data-chain='"+chain+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+            } else{
+                out[i] = "<span name='"+resid+"' id='seq"+resid+""+chain+"' data-chain='"+chain+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+            }
         }
     }
     $("#sequenceSpan").html(out.join(''));
 
     $('p span').bind('mouseenter', function() {
         var v = $(this).data("resid");
+        var chain = $(this).data("chain");
         //alert(v);
-        $("#wybrane").html(v);//html() = v;
-        Jmol.script(jmolApplet0,"select *;halos off;select "+v+";  halos on");
+        $("#wybrane").html(v+":"+chain);//html() = v;
+        Jmol.script(jmolApplet0,"restrict protein; halos off;select "+v+":"+chain+";  halos on");
         });
 
+    $("[id^='sequenceSpan']").mouseup(function () { 
+            highlightSelectedText();
+            });
 
 //	Jmol._getElement(applet, "appletdiv").style.border="none";
 }	
@@ -73,7 +94,7 @@ var JmolInfo = {
 	serverURL: "http://www2.chemistry.msu.edu/faculty/reusch/VirtTxtJml/htmlJ/jsmol/jsmol.php",
 	use: "HTML5",
 	readyFunction: jmol_isReady,
-	script: "background snow;load input.pdb.gz;restrict protein; cartoons only;color deepskyblue;color halos [255,0,0]",
+	script: "set platformSpeed 1;background white;load input.pdb.gz;restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
 	jarPath: ".",
 	j2sPath: "./jsmol/j2s",
 	isSigned: false,
@@ -95,10 +116,10 @@ var JMEInfo = {
 
 <body>
 
-Sekwencja scaigniaeta ze struktury:
-
+<strong>Receptor:</strong>
 <p style="font-family:monospace" id="sequenceSpan"></p>
 <p style="font-family:monospace" id="sequenceSpan2"></p>
+<p style="font-family:monospace" id="wybrane"></p>
 
 <a href="#" id="sele">dodaj więzy</a>
 <br>zakres wybranych:
@@ -114,30 +135,92 @@ var lastPrompt=0;
 </script>
 </body>
 <script src="jquery.js"></script>
-
+<script src="js/rangy/rangy-core.js"></script>
 
 <script type="text/javascript" charset="utf-8">
+function getRangesAndChain(selection) {
+        var endRes0 = selection.endContainer.parentNode.dataset['resid'];
+        var endRes1 = selection.startContainer.parentNode.dataset['resid'];
+        var chain = selection.startContainer.parentNode.parentNode.dataset['chain'];
+        // tutaj mozna iteracje po tym zakresie i zmienic styl sekwencji
+        var seqFrom = Math.min(endRes0, endRes1);
+        var seqTo = Math.max(endRes0, endRes1);
+        return [chain,seqFrom, seqTo];
+}
+function colorSeq(chain, seqFrom, seqTo) {
+    //var twojastara = $("#sequenceSpan"+chain+" > span");
+    //console.log(twojastara);
+    $("sequenceSpan"+chain+" > span").filter(function() {
+                    var rid = parseInt($(this).data("resid"));
+                    return rid >= seqFrom && rid <= seqTo;
+                    }).css({'background-color':'red'});
+}
+function uncolorSeq(chain, seqFrom, seqTo) {
+    var twojastara = $("#sequenceSpan"+chain+" > span");
+    twojastara.filter(function() {
+                    var rid = parseInt($(this).data("resid"));
+                    return rid >= seqFrom && rid <= seqTo;
+                    }).css({'color':''});
+}
+function highlightOnStructure() {
+    Jmol.script(jmolApplet0,"select "+jmol_selected2.join()+"; color blue");
+    if (window.getSelection) {  // all browsers, except IE before version 9
+            var currSelection = window.getSelection ();
+
+            for (var i = 0; i < currSelection.rangeCount; i++) {
+                var s = getRangesAndChain(currSelection.getRangeAt(i));
+                jmol_selected2.push(s[1]+"-"+s[2]+":"+s[0]);
+            }
+
+            Jmol.script(jmolApplet0,"select "+jmol_selected2.join()+"; color red");
+            currSelection.removeAllRanges ();
+    }
+}
+function highlightSelectedText() {
+    if (window.getSelection) {  // all browsers, except IE before version 9
+            var currSelection = window.getSelection ();
+            var selected = [];
+            //var jmol_selected = [];
+
+            for (var i = 0; i < currSelection.rangeCount; i++) {
+                var s = getRangesAndChain(currSelection.getRangeAt(i));
+                colorSeq( s[0], s[1], s[2]);
+                jmol_selected.push(s[1]+"-"+s[2]+":"+s[0]);
+                selected.push(s[1]+":"+s[0]+" - "+s[2]+":"+s[0]);
+            }
+            currSelection.removeAllRanges ();
+            return selected;
+    }
+}
     $("#sele").click(function () { // dodaj zaznaczenie do listy zaznaczen
+            var sss = highlightSelectedText();
+            var prev = $("#selected").html();
+            $("#selected").html(prev+"<tr><td>"+sss.join(", ")+"</td></tr>");//html() = v;
+            Jmol.script(jmolApplet0,"select "+jmol_selected.join()+"; color green");
+            /*
         var s = window.getSelection();
         var selRange = s.getRangeAt(0);
         var endRes0 = selRange.endContainer.parentNode.dataset['resid'];
         var endRes1 = selRange.startContainer.parentNode.dataset['resid'];
+        var chain = selRange.startContainer.parentNode.dataset['chain'];
         // tutaj mozna iteracje po tym zakresie i zmienic styl sekwencji
         var seqFrom = Math.min(endRes0, endRes1);
         var seqTo = Math.max(endRes0, endRes1);
         for (var i=seqFrom;i<=seqTo;i++) {
-            document.getElementById("seq"+i).style.color = "orange"; 
+            document.getElementById("seq"+i+""+chain).style.color = "orange"; 
         }
-
         var prev = $("#selected").html();
-        v = prev + "<tr><td>" + selRange + "</td><td>" + seqFrom + " - " + seqTo + "</td></tr>";
+        v = prev + "<tr><td>" + s[0] + "</td><td>" + s[1] + " - " + s[2] + "</td></tr>";
         $("#selected").html(v);//html() = v;
+*/
 
 
 
         });
+/*
+var s2 = document.getElementById("sequenceSpanA");
 
-var s2 = document.getElementById("sequenceSpan");
+
 s2.onmouseup = function() { // rob cos na zaznaczonym, po zaznaczeniu (np zaznacz w jsmolu)
         var s = window.getSelection();
         
@@ -146,11 +229,14 @@ s2.onmouseup = function() { // rob cos na zaznaczonym, po zaznaczeniu (np zaznac
         var endRes1 = selRange.startContainer.parentNode.dataset['resid'];
         var seqFrom = Math.min(endRes0, endRes1);
         var seqTo = Math.max(endRes0, endRes1);
+        var chain = selRange.endContainer.parentNode.dataset['chain'];
 
-	Jmol.script(jmolApplet0,"select protein; color deepskyblue");
-        Jmol.script(jmolApplet0,"select "+seqFrom+"-"+seqTo+"; color [xfbb450]");
+        if (jmol_selected.length>0)
+            Jmol.script(jmolApplet0,"select "+jmol_selected.join()+"; color green");
+//	Jmol.script(jmolApplet0,"select protein; color deepskyblue");
+        Jmol.script(jmolApplet0,"select "+seqFrom+"-"+seqTo+":"+chain+"; color [xfbb450]");
 };
-
+*/
 </script>
 
 </html>
