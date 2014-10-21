@@ -55,7 +55,7 @@ def ss_validator(form, field):
             raise ValidationError('Secondary structure contains non-standard \
                     symbol: %s. <br><small>Allowed H - helix, E - extended/beta, C - coil.</small>' % (letter) )
 def structure_pdb_validator(form, field):
-    if len(form.receptor_file.data.filename)<5:
+    if len(form.receptor_file.data.filename)<5 and len(field.data)==5:
         buraki =  urllib2.urlopen('http://www.rcsb.org/pdb/files/'+field.data+'.pdb.gz')
         b2 = buraki.read()
         ft = StringIO(b2)
