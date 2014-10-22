@@ -114,7 +114,8 @@ class MyForm(Form):
 
 @app.route('/add_constraints/<jid>/', methods=['GET','POST'])
 def index_constraints(jid):
-    return render_template('add_constraints.html',jid=jid)
+    ligand_sequence = "CHRZASZCZBRZMIWTRZCICNIEWSZCZEBRZESZYNIEASZCZEBRZESZYNZTEGOSLYNIE"
+    return render_template('add_constraints.html',jid=jid, ligand_seq=ligand_sequence)
 
 def add_init_data_to_db(form):
     jid = unique_id()

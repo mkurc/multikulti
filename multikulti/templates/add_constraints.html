@@ -17,11 +17,11 @@ var jmol_selected2 = [];
 var jmol_temporary_selected = [];
 var global_color_index = 0;
 var colors = ["#FFBF00", "#A4C639", "#7FFFD4", "#FF9966", "#89CFF0", "#98777B", "#B5A642", "#FF007F", "#CC5500", "#006B3C", "#92A1CF", "#DFFF00", "#DE3163"];
-//var colors = ['active', 'success', 'warning', 'danger', 'info']
 var jmol="jmol";
 var jme = "jme";
 var jmolApplet0; // set up in HTML table, below
 var use = "HTML5" // JAVA HTML5 WEBGL IMAGE  are all options
+
 jmol_isReady = function(applet) {
     var s_seq =  Jmol.evaluateVar(jmolApplet0, "{atomName=CA}.identify");
     var seq = Jmol.evaluateVar(jmolApplet0, "{atomName=CA}.sequence");
@@ -30,17 +30,27 @@ jmol_isReady = function(applet) {
         console.dir(s_seq);
     var prevchain='FNORD';
     for (var i=0;i<seq.length;i++) {
-        var resid = s_seq[i].match(/](.*):/)[1];
-        var chain = s_seq[i].match(/:(.*).CA/)[1];
-        //out[i] = "<span name='"+resid+"' id='seq"+resid+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+            var resid = s_seq[i].match(/](.*):/)[1];
+            var chain = s_seq[i].match(/:(.*).CA/)[1];
+
             if (chain!=prevchain) {
                 prevchain=chain;
-                out[i] = "</div><div class='sequence' data-chain='"+chain+"' name='sequenceSpan"+chain+"' id='sequenceSpan"+chain+"'><strong>chain "+chain+"</strong>: <span name='"+resid+"' id='seq"+resid+""+chain+"' data-chain='"+chain+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+                out[i] = "</div><div class='sequence' data-chain='"+chain+"' name='sequenceSpan"+chain+
+                    "' id='sequenceSpan"+chain+"'><strong>chain "+chain+"</strong>: <span name='"+resid+"' id='seq"+
+                    resid+""+chain+"' data-chain='"+chain+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
             } else{
-                out[i] = "<span name='"+resid+"' id='seq"+resid+""+chain+"' data-chain='"+chain+"' data-resid='"+resid+"'>" + seq[i] + "</span>";
+                out[i] = "<span name='"+resid+"' id='seq"+resid+""+chain+"' data-chain='"+chain+
+                    "' data-resid='"+resid+"'>" + seq[i] + "</span>";
             }
     }
-    $("#sequenceSpan").html(out.join(''));
+    // ligand seq:
+    var lig_seq = "{{ligand_seq}}";
+    var out2 = [];
+    for (var i=0; i<lig_seq.length;i++) {
+        out2[i] = "<span name='"+i+"' id='seq"+i+"ligand' data-chain='LIGAND' data-resid='"+i+"'>" + lig_seq[i] + "</span>";
+    }
+    out2 = "<hr><div class='sequence' data-chain='LIGAND' name='sequenceSpanLIGAND' id='sequenceSpanLIGAND'><strong>LIGAND</strong>:"+out2.join('')+"</div>";
+    $("#sequenceSpan").html(out.join('')+out2); // add ligand seq
     $("div[name^='sequenceSpan'] > span:nth-child(10n)").css({"text-decoration":"underline"});
 
 
@@ -49,7 +59,8 @@ jmol_isReady = function(applet) {
         var chain = $(this).data("chain");
         $("#wybrane").html(v+":"+chain);
         Jmol.script(jmolApplet0,"restrict protein; halos off;select "+v+":"+chain+";  halos on");
-        });
+    });
+
     function selStr(color) {
         var s = window.getSelection();
         for (var i = 0; i < s.rangeCount; i++) {
@@ -69,13 +80,10 @@ jmol_isReady = function(applet) {
     $("body").mousedown(function () { 
            selStr("deepskyblue");
     });
-}	
-function printList(lab) {
-    var sel = '<select name="'+lab+'" class="input-sm form-control"><option>default</option><option>light</option><option>strong</option></select>';
-    return sel;
-}
+} // after jmol init 	
+
 var JmolInfo = {
-	width: 1000,
+	width: 1200,
 	height: 400,
 	debug: false,
 	color: "white",
@@ -83,7 +91,7 @@ var JmolInfo = {
 	serverURL: "http://www2.chemistry.msu.edu/faculty/reusch/VirtTxtJml/htmlJ/jsmol/jsmol.php",
 	use: "HTML5",
 	readyFunction: jmol_isReady,
-	script: "set platformSpeed 8;background white;load /static/input.pdb.gz;restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
+	script: "set platformSpeed 8;background white;load /static/1mzn.pdb.gz;restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
 	jarPath: ".",
 	j2sPath: "/static/js/jsmol/j2s",
 	isSigned: false,
@@ -106,16 +114,15 @@ jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
 jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
 var lastPrompt=0;
 </script>
-
-<hr>
-<div class="row">
-    <div class="col-md-8">
-        <h4>Receptor sequence:</h4>
+        <h4>Chain sequences</h4>
         <h6>residue below cursor: <span style="font-family:monospace" id="wybrane"></span></h6>
         <div style="font-family:monospace" id="sequenceSpan"></div>
         <div style="font-family:monospace" id="sequenceSpan2"></div>
-    </div>
-    <div class="col-md-4">
+</div>
+<div class="col-md-3">
+
+
+
         <div class="panel panel-primary">
                 <div class="panel-heading"> Selected constraints </div>
                 <div class="panel-body">
@@ -138,31 +145,62 @@ var lastPrompt=0;
                         </td></tr>
                         </tbody>
                     </table>
-                <div class="row">
-                    <div class="col-md-6">
-                    <a href="#" class="btn btn-primary" id="sele">Add constraint</a>
-                </div>
-                    <div class="col-md-6">
-                    <a href="#" class="btn btn-warning" id="sele">Save constraints</a>
-                </div>
-            </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a href="#" class="btn btn-primary" id="sele">Add constraint</a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="#" class="btn btn-warning" id="sele">Save constraints</a>
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="col-md-3">
+                            <input type="text"  size=3 value="1.0"  name="constrW" width=2>
+                            <a href="#" class="tt" data-original-title="Overall scaling factor">
+                                <i class="fa fa-info-circle"></i>
+                            </a>
+                        </div>
+                    </div>
 
                 </div>
         </div>
-    </div>
-</div>
-</div>
-<div class="col-md-3">
-    <div class="panel panel-info">
-            <div class="panel-heading"> Helps </div>
-            <div class="panel-body">
-                Ctrl - info
-                zapisz se bukmeark
-                Siała baba mak, nie wiedziała jak. A dziad wiedział -- nie powiedział -- i to było tak.
+
+
+
+
+
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-info">
+            <div class="panel-heading"> 
+                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                    Help <i class="fa fa-caret-down"></i>  
+                </a> 
             </div>
+            <div id="collapseOne" class="panel-collapse collapse">
+                <div class="panel-body">
+                    Siała baba mak, nie wiedziała jak
+                </a>
+                    <ul>
+                        <li>Użycie ctrl</li>
+                        <li>dopiero kliknięcie Save constranints zapisuje je do bazy</li>
+                        <li>Dodanie więzów na już wybranych anuluje(?) te domyślnie wybrane</li>
+                        <li>Jakieś informacje nt wagi więzów
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
-                    <input type="submit" class="btn btn-block btn-lg btn-success" value="Submit job!">
+    <button type="submit" class="btn btn-lg btn-block btn-success"> <i class="fa fa-gears"></i> Submit job!</button>
+                    <hr>
+
+
+                        <div class="alert alert-success alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                <i class="fa fa-bookmark"></i> 
+                                You can bookmark this page to postpone constraints addition. Do not forget to press <u>Save constraints</u> if you made some changes.
+                            </div>
+
+
 </div>
 
 </div>
@@ -232,6 +270,11 @@ var lastPrompt=0;
         });
 
 
+function printList(lab) {
+    var sel = '<select name="'+lab+'" class="input-sm form-control"><option>default</option><option>light</option><option>strong</option></select>';
+    return sel;
+}
+$('.tt').tooltip();
     </script>
 
 {%endblock%}
