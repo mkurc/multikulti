@@ -2,7 +2,7 @@
 {% block header %}
 <style>
 span:hover {
-    background-color: #138808;
+    background-color: #B2EC5D;// #138808;
 } 
 
 span::-moz-selection {
@@ -14,9 +14,11 @@ span::-moz-selection {
 <script>
 var jmol_selected = [];
 var jmol_selected2 = [];
+var global_constraints_row_index=0;
 var jmol_temporary_selected = [];
 var global_color_index = 0;
-var colors = ["#FFBF00", "#A4C639", "#7FFFD4", "#FF9966", "#89CFF0", "#98777B", "#B5A642", "#FF007F", "#CC5500", "#006B3C", "#92A1CF", "#DFFF00", "#DE3163"];
+//var colors = ["#FFBF00", "#A4C639", "#7FFFD4", "#FF9966", "#89CFF0", "#98777B", "#B5A642", "#FF007F", "#CC5500", "#006B3C", "#92A1CF", "#DFFF00", "#DE3163"];
+var colors = ["#428bca", "#5cb85c", "#5bc0de", "#f0ad4e", "#d9534f", "#777"];
 var jmol="jmol";
 var jme = "jme";
 var jmolApplet0; // set up in HTML table, below
@@ -91,7 +93,7 @@ var JmolInfo = {
 	serverURL: "http://www2.chemistry.msu.edu/faculty/reusch/VirtTxtJml/htmlJ/jsmol/jsmol.php",
 	use: "HTML5",
 	readyFunction: jmol_isReady,
-	script: "set platformSpeed 8;background white;load /static/1mzn.pdb.gz;restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
+	script: "set platformSpeed 8;background white;load /static/input.pdb.gz;restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
 	jarPath: ".",
 	j2sPath: "/static/js/jsmol/j2s",
 	isSigned: false,
@@ -108,16 +110,33 @@ var JMEInfo = {
 {% block body %}
 <div class="container-fluid">
     <div class="row-fluid">
-        <div id="ooo" class="col-md-9">
+        <div id="ooo" class="behind col-md-9">
 <script>
 jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
 jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
 var lastPrompt=0;
 </script>
-        <h4>Chain sequences</h4>
-        <h6>residue below cursor: <span style="font-family:monospace" id="wybrane"></span></h6>
+        <div class="panel panel-default">
+                <div class="panel-heading"> 
+                    <p>
+                    System/Chains sequences
+                    <button class="pull-right btn btn-sm btn-primary" id="sele">Add constraint</button></p>
+
+                </div>
+                <div class="panel-body">
         <div style="font-family:monospace" id="sequenceSpan"></div>
         <div style="font-family:monospace" id="sequenceSpan2"></div>
+    </div>
+    <div class="panel-footer">
+                    &nbsp; <span class="pull-right badge">
+        residue below cursor: <span style="font-family:monospace" id="wybrane"></span>
+    </span>
+                        </div>
+</div>
+
+
+
+
 </div>
 <div class="col-md-3">
 
@@ -130,12 +149,26 @@ var lastPrompt=0;
                         <thead>
                             <tr>
                                 <th></th>
+                                <th></th>
                                 <th>constraints within residues</th>
                                 <th>weight</th>
                             </tr>
                         </thead>
                         <tbody>
-                        <tr><td><a href="#" class="btn btn-xs btn-info"><i class="fa fa-check"></i> add</a></td><td><input class="input sm form-control" type="text" name="addManually"></td>
+                        
+                        <tr><td>
+                                
+                            <a href="#" tabindex="0" class="tt2" data-toggle="popover" data-trigger="focus" title="Add custom constraints"> 
+                                <i class="fa fa-info-circle"></i> </a>
+                        </td>
+                                
+                        <td><button onclick="manAdd()" class="btn btn-xs btn-info"><i class="fa fa-check"></i></button>
+                            </a>
+
+                            </td><td><input class="input sm form-control" type="text" id="addManually" name="addManually">
+                            
+                            
+                            </td>
                             <td>
                                 <select name="man_weight" class="input-sm form-control">
                                     <option>default</option>
@@ -147,14 +180,14 @@ var lastPrompt=0;
                     </table>
                     <div class="row">
                         <div class="col-md-4">
-                            <a href="#" class="btn btn-primary" id="sele">Add constraint</a>
+                            <button class="btn btn-primary" id="sele2">Add constraint</button>
                         </div>
                         <div class="col-md-4">
-                            <a href="#" class="btn btn-warning" id="sele">Save constraints</a>
+                            <button class="btn btn-warning" id="saveConstrains">Save constraints</button>
                         </div>
                         <div class="col-md-1"></div>
                         <div class="col-md-3">
-                            <input type="text"  size=3 value="1.0"  name="constrW" width=2>
+                            <input type="text"  size=3 value="1.0"  id="constrW" width=2>
                             <a href="#" class="tt" data-original-title="Overall scaling factor">
                                 <i class="fa fa-info-circle"></i>
                             </a>
@@ -183,7 +216,8 @@ var lastPrompt=0;
                         <li>Użycie ctrl</li>
                         <li>dopiero kliknięcie Save constranints zapisuje je do bazy</li>
                         <li>Dodanie więzów na już wybranych anuluje(?) te domyślnie wybrane</li>
-                        <li>Jakieś informacje nt wagi więzów
+                        <li>Jakieś informacje nt wagi więzów</li>
+                        <li>Można by napisać, że jeśli wybierze się więz z ligandem to tak jakby wybrany fragment był w okolicy 1oA(?)</li>
                     </ul>
                 </div>
             </div>
@@ -199,8 +233,11 @@ var lastPrompt=0;
                                 <i class="fa fa-bookmark"></i> 
                                 You can bookmark this page to postpone constraints addition. Do not forget to press <u>Save constraints</u> if you made some changes.
                             </div>
-
-
+                        <div class="alert alert-success alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                <i class="fa fa-gears"></i> 
+                                If default constraint set is correct - just click <u>Submit job!</u> to run simulation.
+                            </div>
 </div>
 
 </div>
@@ -224,57 +261,96 @@ var lastPrompt=0;
             var seqTo = Math.max(endRes0, endRes1);
             return [chain,seqFrom, seqTo];
     }
-    function colorSeq(chain, seqFrom, seqTo) {
+    function colorSeq(chain, seqFrom, seqTo,g) {
         var col = colors[global_color_index];
         $("#sequenceSpan"+chain+" > span").filter(function() {
                         var rid = parseInt($(this).data("resid"));
                         return rid >= seqFrom && rid <= seqTo;
-                        }).css({'color':col, 'text-decoration': 'overline'});
-    }
-    function uncolorSeq(chain, seqFrom, seqTo) {
-        var twojastara = $("#sequenceSpan"+chain+" > span");
-        twojastara.filter(function() {
-                        var rid = parseInt($(this).data("resid"));
-                        return rid >= seqFrom && rid <= seqTo;
-                        }).css({'color':''});
+                        }).addClass("colored"+g).css({'color':col, 'text-decoration': 'underline'});
     }
     function highlightSelectedText() {
         if (window.getSelection) {  // all browsers, except IE before version 9
                 var currSelection = window.getSelection ();
                 var selected = [];
+                var g = global_constraints_row_index;
                 //var jmol_selected = [];
                 if (global_color_index==colors.length)
                     global_color_index=0;
 
                 for (var i = 0; i < currSelection.rangeCount; i++) {
                     var s = getRangesAndChain(currSelection.getRangeAt(i));
-                    colorSeq( s[0], s[1], s[2]);
+                    colorSeq( s[0], s[1], s[2],g);
                     jmol_selected.push(s[1]+"-"+s[2]+":"+s[0]);
                     selected.push(s[1]+":"+s[0]+" - "+s[2]+":"+s[0]);
                 }
-                    var newRow = "<tr>" + "<td class='del'>" + 
-                        "<a href='#' class='btn btn-xs btn-danger'><i class='fa fa-close'></i> del</a></td>" +
-                        "<td ><span style='background-color:"+colors[global_color_index]+"'>"+selected.join(", ")+"</span></td>" +
-                        "<td class='constr'>"+printList("ooo")+"</td>" +
+                var newRow = "<tr><td></td>" + "<td class='del'>" + 
+                        "<button onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"' class='btn btn-xs btn-danger'><i class='fa fa-close'></i></button></td>" +
+                        "<td ><span style='color:"+colors[global_color_index]+"' data-rowid='"+g+"' name='consrange"+g+"'>"+selected.join(", ")+"</span></td>" +
+                        "<td class='constr'>"+printList("row_weight"+g)+"</td>" +
                         "</tr>";
                     $('#constraintsTable > tbody > tr:last').before(newRow);
+                    global_constraints_row_index+=1;
                 currSelection.removeAllRanges ();
 
                 Jmol.script(jmolApplet0,"select "+jmol_selected.join()+"; color green");
                 global_color_index += 1;
         }
     }
-        $("#sele").click(function () { // dodaj zaznaczenie do listy zaznaczen
-                highlightSelectedText();
+$(document).ready(function() {
+    $("#sele").click(function () { // dodaj zaznaczenie do listy zaznaczen
+            highlightSelectedText();
 
-        });
+    });
+    $("#sele2").click(function () { // dodaj zaznaczenie do listy zaznaczen
+            highlightSelectedText();
 
+    });
+    $("#saveConstrains").click(function() {
+            var scalingFactor = document.getElementById('constrW').value;
+            $("td span[name^='consrange']").each(function() { 
+                var rngs = $(this).text();
+                var rowid = $(this).data('rowid');
+                var weight = $("#row_weight"+rowid).val();
+                alert(rowid+" "+rngs+" "+weight);
+            });
+            alert(scalingFactor);
+    });
 
+});
+/*
+   kraina chaosu i fuszerki
+*/
+
+function manAdd() {
+    var g = global_constraints_row_index;
+    var dataToAdd = document.getElementById('addManually').value;
+    var newRow = "<tr>" + "<td></td><td class='del'>" + 
+"<button onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"' class='btn btn-xs btn-danger'><i class='fa fa-close'></i></button></td>" +
+"<td ><span data-rowid='"+g+"' name='consrange"+g+"'>"+dataToAdd+"</span></td>" +
+"<td class='constr'>"+printList("row_weight"+g)+"</td>" +
+"</tr>";
+$('#constraintsTable > tbody > tr:last').before(newRow);
+document.getElementById('addManually').value = '';
+global_constraints_row_index+=1;
+}
+function rowDel(el) {
+        var row = $(el).closest('tr');//parent().parent();
+        var g = $(el).data("rowid");
+        row.remove();
+        $(".colored"+g).removeClass("colored"+g).css({'color':'', 'text-decoration': ''});
+        // TODO uncolor on the structure
+}
 function printList(lab) {
-    var sel = '<select name="'+lab+'" class="input-sm form-control"><option>default</option><option>light</option><option>strong</option></select>';
+    var sel = '<select id="'+lab+'" class="input-sm form-control"><option value="1.0">default</option><option value="0.25">light</option><option value="5.0">strong</option></select>';
     return sel;
 }
 $('.tt').tooltip();
+$('.tt2').popover({'content':"Use this panel to add custom distance restraints between ligand \
+        and receptor or other distance restraints if you don't want to use visual mode. \
+        <br>Examples: <hr>Add 5.0 Angstrom distance constraint between 2nd C&alpha; atom of ligand and 3rd res. of D-chain of complex - add constraint: <strong><nobr>2:LIGAND, 6:D, 5.0</nobr></strong><hr>\
+        Add set of distance restraints between fragment 1-100 of chain A and fragment 1-10 of ligand: <strong><nobr>1-10:LIGAND, 1-100:A</nobr></strong><hr>\
+        Add set of distance restraints between fragment 1-100 of chain A and fragment 1-10 of chain C: <strong><nobr>1-10:C, 1-100:A</nobr></strong><hr>\
+        Add 5.0A distance restraint between res. 1:A and res. 23:B: <strong><nobr>1:A, 23:B, 5.0</nobr></strong>", 'html': true, 'placement':'bottom'});
     </script>
 
 {%endblock%}

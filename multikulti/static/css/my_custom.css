@@ -1,3 +1,8 @@
+.behind {
+        position: relative;
+            z-index: 10;
+        }
+
 .sequence {
     white-space: pre-wrap;
     word-break:break-all;
