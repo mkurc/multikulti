@@ -209,7 +209,7 @@ var lastPrompt=0;
                         <button {{v}} class="btn btn-primary" id="sele2">Add constraint</button>
                     </div>
                     <div class="col-md-4">
-                        <button {{v}} class="btn btn-warning" id="saveConstrains">Save constraints</button>
+                        <button {{v}} class="btn btn-warning" id="saveConstrains"><i class="fa fa-save"></i> Save constraints</button>
                     </div>
                     <div class="col-md-1"></div>
                     <div class="col-md-3">
@@ -235,6 +235,8 @@ var lastPrompt=0;
         </div>
 
 
+    <button id="kaka" type="submit" {{v}} class="btn btn-lg btn-block btn-success"> <i class="fa fa-gears"></i> {{v2}} </button>
+                    <hr>
     <div class="panel-group" id="accordion">
         <div class="panel panel-info">
             <div class="panel-heading"> 
@@ -256,16 +258,14 @@ var lastPrompt=0;
             </div>
         </div>
     </div>
-    <button id="kaka" type="submit" {{v}} class="btn btn-lg btn-block btn-success"> <i class="fa fa-gears"></i> {{v2}} </button>
-                    <hr>
 
 
-                        <div class="alert alert-success alert-dismissable">
+                        <div class="alert alert-info alert-dismissable">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                 <i class="fa fa-bookmark"></i> 
                                 You can bookmark this page to postpone constraints addition. Do not forget to press <u>Save constraints</u> if you made some changes.
                             </div>
-                        <div class="alert alert-success alert-dismissable">
+                        <div class="alert alert-info alert-dismissable">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                 <i class="fa fa-gears"></i> 
                                 If default constraint set is correct - just click <u>Submit job!</u> to run simulation.
@@ -284,12 +284,19 @@ var lastPrompt=0;
         <h4 class="modal-title" id="laba">Constraints not saved</h4>
       </div>
       <div class="modal-body">
-        <p>
-        Save constraints before submitting job if you added any.
-        </p>
+          <div class="row">
+              <div class="col-md-4">
+                  <img src="{{url_for('static', filename='img/CABSdock.svg')}}" class="img-rounded" width=100%>
+              </div>
+              <div class=col-md-8>
+                    <h4>
+                    Save constraints before submitting job (if you added any new).
+                    </h4>
+            </div>
+    </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-undo"></i> Step back</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-undo"></i> Back</button>
         <button type="button" class="btn btn-success"><i class="fa fa-gears"></i> Submit job, anyway!</button>
       </div>
     </div><!-- /.modal-content -->
