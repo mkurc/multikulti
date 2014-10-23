@@ -33,6 +33,11 @@ app.config.update(config)
 app.secret_key = 'multikultitosmierdzcywilizacjieurpejzkij'
 input_pdb = UploadSet('inputpdbs', extensions = app.config['ALLOWED_EXTENSIONS'],\
         default_dest = app.config['UPLOAD_FOLDER']) 
+@app.route('/compute_static/<jobid>/input.pdb.gz')
+def compute_static(jobid):
+    return send_from_directory(app.config['USERJOB_DIRECTORY']+"/"+jobid, "input.pdb.gz") # TODO co jesli filename bedzie do nadrzednych      
+
+
 
 def unique_id():
     return hex(uuid.uuid4().time)[2:-1]
@@ -114,9 +119,22 @@ class MyForm(Form):
 
 @app.route('/add_constraints/<jid>/', methods=['GET','POST'])
 def index_constraints(jid):
-    ligand_sequence = "CHRZASZCZBRZMIWTRZCICNIEWSZCZEBRZESZYNIEASZCZEBRZESZYNZTEGOSLYNIE"
-    return render_template('add_constraints.html',jid=jid, ligand_seq=ligand_sequence)
+    d = query_db("SELECT ligand_sequence,status, constraints_scaling_factor \
+            FROM user_queue WHERE jid=?", [jid],one=True)
+    ligand_sequence = d[0]
+    status = d[1]
+    scaling = d[2]
 
+    constraints = query_db("SELECT constraint_definition,force FROM \
+            constraints WHERE jid=?", [jid])
+    print constraints
+    di ={'1.0': '<option value="1.0">default</option><option value="0.25">light</option><option value="5.0">strong</option>',
+            '0.25': '<option value="0.25">light</option><option value="1.0">default</option><option value="5.0">strong</option>',
+            '5.0': '<option value="5.0">strong</option><option value="1.0">default</option><option value="0.25">light</option>'}
+
+    return render_template('add_constraints.html',jid=jid, status=status, 
+            scaling=scaling, constr = constraints, ligand_seq=ligand_sequence,di=di)
+  
 def add_init_data_to_db(form):
     jid = unique_id()
 
@@ -152,6 +170,27 @@ def add_init_data_to_db(form):
             ligand_ss, hide, form.name.data], insert=True)
     return (jid, receptor_seq, ligand_seq, form.name.data,form.email.data)
 
+@app.route('/_add_const_toDB', methods=['POST', 'GET'])
+def user_add_constraints():
+    if request.method == 'POST':
+        jid = request.form.get('jid','')
+        if jid=='':
+            return Response("OJ OJ", status=404,mimetype='text/plain')
+
+        constraints = request.form.getlist('constr[]')
+        weights = request.form.getlist('constr_w[]')
+        scaling_factor =   request.form.get('overall_weight','1.0')
+        query_db("DELETE FROM constraints WHERE jid=?", [jid], insert=True)
+        query_db("UPDATE user_queue SET constraints_scaling_factor=? WHERE jid=?",
+                [scaling_factor, jid], insert=True)
+
+        for r in zip(constraints,weights):
+            query_db("INSERT INTO constraints(jid,constraint_definition,force) \
+                    VALUES(?,?,?)", [jid,r[0],r[1]], insert = True) 
+            print r[0], r[1]
+        print scaling_factor, jid
+
+    return Response("HAHAHAahahahakier",status=200,mimetype='text/plain')
 
 @app.route('/',methods=['GET','POST'])
 def index_page():
@@ -159,7 +198,8 @@ def index_page():
     if request.method == 'POST':
         if form.validate():
             jid, rec, lig, nam,email = add_init_data_to_db(form)
-            flash('<strong>Input data:</strong> Ligand sequence: %s; Receptor sequence: %s; Project name: %s' %(lig,rec,nam),'info')
+            flash('<strong>Input data:</strong> Ligand sequence: %s; Receptor \
+                    sequence: %s; Project name: %s' %(lig,rec,nam),'info')
             return redirect(url_for('index_constraints', jid=jid))
         else:
             flash('Something goes wrong. Check errors within data input panel','error')

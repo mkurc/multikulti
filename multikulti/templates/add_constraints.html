@@ -1,4 +1,15 @@
 {% extends "index.html" %}
+    {% set v2 = 'Job was already submitted..' %}
+    {% set v = 'disabled="disabled"' %}
+    {% if status=='pending' %}
+        {% set v = '' %}
+        {% set v2 = 'Submit job!' %}
+    {% endif %}
+
+{% set jinja_colors = ["#428bca", "#5cb85c", "#5bc0de", "#f0ad4e", "#d9534f", "#777"] %}
+{% set G = 0 %} 
+{% set GG = 0 %} 
+
 {% block header %}
 <style>
 span:hover {
@@ -13,8 +24,9 @@ span::-moz-selection {
 <script src="{{url_for('static', filename='js/jsmol/JSmol.min.js')}}" type="text/javascript" charset="utf-8"></script>
 <script>
 var jmol_selected = [];
+var saved = 0;
 var jmol_selected2 = [];
-var global_constraints_row_index=0;
+var global_constraints_row_index=10000;
 var jmol_temporary_selected = [];
 var global_color_index = 0;
 //var colors = ["#FFBF00", "#A4C639", "#7FFFD4", "#FF9966", "#89CFF0", "#98777B", "#B5A642", "#FF007F", "#CC5500", "#006B3C", "#92A1CF", "#DFFF00", "#DE3163"];
@@ -29,7 +41,6 @@ jmol_isReady = function(applet) {
     var seq = Jmol.evaluateVar(jmolApplet0, "{atomName=CA}.sequence");
     var out = [];
     var numbersout = [];
-        console.dir(s_seq);
     var prevchain='FNORD';
     for (var i=0;i<seq.length;i++) {
             var resid = s_seq[i].match(/](.*):/)[1];
@@ -51,7 +62,8 @@ jmol_isReady = function(applet) {
     for (var i=0; i<lig_seq.length;i++) {
         out2[i] = "<span name='"+i+"' id='seq"+i+"ligand' data-chain='LIGAND' data-resid='"+i+"'>" + lig_seq[i] + "</span>";
     }
-    out2 = "<hr><div class='sequence' data-chain='LIGAND' name='sequenceSpanLIGAND' id='sequenceSpanLIGAND'><strong>LIGAND</strong>:"+out2.join('')+"</div>";
+    var right_info = "";
+    out2 = "<hr><div class='sequence' data-chain='LIGAND' name='sequenceSpanLIGAND' id='sequenceSpanLIGAND'><strong>LIGAND</strong>:"+out2.join('')+right_info+"</div>";
     $("#sequenceSpan").html(out.join('')+out2); // add ligand seq
     $("div[name^='sequenceSpan'] > span:nth-child(10n)").css({"text-decoration":"underline"});
 
@@ -93,7 +105,7 @@ var JmolInfo = {
 	serverURL: "http://www2.chemistry.msu.edu/faculty/reusch/VirtTxtJml/htmlJ/jsmol/jsmol.php",
 	use: "HTML5",
 	readyFunction: jmol_isReady,
-	script: "set platformSpeed 8;background white;load /static/input.pdb.gz;restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
+        script: "set platformSpeed 8;background white;load {{url_for('compute_static', jobid=jid)}};restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
 	jarPath: ".",
 	j2sPath: "/static/js/jsmol/j2s",
 	isSigned: false,
@@ -108,6 +120,8 @@ var JMEInfo = {
 
 
 {% block body %}
+
+
 <div class="container-fluid">
     <div class="row-fluid">
         <div id="ooo" class="behind col-md-9">
@@ -120,7 +134,7 @@ var lastPrompt=0;
                 <div class="panel-heading"> 
                     <p>
                     System/Chains sequences
-                    <button class="pull-right btn btn-sm btn-primary" id="sele">Add constraint</button></p>
+                    <button class="pull-right btn btn-sm btn-primary" {{v}}  id="sele">Add constraint</button></p>
 
                 </div>
                 <div class="panel-body">
@@ -155,50 +169,70 @@ var lastPrompt=0;
                             </tr>
                         </thead>
                         <tbody>
-                        
-                        <tr><td>
+                        {% for c in constr %}
+                        <tr><td></td><td class='del'>
+                                <button onclick='rowDel(this)' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}' class='btn btn-xs btn-danger'>
+                                    <i class='fa fa-close'></i>
+                            </button></td>
+                            <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' name='consrange{{G}}'>{{c['constraint_definition']}}</span></td>
+                            <td class='constr'>
+                                <select id="row_weight{{G}}" class="input-sm form-control">
+                                    {{di[c['force']|safe]|safe}} 
+                                </select> 
+                            </td> 
                                 
-                            <a href="#" tabindex="0" class="tt2" data-toggle="popover" data-trigger="focus" title="Add custom constraints"> 
-                                <i class="fa fa-info-circle"></i> </a>
-                        </td>
-                                
-                        <td><button onclick="manAdd()" class="btn btn-xs btn-info"><i class="fa fa-check"></i></button>
-                            </a>
+                            {% set G = G + 1 %}
+                            {% set GG = GG + 1 %}
+                            {% if GG==6 %}
+                                {% set GG=0 %}
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
 
-                            </td><td><input class="input sm form-control" type="text" id="addManually" name="addManually">
+                    <tr><td>
+                            
+                        <a href="#" tabindex="0" class="tt2" data-toggle="popover" data-trigger="focus" title="Add custom constraints"> 
+                            <i class="fa fa-info-circle"></i> </a>
+                    </td>
+                            
+                    <td><button {{v}} onclick="manAdd()" class="btn btn-xs btn-info"><i class="fa fa-check"></i></button>
+                        </a>
+
+                        </td><td><input class="input sm form-control" type="text" id="addManually" name="addManually">
+                        </td>
+                        <td>
+                    </td></tr>
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col-md-4">
+                        <button {{v}} class="btn btn-primary" id="sele2">Add constraint</button>
+                    </div>
+                    <div class="col-md-4">
+                        <button {{v}} class="btn btn-warning" id="saveConstrains">Save constraints</button>
+                    </div>
+                    <div class="col-md-1"></div>
+                    <div class="col-md-3">
+                        <input type="text"  size=3 value="{{scaling}}"  id="constrW" width=2>
+                        <a href="#" class="tt" data-original-title="Overall scaling factor">
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="infobar">
+                                <hr><div data-dismissable=true data-fade=true class="alert alert-info alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><i class="fa fa-save"></i> Constraints saved/overrided.</div>
                             
                             
-                            </td>
-                            <td>
-                                <select name="man_weight" class="input-sm form-control">
-                                    <option>default</option>
-                                    <option>light</option>
-                                    <option>strong</option>
-                                </select>
-                        </td></tr>
-                        </tbody>
-                    </table>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <button class="btn btn-primary" id="sele2">Add constraint</button>
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-warning" id="saveConstrains">Save constraints</button>
-                        </div>
-                        <div class="col-md-1"></div>
-                        <div class="col-md-3">
-                            <input type="text"  size=3 value="1.0"  id="constrW" width=2>
-                            <a href="#" class="tt" data-original-title="Overall scaling factor">
-                                <i class="fa fa-info-circle"></i>
-                            </a>
+                            
+                            </div>
                         </div>
                     </div>
 
+
                 </div>
         </div>
-
-
-
 
 
     <div class="panel-group" id="accordion">
@@ -215,16 +249,14 @@ var lastPrompt=0;
                     <ul>
                         <li>Użycie ctrl</li>
                         <li>dopiero kliknięcie Save constranints zapisuje je do bazy</li>
-                        <li>Dodanie więzów na już wybranych anuluje(?) te domyślnie wybrane</li>
                         <li>Jakieś informacje nt wagi więzów</li>
-                        <li>Można by napisać, że jeśli wybierze się więz z ligandem to tak jakby wybrany fragment był w okolicy 1oA(?)</li>
+                        <li>Można by napisać, że jeśli wybierze się więz z ligandem to tak jakby wybrany fragment był w okolicy 0-10A(?)</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-
-    <button type="submit" class="btn btn-lg btn-block btn-success"> <i class="fa fa-gears"></i> Submit job!</button>
+    <button id="kaka" type="submit" {{v}} class="btn btn-lg btn-block btn-success"> <i class="fa fa-gears"></i> {{v2}} </button>
                     <hr>
 
 
@@ -242,16 +274,41 @@ var lastPrompt=0;
 
 </div>
 
+<!-- Small modal -->
 
+<div class="modal fade" id="alercja" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="laba">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="laba">Constraints not saved</h4>
+      </div>
+      <div class="modal-body">
+        <p>
+        Save constraints before submitting job if you added any.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-undo"></i> Step back</button>
+        <button type="button" class="btn btn-success"><i class="fa fa-gears"></i> Submit job, anyway!</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 </div>
-
-
-
 {% endblock %}
 {%block below_js%}
 
     <script type="text/javascript" charset="utf-8">
+    $("#kaka").click(function () {
+            if (saved==0) {
+                $('#alercja').modal();
+            } else {
+                alert("submituj zadanie");
+            }
+    });
+
     function getRangesAndChain(selection) {
             var endRes0 = selection.endContainer.parentNode.dataset['resid'];
             var endRes1 = selection.startContainer.parentNode.dataset['resid'];
@@ -297,6 +354,7 @@ var lastPrompt=0;
         }
     }
 $(document).ready(function() {
+        $("#infobar").slideUp(0);
     $("#sele").click(function () { // dodaj zaznaczenie do listy zaznaczen
             highlightSelectedText();
 
@@ -306,19 +364,26 @@ $(document).ready(function() {
 
     });
     $("#saveConstrains").click(function() {
+            saved = 1;
             var scalingFactor = document.getElementById('constrW').value;
+            var user_constraints = [];
+            var weights = [];
             $("td span[name^='consrange']").each(function() { 
                 var rngs = $(this).text();
                 var rowid = $(this).data('rowid');
                 var weight = $("#row_weight"+rowid).val();
-                alert(rowid+" "+rngs+" "+weight);
+                weights.push(weight);
+                user_constraints.push(rngs);
             });
-            alert(scalingFactor);
+            var variables = {'constr[]': user_constraints, 'constr_w[]': weights, 'overall_weight': scalingFactor, 'jid': '{{jid}}' };
+            $.post("{{url_for('user_add_constraints')}}", variables, function() {
+                $("#infobar").slideDown(500).delay(1500).slideUp(1500);
+            });
     });
 
 });
 /*
-   kraina chaosu i fuszerki
+                kraina chaosu i fuszerki
 */
 
 function manAdd() {
@@ -354,3 +419,6 @@ $('.tt2').popover({'content':"Use this panel to add custom distance restraints b
     </script>
 
 {%endblock%}
+
+
+

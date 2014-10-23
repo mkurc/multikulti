@@ -28,11 +28,10 @@ def createTables():
                 ligand_ss text, 
                 receptor_sequence text NOT NULL, 
                 hide integer(1) DEFAULT 0,
-                status text check(status IN ('pending', 'queue', 'running', 'error') )  NOT NULL DEFAULT 'pending',
+                status text check(status IN ('pending', 'pre_queue', 'queue', 'running', 'error') )  NOT NULL DEFAULT 'pending',
                 project_name text NOT NULL,
                 status_date integer(4) NOT NULL DEFAULT (strftime('%s', 'now')),
-                numbering_receptor integer DEFAULT 1,
-                numbering_ligand integer DEFAULT 1
+                constraints_scaling_factor not null default 1.0
                 ) ''')
 
     cur.execute("DROP TABLE IF EXISTS constraints")
@@ -40,15 +39,8 @@ def createTables():
                 CREATE TABLE constraints
                 ( id integer primary key,   
                   jid text NOT NULL,
-                  res_i integer not null,
-                  res_i_chain text,
-                  res_j integer not null,
-                  res_j_chain text,
-                  res_i_type text,
-                  res_j_type text,
-                  distance float not null,
+                  constraint_definition text,
                   force float not null default 1.0,
                   foreign key(jid) REFERENCES user_queue(jid)
-                  )
-    ''')
+                  ) ''')
 createTables()
