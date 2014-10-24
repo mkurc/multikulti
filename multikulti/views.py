@@ -5,6 +5,7 @@
 import uuid
 import os
 import urllib2
+from datetime import datetime
 from StringIO import StringIO
 import gzip
 
@@ -46,17 +47,29 @@ def gunzip(filename):
     f_out.close()
     f_in.close()
 
-def status_color(status):
-    if status=='pending':
-        return '<span class="label label-primary"><i class="fa fa-edit"></i> job pending (add/accept constraints)</span>'
-    elif status=='pre_queue':
-        return '<span class="label label-warning"><i class="fa fa-spin fa-spinner"></i> job pending <small>waiting for computational server response</small></span>'
-    elif status=='queue':
-        return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>'
-    elif status=='running':
-        return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
-    elif status=='error':
-        return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
+def status_color(status,shorter=True):
+    if not shorter:
+        if status=='pending':
+            return '<span class="label label-primary"><i class="fa fa-edit"></i> job pending <small>waiting for adding/accepting constraints</small></span>'
+        elif status=='pre_queue':
+            return '<span class="label label-warning"><i class="fa fa-spin fa-spinner"></i> job pending <small>waiting for computational server response</small></span>'
+        elif status=='queue':
+            return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>'
+        elif status=='running':
+            return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
+        elif status=='error':
+            return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
+    else:
+        if status=='pending':
+            return '<span class="label label-primary"><i class="fa fa-edit"></i> job pending</span> <small>waiting for adding/accepting constraints</small>'
+        elif status=='pre_queue':
+            return '<span class="label label-warning"><i class="fa fa-spin fa-spinner"></i> job pending</span> <small>waiting for computational server response</small>'
+        elif status=='queue':
+            return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>'
+        elif status=='running':
+            return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
+        elif status=='error':
+            return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
 
 def unique_id():
     return hex(uuid.uuid4().time)[2:-1]
@@ -228,6 +241,26 @@ def final_submit():
         query_db("UPDATE user_queue SET status=? WHERE jid=?",['pre_queue',jid], insert=True)
         return redirect(url_for('job_status', jid=jid))
     return Response("HAHAHAahahahakier",status=200,mimetype='text/plain') # tu chyba nikt
+@app.route('/learn_more')
+def learn_more():
+    pass
+
+@app.route('/queue')
+def queue_page():
+    q = query_db("SELECT project_name, jid,status, status_date datet FROM user_queue WHERE hide=0 AND status!='pending' ORDER BY status_date DESC",[])
+    out = []
+    for row in q:
+        if row['datet']:
+            dtt = datetime.fromtimestamp(float(row['datet'])).strftime('%Y-%m-%d %H:%M')
+        else:
+            dtt = "-"
+        l = {'project_name': row['project_name'], 
+                'jid': row['jid'], 
+                'date': dtt, 
+                'status': status_color(row['status'])}
+
+        out.append(l)
+    return render_template('queue.html', queue = out)
 
 @app.route('/job/<jid>/')
 def job_status(jid):

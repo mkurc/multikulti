@@ -31,6 +31,7 @@ def createTables():
                 status text check(status IN ('pending', 'pre_queue', 'queue', 'running', 'error') )  NOT NULL DEFAULT 'pending',
                 project_name text NOT NULL,
                 status_date integer(4) NOT NULL DEFAULT (strftime('%s', 'now')),
+                status_init integer(4) NOT NULL DEFAULT (strftime('%s', 'now')),
                 constraints_scaling_factor not null default 1.0
                 ) ''')
 
