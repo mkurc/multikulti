@@ -37,9 +37,9 @@
       </button>
     </div>
     <div class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-          <li><a class="navbar-brand" href="{{url_for("index_page")}}">CABS multidock</a></li>
-      </ul>
+          <a class="navbar-brand" href="{{url_for("index_page")}}">
+                        <img width=30 class="img-thumbnail" src={{url_for('static',filename='img/CABSdock.svg')}}> CABSdock
+          </a>
 
       <ul class="nav navbar-nav navbar-right">
             <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-info"></i> Read more</a></a>
@@ -198,7 +198,7 @@
 
                 {{form.jid}}
                 {{form.csrf_token()}}
-                <a href="#" class="btn btn-info btn-sm">Load example data</a>
+                <a href="#" onClick="exampleData()" class="btn btn-info btn-sm">Load example data</a>
                 <hr>
                 
                     <input type="submit" class="btn btn-lg btn-block btn-success" value="Next step">
@@ -220,6 +220,18 @@
 {%endblock %}
 
 {%block below_js%}
+<script type="text/javascript" charset="utf-8">
+function exampleData() {
+    document.getElementById("name").value = "Docking project";
+    document.getElementById("ligand_ss").value =  "HEHEHEHEHEHHEHEHEHEHEHEHEHEHEHEHEH";
+    document.getElementById("ligand_seq").value = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    document.getElementById("pdb_receptor").value = "2PCY";
+    var a = ["receptor_file", "show","name", "ligand_ss", "ligand_seq", "pdb_receptor"];
+    for (var i=0; i<a.length;i++){
+        document.getElementById(a[i]).readOnly = true;
+    }
+}
+</script>
 {%endblock%}
 </body>
 </html>

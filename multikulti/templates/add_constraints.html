@@ -149,31 +149,26 @@ var lastPrompt=0;
 </div>
 
 
-
-
 </div>
 <div class="col-md-3">
-
 
 
         <div class="panel panel-primary">
                 <div class="panel-heading"> Selected constraints </div>
                 <div class="panel-body">
-                    <table id="constraintsTable" class="table table-hover table-condensed">
+                    <div style="overflow-y:auto;height:200px">
+                    <table id="constraintsTable" class="table table-hover table-condensed"> 
                         <thead>
                             <tr>
-                                <th></th>
-                                <th></th>
+                                <th>&nbsp;</th>
                                 <th>constraints within residues</th>
                                 <th>weight</th>
                             </tr>
                         </thead>
                         <tbody>
                         {% for c in constr %}
-                        <tr><td></td><td class='del'>
-                                <button onclick='rowDel(this)' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}' class='btn btn-xs btn-danger'>
-                                    <i class='fa fa-close'></i>
-                            </button></td>
+                        <tr><td class='del'>
+                                <a href="#" onclick='rowDel(this)' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}'><i class='text-danger fa fa-close'></i></a></td>
                             <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' name='consrange{{G}}'>{{c['constraint_definition']}}</span></td>
                             <td class='constr'>
                                 <select id="row_weight{{G}}" class="input-sm form-control">
@@ -188,33 +183,24 @@ var lastPrompt=0;
                             {% endif %}
                         </tr>
                     {% endfor %}
-
-                    <tr><td>
-                            
-                        <a href="#" tabindex="0" class="tt2" data-toggle="popover" data-trigger="focus" title="Add custom constraints"> 
-                            <i class="fa fa-info-circle"></i> </a>
-                    </td>
-                            
-                    <td><button {{v}} onclick="manAdd()" class="btn btn-xs btn-info"><i class="fa fa-check"></i></button>
-                        </a>
-
-                        </td><td><input class="input sm form-control" type="text" id="addManually" name="addManually">
-                        </td>
-                        <td>
-                    </td></tr>
                     </tbody>
                 </table>
-                <div class="row">
-                    <div class="col-md-4">
-                        <button {{v}} class="btn btn-primary" id="sele2">Add constraint</button>
+            </div>
+            <hr>
+                <div class="form-inline">
+                        <input type="text" class="form-control" id="addManually" name="addManually">
+                        <button {{v}} onclick="manAdd()" class="btn btn-info"> <i class="text-success fa fa-check"></i>Add custom range </button>
+                        <a href="#" tabindex="0" class="tt2" data-toggle="popover" data-trigger="focus" title="Add custom constraints"><i class="fa fa-info-circle"></i> </a>
                     </div>
-                    <div class="col-md-4">
-                        <button {{v}} class="btn btn-warning" id="saveConstrains"><i class="fa fa-save"></i> Save constraints</button>
+                    <hr>
+                <div class="row">
+                    <div class="col-md-8">
+                        <button {{v}} class="btn btn-block btn-warning" id="saveConstrains"><i class="fa fa-save"></i> Save constraints</button>
                     </div>
                     <div class="col-md-1"></div>
                     <div class="col-md-3">
                         <input type="text"  size=3 value="{{scaling}}"  id="constrW" width=2>
-                        <a href="#" class="tt" data-original-title="Overall scaling factor">
+                        <a href="#" class="tt" data-original-title="Overall scaling factor"><i class="fa fa-info-circle"></i>
                         </a>
                     </div>
                 </div>
@@ -296,8 +282,11 @@ var lastPrompt=0;
     </div>
       </div>
       <div class="modal-footer">
+        <form class="form-horizontal" id="finalform" role="form" method="post" action="{{url_for('final_submit')}}">
         <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-undo"></i> Back</button>
-        <button type="button" class="btn btn-success"><i class="fa fa-gears"></i> Submit job, anyway!</button>
+        <input type="hidden" name="jid" value="{{jid}}">
+            <button type="submit" class="btn btn-success"><i class="fa fa-gears"></i> Submit job, anyway!</button>
+        </form>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -312,7 +301,7 @@ var lastPrompt=0;
             if (saved==0) {
                 $('#alercja').modal();
             } else {
-                alert("submituj zadanie");
+                $('#finalform').trigger('submit');
             }
     });
 
@@ -347,12 +336,12 @@ var lastPrompt=0;
                     jmol_selected.push(s[1]+"-"+s[2]+":"+s[0]);
                     selected.push(s[1]+":"+s[0]+" - "+s[2]+":"+s[0]);
                 }
-                var newRow = "<tr><td></td>" + "<td class='del'>" + 
-                        "<button onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"' class='btn btn-xs btn-danger'><i class='fa fa-close'></i></button></td>" +
+                var newRow = "<tr>" + "<td class='del'>" + 
+                        "<a href='#' onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +
                         "<td ><span style='color:"+colors[global_color_index]+"' data-rowid='"+g+"' name='consrange"+g+"'>"+selected.join(", ")+"</span></td>" +
                         "<td class='constr'>"+printList("row_weight"+g)+"</td>" +
                         "</tr>";
-                    $('#constraintsTable > tbody > tr:last').before(newRow);
+                    $('#constraintsTable > tbody > tr:first').before(newRow);
                     global_constraints_row_index+=1;
                 currSelection.removeAllRanges ();
 
@@ -396,12 +385,12 @@ $(document).ready(function() {
 function manAdd() {
     var g = global_constraints_row_index;
     var dataToAdd = document.getElementById('addManually').value;
-    var newRow = "<tr>" + "<td></td><td class='del'>" + 
-"<button onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"' class='btn btn-xs btn-danger'><i class='fa fa-close'></i></button></td>" +
+    var newRow = "<tr>" + "<td class='del'>" + 
+"<a href='#' onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +
 "<td ><span data-rowid='"+g+"' name='consrange"+g+"'>"+dataToAdd+"</span></td>" +
 "<td class='constr'>"+printList("row_weight"+g)+"</td>" +
 "</tr>";
-$('#constraintsTable > tbody > tr:last').before(newRow);
+$('#constraintsTable > tbody > tr:first').before(newRow);
 document.getElementById('addManually').value = '';
 global_constraints_row_index+=1;
 }
@@ -422,7 +411,7 @@ $('.tt2').popover({'content':"Use this panel to add custom distance restraints b
         <br>Examples: <hr>Add 5.0 Angstrom distance constraint between 2nd C&alpha; atom of ligand and 3rd res. of D-chain of complex - add constraint: <strong><nobr>2:LIGAND, 6:D, 5.0</nobr></strong><hr>\
         Add set of distance restraints between fragment 1-100 of chain A and fragment 1-10 of ligand: <strong><nobr>1-10:LIGAND, 1-100:A</nobr></strong><hr>\
         Add set of distance restraints between fragment 1-100 of chain A and fragment 1-10 of chain C: <strong><nobr>1-10:C, 1-100:A</nobr></strong><hr>\
-        Add 5.0A distance restraint between res. 1:A and res. 23:B: <strong><nobr>1:A, 23:B, 5.0</nobr></strong>", 'html': true, 'placement':'bottom'});
+        Add 5.0A distance restraint between res. 1:A and res. 23:B: <strong><nobr>1:A, 23:B, 5.0</nobr></strong>", 'html': true, 'placement':'left'});
     </script>
 
 {%endblock%}

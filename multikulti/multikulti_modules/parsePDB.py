@@ -19,8 +19,8 @@ class PdbParser:
         seq = compile(r"^ATOM.{9}CA..(?P<seqid>.{3})")
         self.onlycalfa=""
         atm = compile(r"^ATOM.{9}(CA|N |C |O ).{7}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
-        mod = compile(r"^(ENDMDL)") # TODO nie jestem pewien
-        ter = compile(r"^(TER)") # TODO nie jestem pewien
+        mod = compile(r"^ENDMDL") # TODO nie jestem pewien
+        ter = compile(r"^TER") # TODO nie jestem pewien
         self.trajectory = []
         self.sequence = ""
         model = []
@@ -52,7 +52,7 @@ class PdbParser:
                 self.resindexes.append(tmp)
                 tmp = []
                 self.onlycalfa+=line
-            if (mod.match(line) or counter==end) and len(model)>0:
+            if mod.match(line) or counter==end:
                 break
             counter+=1    
         filehandler.seek(0)

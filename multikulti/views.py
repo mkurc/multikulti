@@ -27,6 +27,7 @@ from wtforms.validators import DataRequired,Length,Email, optional, ValidationEr
 
 from multikulti_modules.fetchPDBinfo import getCoordinates, fetchPDBinfo
 from multikulti_modules.parsePDB import  PdbParser
+from multikulti_modules.restrRanges import restrRanges
 ################################################################################
 
 app.config.update(config)
@@ -37,7 +38,25 @@ input_pdb = UploadSet('inputpdbs', extensions = app.config['ALLOWED_EXTENSIONS']
 def compute_static(jobid):
     return send_from_directory(app.config['USERJOB_DIRECTORY']+"/"+jobid, "input.pdb.gz") # TODO co jesli filename bedzie do nadrzednych      
 
+def gunzip(filename):
+    gunzipped = ".".join(filename.split(".")[:-1])
+    f_out = open(gunzipped, 'w')
+    f_in = gzip.open(filename, 'rb')
+    f_out.writelines(f_in)
+    f_out.close()
+    f_in.close()
 
+def status_color(status):
+    if status=='pending':
+        return '<span class="label label-primary"><i class="fa fa-edit"></i> job pending (add/accept constraints)</span>'
+    elif status=='pre_queue':
+        return '<span class="label label-warning"><i class="fa fa-spin fa-spinner"></i> job pending <small>waiting for computational server response</small></span>'
+    elif status=='queue':
+        return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>'
+    elif status=='running':
+        return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
+    elif status=='error':
+        return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
 
 def unique_id():
     return hex(uuid.uuid4().time)[2:-1]
@@ -51,14 +70,17 @@ def sequence_validator(form, field):
     for letter in d:
         if letter not in allowed_seq:
             raise ValidationError('Sequence contains non-standard aminoacid symbol: %s' % (letter) )
-
+def eqlen_validator(form, field):
+    if len(field.data) != len(form.ligand_seq.data):
+        raise ValidateError('Secondary structure length != ligand sequence length')
 def ss_validator(form, field):
     allowed_seq = ['C', 'H', 'E']
     d = ''.join(field.data.replace(' ','').split()).upper()
     for letter in d:
         if letter not in allowed_seq:
             raise ValidationError('Secondary structure contains non-standard \
-                    symbol: %s. <br><small>Allowed H - helix, E - extended/beta, C - coil.</small>' % (letter) )
+                    symbol: %s. <br><small>Allowed H - helix, E - extended/beta,\
+                    C - coil.</small>' % (letter) )
 def structure_pdb_validator(form, field):
     if len(form.receptor_file.data.filename)<5 and len(field.data)==5:
         buraki =  urllib2.urlopen('http://www.rcsb.org/pdb/files/'+field.data+'.pdb.gz')
@@ -72,11 +94,14 @@ def structure_pdb_validator(form, field):
                     'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
             for e in seq:
                 if e not in allowed_seq:
-                    raise ValidationError('Non-standard residue in the receptor structure')
+                    raise ValidationError('Non-standard residue in the receptor \
+                            structure')
             if len(p.getBody()) < 16:
-                raise ValidationError('File without chain or chain shorter than 4 residues')
+                raise ValidationError('File without chain or chain shorter than \
+                        4 residues')
             if len(missing)>0:
-                raise ValidationError('Missing atoms around residue(s): %s. Server accepts only continuous chains.' % missing)
+                raise ValidationError('Missing atoms around residue(s): %s. Server \
+                        accepts only continuous chains.' % missing)
         buraki.close()
 
 def pdb_input_validator(form, field):
@@ -94,11 +119,13 @@ def pdb_input_validator(form, field):
         if len(p.getBody()) < 16:
             raise ValidationError('File without chain or chain shorter than 4 residues')
         if len(missing)>0:
-            raise ValidationError('Missing atoms around residue(s): %s. Server accepts only continuous chains.' % missing)
+            raise ValidationError('Missing atoms around residue(s): %s. Server \
+                    accepts only continuous chains.' % missing)
 
 def pdb_input_code_validator(form, field):
     if len(field.data)!=4 and not form.receptor_file.data.filename:
-        raise ValidationError('Receptor code must be 4-letter (2PCY). Leave empty only if PDB file is provided')
+        raise ValidationError('Receptor code must be 4-letter (2PCY). Leave \
+                empty only if PDB file is provided')
     if not form.pdb_receptor.data and not form.receptor_file.data:
         raise ValidationError('Receptor PDB code or PDB file is required')
 
@@ -107,11 +134,12 @@ class MyForm(Form):
     pdb_receptor = StringField('Remote PDB file', \
             validators=[pdb_input_code_validator, structure_pdb_validator])
     receptor_file = FileField('Local PDB file', \
-            validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
+            validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), \
+            pdb_input_validator])
     ligand_seq = TextAreaField('Ligand sequence', \
             validators=[Length(min=3,max=60),DataRequired(),sequence_validator])
     ligand_ss = TextAreaField('Ligand secondary structure', \
-            validators=[Length(min=3,max=60),optional(),ss_validator])
+            validators=[Length(min=3,max=60),optional(),ss_validator,eqlen_validator])
     email = StringField('E-mail address', 
             validators = [optional(), Email()])
     show = BooleanField('Do not show my job on the results page', default=False)
@@ -128,9 +156,12 @@ def index_constraints(jid):
     constraints = query_db("SELECT constraint_definition,force FROM \
             constraints WHERE jid=?", [jid])
     print constraints
-    di ={'1.0': '<option value="1.0">default</option><option value="0.25">light</option><option value="5.0">strong</option>',
-            '0.25': '<option value="0.25">light</option><option value="1.0">default</option><option value="5.0">strong</option>',
-            '5.0': '<option value="5.0">strong</option><option value="1.0">default</option><option value="0.25">light</option>'}
+    di ={'1.0': '<option value="1.0" selected>default</option><option \
+            value="0.25">light</option><option value="5.0">strong</option>',
+            '0.25': '<option value="0.25" selected>light</option><option \
+                    value="1.0">default</option><option value="5.0">strong</option>',
+            '5.0': '<option value="5.0" selected>strong</option><option \
+                    value="1.0">default</option><option value="0.25">light</option>'}
 
     return render_template('add_constraints.html',jid=jid, status=status, 
             scaling=scaling, constr = constraints, ligand_seq=ligand_sequence,di=di)
@@ -153,6 +184,8 @@ def add_init_data_to_db(form):
         p = PdbParser(form.receptor_file.data.stream)
         receptor_seq =  p.getSequence()
         p.savePdbFile(dest_file)
+        gunzip(dest_file)
+        
 
     elif form.pdb_receptor.data:
         buraki =  urllib2.urlopen('http://www.rcsb.org/pdb/files/'+form.pdb_receptor.data+'.pdb.gz')
@@ -162,20 +195,57 @@ def add_init_data_to_db(form):
             p = PdbParser(f)
             receptor_seq =  p.getSequence()
             p.savePdbFile(dest_file)
-        buraki.close()
+            gunzip(dest_file)
 
-    query_db("INSERT INTO user_queue(jid, email, receptor_sequence, ligand_sequence, ligand_ss, \
-            hide, project_name) VALUES(?,?,?,?,?,?,?)",\
+        buraki.close()
+    name = form.name.data
+    if len(name)<2:
+        name = jid
+    query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
+            ligand_sequence, ligand_ss, hide, project_name) VALUES(?,?,?,?,?,?,?)",\
             [jid, form.email.data, receptor_seq, ligand_seq, \
-            ligand_ss, hide, form.name.data], insert=True)
+            ligand_ss, hide, name], insert=True)
+
+    #generate constraints
+    unzpinp = os.path.join(app.config['USERJOB_DIRECTORY']+"/"+jid, "input.pdb")
+    r = restrRanges(unzpinp)
+    r.parseRanges()
+    for e in r.getLabelFormat():
+        query_db("INSERT INTO constraints(jid,constraint_definition) VALUES(?,?)", [jid,e],insert = True)
+    # TODO kolorowanie wiezow
+
     return (jid, receptor_seq, ligand_seq, form.name.data,form.email.data)
+
+@app.route('/final_submit', methods=['POST', 'GET'])
+def final_submit():
+    if request.method == 'POST':
+        jid = request.form.get('jid','')
+        if jid=='':
+            return Response("OJ OJ, nieladnie", status=404,mimetype='text/plain')
+
+        flash('Job submitted. Bookmark this page to check results (usually within \
+                24h) if you didn\'t povided e-mail address', 'info')
+        query_db("UPDATE user_queue SET status=? WHERE jid=?",['pre_queue',jid], insert=True)
+        return redirect(url_for('job_status', jid=jid))
+    return Response("HAHAHAahahahakier",status=200,mimetype='text/plain') # tu chyba nikt
+
+@app.route('/job/<jid>/')
+def job_status(jid):
+    system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
+            datetime(status_date,'unixepoch') status_date, project_name, \
+            status,constraints_scaling_factor FROM  user_queue WHERE jid=?", [jid],one=True)
+    constraints = query_db("SELECT constraint_definition,force FROM constraints WHERE jid=?",[jid])
+    status = status_color(system_info['status'])
+    # dodac kolorowe badgesy do statusu
+
+    return render_template('job_info.html', status = status, constr=constraints, jid=jid, sys=system_info)
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
 def user_add_constraints():
     if request.method == 'POST':
         jid = request.form.get('jid','')
         if jid=='':
-            return Response("OJ OJ", status=404,mimetype='text/plain')
+            return Response("OJ OJ, nieladnie", status=404,mimetype='text/plain')
 
         constraints = request.form.getlist('constr[]')
         weights = request.form.getlist('constr_w[]')
@@ -187,8 +257,6 @@ def user_add_constraints():
         for r in zip(constraints,weights):
             query_db("INSERT INTO constraints(jid,constraint_definition,force) \
                     VALUES(?,?,?)", [jid,r[0],r[1]], insert = True) 
-            print r[0], r[1]
-        print scaling_factor, jid
 
     return Response("HAHAHAahahahakier",status=200,mimetype='text/plain')
 
@@ -198,8 +266,9 @@ def index_page():
     if request.method == 'POST':
         if form.validate():
             jid, rec, lig, nam,email = add_init_data_to_db(form)
-            flash('<strong>Input data:</strong> Ligand sequence: %s; Receptor \
-                    sequence: %s; Project name: %s' %(lig,rec,nam),'info')
+            flash('<strong>Input data:</strong><br>Ligand sequence: \
+                    <small>%s</small><br>Receptor sequence: <small>%s</small>\
+                    <br>Project name: %s' %(lig,rec,nam),'info')
             return redirect(url_for('index_constraints', jid=jid))
         else:
             flash('Something goes wrong. Check errors within data input panel','error')

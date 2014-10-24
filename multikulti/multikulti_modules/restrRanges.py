@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import re
+import os
 from subprocess import Popen,PIPE
 
 
@@ -18,13 +19,14 @@ class restrRanges:
 
     def parseRanges(self,restr_params=["-max=5.0"]):
         res = {}
-        
+        # TODO nie wyciaga wag! 
         # get constraints
 
-        prefix_bin = path.dirname(path.realpath(__file__))+"/bin/restr"
+        prefix_bin = os.path.join(os.path.dirname(os.path.realpath(__file__)),"bin","restr")
         p = Popen([prefix_bin, "-i="+self.pdb] + restr_params, stdout=PIPE)
         data, err = p.communicate()
-        print err, "BLAD restr !!!!!!!!!!"
+        if err:
+            print err, "BLAD restr !!!!!!!!!!"
 
         d = re.findall(r'^(|\s+)(\d+)\s+(\d+)\s+(\d+)\s+(\d+).*$', data,re.M)
         for i in d:
