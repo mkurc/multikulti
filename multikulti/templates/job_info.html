@@ -1,0 +1,102 @@
+{% extends "index.html" %}
+        {% block indexuniq %}
+        {% endblock %}
+    {% block header %}
+    <title>CABSdock: {{sys['project_name']}}</title>
+    {% endblock %}
+
+{% block body %}
+<div class="container">
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li class="active"><a href="#summary" role="tab" data-toggle="tab">Summary</a></li>
+  <li><a href="#models" role="tab" data-toggle="tab">Models</a></li>
+  <li><a href="#clustering" role="tab" data-toggle="tab">Clustering</a></li>
+  <li><a href="#constraints" role="tab" data-toggle="tab">Simulation parameters</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="summary">
+    <div class="row">
+          <div class="col-md-12">
+            <h4>
+                {{sys['project_name']}}
+                <span class="pull-right"> 
+Status:                    {{status|safe}}
+                </span>
+                <small>submitted: {{sys['status_date']}}</small>
+            </h4>
+            <hr>
+
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                    60%
+                </div>
+            </div>
+
+
+            <p> Jakieś lorem ispsumsd alfjsd oac </p>
+        </div>
+    </div>
+
+  </div> <!-- end tab summary -->
+  <div class="tab-pane" id="models">
+      modele
+  </div> <!-- end tab models -->
+  <div class="tab-pane" id="clustering">
+      klasteryzacj
+  </div> <!-- end tab clustering -->
+  <div class="tab-pane" id="constraints">
+      <h4>Constraints scaling factor: {{sys['constraints_scaling_factor']}}</h4>
+      <h4>Constraints <small>constraints fragment and force</h4>
+      <table class="table table-bordered table-stripped table-condensed">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in constr %}
+          <td>{{row['constraint_definition']}} <span class="label label-info pull-right">{{row['force']}}</span></td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
+
+            
+          {% endfor %}
+      </table>
+
+      <table class="table table-stripped">
+        <tr>
+            <td><strong>
+Receptor sequence(s)
+                </strong>
+            </td>
+            <td class='sequence'>
+                {{sys['receptor_sequence']}}
+            </td>
+        </tr>
+
+
+        <tr>
+            <td><strong>
+Ligand sequence
+                </strong>
+            </td>
+            <td class=sequence>
+                {{sys['ligand_sequence']}}
+            </td>
+        </tr>
+
+      </table>
+  </div> <!-- end tab costam -->
+</div>
+<hr>
+<div class="alert alert-warning alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <i class="fa fa-recycle"></i> <strong>Note</strong> This page will be deleted after 14 days after job complete.
+</div>
+
+</div>
+{% endblock %}
