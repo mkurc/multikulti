@@ -28,6 +28,11 @@ def page_error(error):
     app.logger.warning('Page 500 (IP: '+request.remote_addr+') '+request.url)
     return (render_template('page_not_found.html',code="500"), 500)
 
+@app.route('/compute_static/<jobid>/input.pdb.gz')
+def compute_static(jobid):
+    return send_from_directory(app.config['USERJOB_DIRECTORY']+"/"+jobid, "input.pdb.gz") # TODO co jesli filename bedzie do nadrzednych      
+
+
 @app.route('/robots.txt')
 def robots():
     return render_template('robots.txt')
@@ -38,6 +43,16 @@ def favicon():
 @app.route('/contact')
 def index_contact():
     return render_template('contact.html')
+@app.route('/learn_more')
+def learn_more():
+    pass
+@app.route('/tutorial')
+def tutorial():
+    pass
+
+
+
+
 @app.before_request
 def before():
     if request.view_args and 'lang_code' in request.view_args:

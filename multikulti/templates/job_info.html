@@ -10,24 +10,24 @@
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
-  <li class="active"><a href="#summary" role="tab" data-toggle="tab">Summary</a></li>
-  <li><a href="#models" role="tab" data-toggle="tab">Models</a></li>
-  <li><a href="#clustering" role="tab" data-toggle="tab">Clustering</a></li>
-  <li><a href="#constraints" role="tab" data-toggle="tab">Simulation parameters</a></li>
+  <li class="active"><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Job status information</a></li>
+  <li><a href="#models" role="tab" data-toggle="tab"><i class="fa fa-database"></i> Docking results</a></li>
+  <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering</a></li>
+  <li><a href="#constraints" role="tab" data-toggle="tab"><i class="fa fa-wrench"></i> Simulation parameters</a></li>
 </ul>
 
 <!-- Tab panes -->
 <div class="tab-content">
   <div class="tab-pane active" id="summary">
-    <div class="row">
-          <div class="col-md-12">
-            <h4>
+      <div class="panel">
+          <div class="panel-body">
+            <h3>
                 {{sys['project_name']}}
                 <span class="pull-right"> 
 Status:                    {{status|safe}}
                 </span>
                 <small>submitted: {{sys['status_date']}}</small>
-            </h4>
+            </h3>
             <hr>
 
             <div class="progress">
@@ -43,14 +43,50 @@ Status:                    {{status|safe}}
 
   </div> <!-- end tab summary -->
   <div class="tab-pane" id="models">
-      modele
+      <div class="panel">
+          <div class="panel-body">
+olele, dwa modele
+        </div>
+      </div>
+      
   </div> <!-- end tab models -->
   <div class="tab-pane" id="clustering">
-      klasteryzacj
+      <div class="panel">
+          <div class="panel-body">
+
+      jakaś tabelka z fajnymi numerkamy
+        </div>
+      </div>
   </div> <!-- end tab clustering -->
   <div class="tab-pane" id="constraints">
-      <h4>Constraints scaling factor: {{sys['constraints_scaling_factor']}}</h4>
-      <h4>Constraints <small>constraints fragment and force</h4>
+      <div class="panel">
+          <div class="panel-body">
+      <h4>Input</h4>
+      <table class="table table-hover">
+        <tr>
+            <td><strong>
+Receptor sequence(s)
+                </strong>
+            </td>
+            <td>
+                <span class='sequence'>{{sys['receptor_sequence']}}</span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td><strong>
+Ligand sequence
+                </strong>
+            </td>
+            <td>
+                <span class='sequence'>{{sys['ligand_sequence']}}</span>
+            </td>
+        </tr>
+
+      </table>
+
+      <h5>Restraints <small>restrained chain fragments and force scaling factor</h5>
       <table class="table table-bordered table-stripped table-condensed">
           {% set break=5 %}
           {% set iter=0 %}
@@ -66,33 +102,11 @@ Status:                    {{status|safe}}
             
           {% endfor %}
       </table>
-
-      <table class="table table-stripped">
-        <tr>
-            <td><strong>
-Receptor sequence(s)
-                </strong>
-            </td>
-            <td class='sequence'>
-                {{sys['receptor_sequence']}}
-            </td>
-        </tr>
-
-
-        <tr>
-            <td><strong>
-Ligand sequence
-                </strong>
-            </td>
-            <td class=sequence>
-                {{sys['ligand_sequence']}}
-            </td>
-        </tr>
-
-      </table>
+      <h5>Restraints global scaling factor: {{sys['constraints_scaling_factor']}}</h5>
+        </div>
+      </div>
   </div> <!-- end tab costam -->
 </div>
-<hr>
 <div class="alert alert-warning alert-dismissible" role="alert">
   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
   <i class="fa fa-recycle"></i> <strong>Note</strong> This page will be deleted after 14 days after job complete.

@@ -35,9 +35,6 @@ app.config.update(config)
 app.secret_key = 'multikultitosmierdzcywilizacjieurpejzkij'
 input_pdb = UploadSet('inputpdbs', extensions = app.config['ALLOWED_EXTENSIONS'],\
         default_dest = app.config['UPLOAD_FOLDER']) 
-@app.route('/compute_static/<jobid>/input.pdb.gz')
-def compute_static(jobid):
-    return send_from_directory(app.config['USERJOB_DIRECTORY']+"/"+jobid, "input.pdb.gz") # TODO co jesli filename bedzie do nadrzednych      
 
 def gunzip(filename):
     gunzipped = ".".join(filename.split(".")[:-1])
@@ -215,16 +212,17 @@ def add_init_data_to_db(form):
     if len(name)<2:
         name = jid
     query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
-            ligand_sequence, ligand_ss, hide, project_name) VALUES(?,?,?,?,?,?,?)",\
-            [jid, form.email.data, receptor_seq, ligand_seq, \
-            ligand_ss, hide, name], insert=True)
+            ligand_sequence, ligand_ss, hide, project_name) VALUES(?,?,?,?,?,?,?)",
+            [jid, form.email.data, receptor_seq, ligand_seq, ligand_ss, hide, 
+                name], insert=True)
 
     #generate constraints
     unzpinp = os.path.join(app.config['USERJOB_DIRECTORY']+"/"+jid, "input.pdb")
     r = restrRanges(unzpinp)
     r.parseRanges()
     for e in r.getLabelFormat():
-        query_db("INSERT INTO constraints(jid,constraint_definition) VALUES(?,?)", [jid,e],insert = True)
+        query_db("INSERT INTO constraints(jid,constraint_definition) VALUES(?,?)", 
+                [jid,e],insert = True)
     # TODO kolorowanie wiezow
 
     return (jid, receptor_seq, ligand_seq, form.name.data,form.email.data)
@@ -241,13 +239,12 @@ def final_submit():
         query_db("UPDATE user_queue SET status=? WHERE jid=?",['pre_queue',jid], insert=True)
         return redirect(url_for('job_status', jid=jid))
     return Response("HAHAHAahahahakier",status=200,mimetype='text/plain') # tu chyba nikt
-@app.route('/learn_more')
-def learn_more():
-    pass
 
 @app.route('/queue')
 def queue_page():
-    q = query_db("SELECT project_name, jid,status, status_date datet FROM user_queue WHERE hide=0 AND status!='pending' ORDER BY status_date DESC",[])
+    q = query_db("SELECT project_name, jid,status, status_date datet FROM \
+            user_queue WHERE hide=0 AND status!='pending' \
+            ORDER BY status_date DESC",[])
     out = []
     for row in q:
         if row['datet']:
@@ -266,12 +263,15 @@ def queue_page():
 def job_status(jid):
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
             datetime(status_date,'unixepoch') status_date, project_name, \
-            status,constraints_scaling_factor FROM  user_queue WHERE jid=?", [jid],one=True)
-    constraints = query_db("SELECT constraint_definition,force FROM constraints WHERE jid=?",[jid])
+            status,constraints_scaling_factor FROM  user_queue WHERE jid=?", 
+            [jid],one=True)
+    constraints = query_db("SELECT constraint_definition,force FROM constraints\
+            WHERE jid=?",[jid])
     status = status_color(system_info['status'])
     # dodac kolorowe badgesy do statusu
 
-    return render_template('job_info.html', status = status, constr=constraints, jid=jid, sys=system_info)
+    return render_template('job_info.html', status = status, constr=constraints, 
+            jid=jid, sys=system_info)
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
 def user_add_constraints():
@@ -299,9 +299,15 @@ def index_page():
     if request.method == 'POST':
         if form.validate():
             jid, rec, lig, nam,email = add_init_data_to_db(form)
-            flash('<strong>Input data:</strong><br>Ligand sequence: \
-                    <small>%s</small><br>Receptor sequence: <small>%s</small>\
-                    <br>Project name: %s' %(lig,rec,nam),'info')
+            if len(form.name.data)<2:
+                nam = jid
+            flash('<strong>Input data</strong><table><tr><td>\
+                    <strong>Ligand sequence</strong></td> \
+                    <td><strong>Receptor sequence</strong></td> \
+                    <td><strong>Project name</strong></td> </tr><tr> \
+                    <td><span class="sequence">%s</span></td> \
+                    <td><span class="sequence">%s</span></td> \
+                    <td>%s</td> </tr></table>' %(lig,rec,nam),'info')
             return redirect(url_for('index_constraints', jid=jid))
         else:
             flash('Something goes wrong. Check errors within data input panel','error')
