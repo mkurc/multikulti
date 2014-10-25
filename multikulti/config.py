@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 # Michal Jamroz, 2014, jamroz@chem.uw.edu.pl
 
-from flask import g, url_for#, json
+from flask import g
 from os import path
 import sys
 import bz2
+import gzip
 import uuid
 import re
 import sqlite3
@@ -60,6 +61,13 @@ config = \
 #
 #       static server.quit()
 
+def gunzip(filename):
+    gunzipped = ".".join(filename.split(".")[:-1])
+    f_out = open(gunzipped, 'w')
+    f_in = gzip.open(filename, 'rb')
+    f_out.writelines(f_in)
+    f_out.close()
+    f_in.close()
 def unique_id():
     return hex(uuid.uuid4().time)[2:-1]
 

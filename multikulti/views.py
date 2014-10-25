@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Copyright Michal Jamroz 2014/09
 
-import uuid
 import os
 import urllib2
 from datetime import datetime
@@ -10,20 +9,18 @@ from StringIO import StringIO
 import gzip
 
 from multikulti import app
-from config import config,query_db,unique_id
+from config import config, query_db, unique_id, gzipped
 
-from flask import render_template, g, url_for, request, jsonify, flash, \
-    session, Response, redirect, send_from_directory, send_file
-from flask.ext.login import login_required,current_user
-from urllib import quote
+from flask import render_template, g, url_for, request, flash, \
+    Response, redirect, send_from_directory
+#from flask.ext.login import login_required,current_user
 
-from flask.ext.uploads import UploadSet, IMAGES
+from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, BooleanField, TextAreaField, HiddenField
-from wtforms.validators import DataRequired,Length,Email, optional, ValidationError
-
+from wtforms.validators import DataRequired, Length, Email, optional, ValidationError
 
 
 from multikulti_modules.fetchPDBinfo import getCoordinates, fetchPDBinfo
@@ -44,13 +41,6 @@ def url_for_other_page(**kwargs):
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
 
-def gunzip(filename):
-    gunzipped = ".".join(filename.split(".")[:-1])
-    f_out = open(gunzipped, 'w')
-    f_in = gzip.open(filename, 'rb')
-    f_out.writelines(f_in)
-    f_out.close()
-    f_in.close()
 
 def status_color(status,shorter=True):
     if not shorter:
@@ -75,9 +65,6 @@ def status_color(status,shorter=True):
             return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
         elif status=='error':
             return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
-
-def unique_id():
-    return hex(uuid.uuid4().time)[2:-1]
 
 
 
