@@ -352,13 +352,13 @@ def index_page():
                 jid, rec, lig, nam,email = add_init_data_to_db(form)
                 if len(form.name.data)<2:
                     nam = jid
-                flash('<strong>Input data</strong><table class="table table-bordered"><tr><td>\
-                        <strong>Ligand sequence</strong></td> \
-                        <td><strong>Receptor sequence</strong></td> \
-                        <td><strong>Project name</strong></td> </tr><tr> \
-                        <td><span class="sequence">%s</span></td> \
-                        <td><span class="sequence">%s</span></td> \
-                        <td>%s</td> </tr></table>' %(lig,rec,nam),'info')
+#                flash('<strong>Input data</strong><table class="table table-bordered"><tr><td>\
+#                        <strong>Ligand sequence</strong></td> \
+#                        <td><strong>Receptor sequence</strong></td> \
+#                        <td><strong>Project name</strong></td> </tr><tr> \
+#                        <td><span class="sequence">%s</span></td> \
+#                        <td><span class="sequence">%s</span></td> \
+#                        <td>%s</td> </tr></table>' %(lig,rec,nam),'info')
                 return redirect(url_for('index_constraints', jid=jid))
             except:
                 flash("Network problem, try again later, contact admin: jamroz(AT)chem.uw.edu.pl ", "error")
