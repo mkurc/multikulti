@@ -122,8 +122,11 @@
                                 <i class="fa fa-edit fa-3x" style="padding:10px"></i> 
                                     </td>
                                     <td>
-
-                                <strong>CABSdock: server for protein - peptide docking bla ble</strong>, Jan Dzban, Ali Akcza, Karol Wojtyła, Journal of HTML, <i>submitted</i>, DOI: xxXXxXX
+                                            Jan Dzban, Ali Akcza, Karol Wojtyła, 
+                                            <strong>CABSdock: server for protein - peptide docking bla ble</strong>, 
+                                            Journal of HTML, 
+                                            <i>submitted</i>, 
+                                            DOI: xxXXxXX
                                     </td>
                                 </tr>
                             </table>
@@ -211,6 +214,18 @@
                 </div>
                 {{render_field(form.ligand_ss, placeholder='EHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
                 {{render_checkbox_field(form.show)}}
+                <table class="table">
+                    <tr>
+                        <td>
+                Computational server status:
+            </td>
+            <td>
+            <span class="label label-success">Waiting for tasks</span>
+                <br><span class="label pull-right label-warning">High load</span>
+                <br>                <span class="label pull-right label-danger">Offline</span>
+        </td>
+    </tr>
+</table>
       </div>
     </div>
   </div>
@@ -218,7 +233,7 @@
 
                 {{form.jid}}
                 {{form.csrf_token()}}
-                <a href="#" onClick="exampleData()" class="btn btn-default btn-xs">Load example data</a>
+                <a href="#" onClick="exampleData()" class="btn btn-default btn-xs">Load example data</a> 
                 <hr>
                 
                     <input type="submit" class="btn btn-lg btn-block btn-success" value="Next step">

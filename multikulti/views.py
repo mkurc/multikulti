@@ -9,7 +9,7 @@ from StringIO import StringIO
 import gzip
 
 from multikulti import app
-from config import config, query_db, unique_id, gzipped
+from config import config, query_db, unique_id, gunzip
 
 from flask import render_template, g, url_for, request, flash, \
     Response, redirect, send_from_directory

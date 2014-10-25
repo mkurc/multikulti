@@ -44,6 +44,7 @@
   <div class="tab-pane" id="models">
       <div class="panel">
           <div class="panel-body">
+<i class="fa fa-5x fa-spin fa-gear"></i> 
 olele, dwa modele
         </div>
       </div>
@@ -52,7 +53,7 @@ olele, dwa modele
   <div class="tab-pane" id="clustering">
       <div class="panel">
           <div class="panel-body">
-
+<i class="fa fa-5x fa-spin fa-gear"></i> 
       jakaś tabelka z fajnymi numerkamy
         </div>
       </div>
@@ -60,7 +61,6 @@ olele, dwa modele
   <div class="tab-pane" id="constraints">
       <div class="panel">
           <div class="panel-body">
-      <h4>Input</h4>
       <table class="table table-hover">
         <tr>
             <td><strong>
@@ -82,10 +82,11 @@ Ligand sequence
                 <span class='sequence'>{{sys['ligand_sequence']}}</span>
             </td>
         </tr>
-
-      </table>
-
+      <tr><td>
       <h5>Restraints <small>restrained chain fragments and force scaling factor</h5>
+      </td>
+      <td>
+          
       <table class="table table-bordered table-stripped table-condensed">
           {% set break=5 %}
           {% set iter=0 %}
@@ -101,11 +102,16 @@ Ligand sequence
             
           {% endfor %}
       </table>
-      <h5>Restraints global scaling factor: {{sys['constraints_scaling_factor']}}</h5>
+  </td>
+  </tr>
+      <tr><td><h5>Restraints global scaling factor</td><td> {{sys['constraints_scaling_factor']}}</h5></td></tr>
+
+      </table>
         </div>
       </div>
   </div> <!-- end tab costam -->
 </div>
+<br>&nbsp;
 <div class="alert alert-warning alert-dismissible" role="alert">
   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
   <i class="fa fa-recycle"></i> <strong>Note</strong> This page will be deleted after 14 days after job complete.
