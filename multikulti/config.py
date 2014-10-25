@@ -63,11 +63,10 @@ config = \
 
 def gunzip(filename):
     gunzipped = ".".join(filename.split(".")[:-1])
-    f_out = open(gunzipped, 'w')
-    f_in = gzip.open(filename, 'rb')
-    f_out.writelines(f_in)
-    f_out.close()
-    f_in.close()
+    with  open(gunzipped, 'w') as f_out:
+        with gzip.open(filename, 'rb') as f_in:
+            f_out.writelines(f_in)
+
 def unique_id():
     return hex(uuid.uuid4().time)[2:-1]
 
