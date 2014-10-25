@@ -26,16 +26,10 @@ config = \
          DEBUG=True, 
          DEFAULT_MAIL_SENDER="biocomp@chem.uw.edu.pl",                      # FROM field in sent mail
          MAX_CONTENT_LENGTH=25 * 1024 * 1024, # 25MB
-#         UPLOADED_TRAJECTORIES_DEST=fullpath, 
-#         UPLOADED_CLIENTDATA_DEST=clientdata_fullpath, 
          #ADMIN_EMAILS=["michal@yerbamate.com.pl","jsulkows@gmail.com"], # admin mails. Send errors, info about new knots, etc.
          #SMTP_SERVER = "localhost",             # if authorization needed, modify send_mail() method
          PRODUCTION = False,
-         PAGINATION=50)                         # # of records on /browse/ page
-
-#if production:
-#    config['PRODUCTION']=True
-#    config['DEBUG']=False
+         PAGINATION=3)                         # # of records on /browse/ page
 
 
 #def send_mail(to='', subject="Test",body="Body"):

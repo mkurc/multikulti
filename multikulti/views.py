@@ -35,6 +35,14 @@ app.config.update(config)
 app.secret_key = 'multikultitosmierdzcywilizacjieurpejzkij'
 input_pdb = UploadSet('inputpdbs', extensions = app.config['ALLOWED_EXTENSIONS'],\
         default_dest = app.config['UPLOAD_FOLDER']) 
+def url_for_other_page(**kwargs):
+    args = request.view_args.copy()
+    for (k, v) in kwargs.iteritems():
+        args[k] = v
+    return url_for(request.endpoint, **args) + '?' + request.query_string
+
+app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
 
 def gunzip(filename):
     gunzipped = ".".join(filename.split(".")[:-1])
@@ -240,11 +248,7 @@ def final_submit():
         return redirect(url_for('job_status', jid=jid))
     return Response("HAHAHAahahahakier",status=200,mimetype='text/plain') # tu chyba nikt
 
-@app.route('/queue')
-def queue_page():
-    q = query_db("SELECT project_name, jid,status, status_date datet FROM \
-            user_queue WHERE hide=0 AND status!='pending' \
-            ORDER BY status_date DESC",[])
+def parse_out(q):
     out = []
     for row in q:
         if row['datet']:
@@ -257,7 +261,53 @@ def queue_page():
                 'status': status_color(row['status'])}
 
         out.append(l)
-    return render_template('queue.html', queue = out)
+    return out
+
+@app.route('/queue', methods=['POST','GET'], defaults={'page':1})
+@app.route('/queue/page/<int:page>/', methods=['POST', 'GET'])
+def queue_page(page=1):
+    before = (page - 1) * app.config['PAGINATION']
+    displ_from = 1 + (page - 1) * config['PAGINATION']
+
+    if request.method == 'GET':
+        search = request.args.get('q','')
+        if search != '':
+            flash("Searching results for %s ..." %(search), 'warning')
+            q = query_db("SELECT project_name, jid,status, status_date datet \
+                    FROM user_queue WHERE project_name LIKE ? OR jid=? ORDER BY \
+                    status_date DESC LIMIT ?,?", 
+                    ["%"+search+"%", search, before, app.config['PAGINATION']])
+            q_all = query_db("SELECT status FROM user_queue WHERE project_name \
+                    LIKE ? OR jid=? ORDER BY  status_date DESC", 
+                    ["%"+search+"%", search])
+            # jesli jest szukanie po nazwie projektu to ukrywanie zadan przestaje miec sens TODO
+            out = parse_out(q)
+            if len(out)==0:
+                flash("Nothing found", "error")
+            elif len(out)==1:
+                flash("Project found!", "info")
+                jid = out[0]['jid']
+                return redirect(url_for('job_status', jid=jid))
+
+            return render_template('queue.html', queue = out, page=page, total_rows=len(q_all))
+
+
+    qall = query_db("SELECT status FROM \
+            user_queue WHERE hide=0 AND status!='pending' \
+            ORDER BY status_date DESC",[])
+    q = query_db("SELECT project_name, jid,status, status_date datet FROM \
+            user_queue WHERE hide=0 AND status!='pending' \
+            ORDER BY status_date DESC LIMIT ?,?",[before, app.config['PAGINATION']])
+    out = parse_out(q)
+    # pagination
+    count_data = len(qall)
+    if page*config['PAGINATION'] < count_data:
+        displ_to = page * config['PAGINATION']
+    else:
+        displ_to = count_data
+    
+
+    return render_template('queue.html', queue = out, total_rows = len(qall), page=page)
 
 @app.route('/job/<jid>/')
 def job_status(jid):
@@ -298,17 +348,22 @@ def index_page():
     form = MyForm()
     if request.method == 'POST':
         if form.validate():
-            jid, rec, lig, nam,email = add_init_data_to_db(form)
-            if len(form.name.data)<2:
-                nam = jid
-            flash('<strong>Input data</strong><table><tr><td>\
-                    <strong>Ligand sequence</strong></td> \
-                    <td><strong>Receptor sequence</strong></td> \
-                    <td><strong>Project name</strong></td> </tr><tr> \
-                    <td><span class="sequence">%s</span></td> \
-                    <td><span class="sequence">%s</span></td> \
-                    <td>%s</td> </tr></table>' %(lig,rec,nam),'info')
-            return redirect(url_for('index_constraints', jid=jid))
+            try:
+                jid, rec, lig, nam,email = add_init_data_to_db(form)
+                if len(form.name.data)<2:
+                    nam = jid
+                flash('<strong>Input data</strong><table class="table table-bordered"><tr><td>\
+                        <strong>Ligand sequence</strong></td> \
+                        <td><strong>Receptor sequence</strong></td> \
+                        <td><strong>Project name</strong></td> </tr><tr> \
+                        <td><span class="sequence">%s</span></td> \
+                        <td><span class="sequence">%s</span></td> \
+                        <td>%s</td> </tr></table>' %(lig,rec,nam),'info')
+                return redirect(url_for('index_constraints', jid=jid))
+            except:
+                flash("Network problem, try again later, contact admin: jamroz(AT)chem.uw.edu.pl ", "error")
+                return render_template('index.html', form=form)
+
         else:
             flash('Something goes wrong. Check errors within data input panel','error')
     return render_template('index.html', form=form)

@@ -23,16 +23,15 @@
           <div class="panel-body">
             <h3>
                 {{sys['project_name']}}
-                <span class="pull-right"> 
-Status:                    {{status|safe}}
+                <span class="pull-right"> <small>Status:                    {{status|safe}}</small>
                 </span>
                 <small>submitted: {{sys['status_date']}}</small>
             </h3>
             <hr>
 
             <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                    60%
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                    0%
                 </div>
             </div>
 
@@ -113,4 +112,8 @@ Ligand sequence
 </div>
 
 </div>
+{% endblock %}
+{% block below_js %}
+<script>
+</script>
 {% endblock %}

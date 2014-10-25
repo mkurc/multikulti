@@ -45,10 +45,10 @@ def index_contact():
     return render_template('contact.html')
 @app.route('/learn_more')
 def learn_more():
-    pass
+    return render_template('_learn_more.html')
 @app.route('/tutorial')
 def tutorial():
-    pass
+    return render_template('_tutorial.html')
 
 
 

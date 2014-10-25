@@ -1,4 +1,15 @@
 {% extends "index.html" %}
+{% block header %}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/jasny-bootstrap.min.css')}}">
+{% endblock %}
+{%block below_js%}
+    <script src="{{url_for('static', filename='js/jasny-bootstrap.min.js')}}"></script>
+{% endblock %}
+
+{% set page_n = page+1 %}
+{% set page_p = page-1 %}
+{% set displ_from = 1+(page-1)*config['PAGINATION'] %}
+{% set displ_to = (page)*config['PAGINATION'] if (page)*config['PAGINATION']<total_rows else total_rows %}
 
 {% block body %}
 <div class="container">
@@ -12,7 +23,7 @@
                         <th>Date</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody  data-link="row" class="rowlink">
                 {% for row in queue %}
                 <tr>
                     <td>
@@ -35,12 +46,21 @@
 
 
 
-<ul class="pager">
-  <li class="previous"><a href="#">&larr; Older</a></li>
-  <li class="next"><a href="#">Newer &rarr;</a></li>
-</ul>
+    <ul class="pager">
+           {% if page_p<1: %}
+           <li class="previous disabled"><a href="#">&larr; Older</a></li>
+           {% else %}
+               <li class="previous"><a href="{{url_for_other_page(page=page_p)}}">&larr; Older</a></li>
+           {% endif %}
+           {% if (page_n-1)*config['PAGINATION']>total_rows: %}
+           <li class="next disabled"><a href="#">Newer &rarr;</a></li>
+           {% else %}
+               <li class="next"><a href="{{url_for_other_page(page=page_n)}}">Newer &rarr;</a></li>
+            {% endif %}
+            
+    </ul>
 
-        </div>
+</div>
 
 
 

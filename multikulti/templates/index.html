@@ -9,7 +9,7 @@
         {% block indexuniq %}
         <title> CABSdock: server for protein-peptide docking</title>
         {% endblock %}
-<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap-theme.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/my_custom.css')}}">
@@ -40,13 +40,14 @@
         <li><a href="{{url_for('index_page')}}">Submit new job</a></li>
     </ul>
           <ul class="nav navbar-nav navbar-right">
-        <li><a href="{{url_for('learn_more')}}">Method</a></li>
-        <li><a href="{{url_for('queue_page')}}">Tutorial</a></li>
-        <li><a href="{{url_for('queue_page')}}">Contact</a></li>
-        <form class="navbar-form navbar-right" role="search" action="">
-<div class="input-group">
-    <input type="text" class="form-control" placeholder="search by the project name" name="search_lab" id="search_lab"> 
-          </div>
+            <li><a href="{{url_for('learn_more')}}">Method</a></li>
+            <li><a href="{{url_for('tutorial')}}">Tutorial</a></li>
+            <li><a href="{{url_for('index_contact')}}">Contact</a></li>
+            <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
+                <div class="input-group">
+                        <input type="text" class="form-control" placeholder="search by the project name" name="q" id="q"> 
+                </div>
+            </form>
           </ul>
 
       </form>
@@ -69,6 +70,17 @@
             {% endif %}
             {% endwith %}
 
+            {% with infos = get_flashed_messages(category_filter=["warning"]) %}
+            {% if infos %}
+                    {% for message in infos %}
+                        <div class="alert  alert-warning alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                <i class="fa fa-bullhorn"></i> 
+                                {{ message.decode('utf-8') }}
+                        </div>
+                    {% endfor %}
+            {% endif %}
+            {% endwith %}
             {% with errors = get_flashed_messages(category_filter=["error"]) %}
             {% if errors %}
                 <div class="alert alert-danger alert-dismissable">

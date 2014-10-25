@@ -97,8 +97,8 @@ jmol_isReady = function(applet) {
 } // after jmol init 	
 
 var JmolInfo = {
-	width: 1200,
-	height: 400,
+	width: '100%',
+	height: '100%',
 	debug: false,
 	color: "white",
 	addSelectionOptions: false,
@@ -124,12 +124,14 @@ var JMEInfo = {
 
 <div class="container-fluid">
     <div class="row-fluid">
-        <div id="ooo" class="behind col-md-9">
+        <div  class="behind col-md-9">
+        <div id="ooo" style="height:600px;border:1px solid;border-color:#eee;margin-bottom:15px">
 <script>
 jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
 jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
 var lastPrompt=0;
 </script>
+</div>
         <div class="panel panel-default">
                 <div class="panel-heading"> 
                     <p>
