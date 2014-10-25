@@ -99,9 +99,9 @@ jmol_isReady = function(applet) {
 var JmolInfo = {
 	width: '100%',
 	height: '100%',
-	debug: "true",
+	debug: false,
 	color: "white",
-	addSelectionOptions: "false",
+	addSelectionOptions: false,
 	serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
 	use: "HTML5",
 	readyFunction: jmol_isReady,
@@ -109,7 +109,7 @@ var JmolInfo = {
 	j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
 	isSigned: "true",
 	defaultModel: "",
-        console: "true"
+        console: "false",
 }
 var JMEInfo = {  
 	use: "HTML5"
