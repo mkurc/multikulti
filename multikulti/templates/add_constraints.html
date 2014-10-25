@@ -99,18 +99,17 @@ jmol_isReady = function(applet) {
 var JmolInfo = {
 	width: '100%',
 	height: '100%',
-	debug: false,
+	debug: "true",
 	color: "white",
-	addSelectionOptions: false,
-	serverURL: "http://www2.chemistry.msu.edu/faculty/reusch/VirtTxtJml/htmlJ/jsmol/jsmol.php",
+	addSelectionOptions: "false",
+	serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
 	use: "HTML5",
 	readyFunction: jmol_isReady,
         script: "set platformSpeed 8;background white;load {{url_for('compute_static', jobid=jid)}};restrict protein; trace only;color deepskyblue;color halos [255,0,0]",
-	jarPath: ".",
-	j2sPath: "/static/js/jsmol/j2s",
-	isSigned: false,
+	j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
+	isSigned: "true",
 	defaultModel: "",
-        console: "false", 
+        console: "true"
 }
 var JMEInfo = {  
 	use: "HTML5"
@@ -127,6 +126,7 @@ var JMEInfo = {
         <div  class="behind col-md-9">
         <div id="ooo" style="height:600px;border:1px solid;border-color:#eee;margin-bottom:15px">
 <script>
+Jmol._alertNoBinary = false;
 jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
 jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
 var lastPrompt=0;
