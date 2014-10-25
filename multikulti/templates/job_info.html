@@ -30,7 +30,7 @@
             <hr>
 
             <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
                     0%
                 </div>
             </div>
@@ -114,12 +114,34 @@ Ligand sequence
 <br>&nbsp;
 <div class="alert alert-warning alert-dismissible" role="alert">
   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-  <i class="fa fa-recycle"></i> <strong>Note</strong> This page will be deleted after 14 days after job complete.
+  <i class="fa fa-recycle"></i> <strong>Note</strong> If task is done, page will be deleted after fourteen days.
 </div>
 
 </div>
 {% endblock %}
 {% block below_js %}
 <script>
+
+var finishUTC = 60000*1; // za 10 minut
+
+var initUTC = 1414257998*1000; // wziac z bazy
+              initUTC =new Date().getTime(); // wypirdolic
+
+function tick() {
+    var bar = $('.progress-bar');
+    setTimeout(function () {
+        var d = new Date().getTime();
+        var progress = Math.max(Math.min(Math.ceil(100.0*(d - initUTC)/finishUTC), 100));
+        var percnt = progress+"%";
+        bar.attr('aria-valuenow', progress).css('width', percnt).html(percnt);
+
+        if (progress==100) {
+            return;
+        }
+
+        tick();
+ }, 5000);
+}
+tick();
 </script>
 {% endblock %}
