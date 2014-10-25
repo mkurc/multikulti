@@ -1,11 +1,5 @@
 #!/usr/bin/env python
-from random import randint
-from collections import Counter
-from glob import glob
 import sqlite3
-from os import path,makedirs
-from glob import glob
-from shutil import copytree
 from sys import exit
 #ALTER TABLE {tableName} ADD COLUMN COLNew {type};
 if not path.exists("database-full.db"):
