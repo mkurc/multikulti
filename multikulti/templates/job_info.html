@@ -1,8 +1,35 @@
 {% extends "index.html" %}
+{% macro waiting_for_results(t) %}
+<center><h2>Job is running...</h2></center>
+<div class="row">
+    <div id="waiting{{t}}" class="col-md-offset-3 col-md-6"></div>
+</div>
+
+{% endmacro %}
+
         {% block indexuniq %}
         {% endblock %}
     {% block header %}
     <title>CABSdock: {{sys['project_name']}}</title>
+<style>
+path {
+  fill-rule: evenodd;
+  stroke: #333;
+  stroke-width: 2px;
+}
+
+.sun path {
+  fill: #5cb85c;
+}
+
+.planet path {
+  fill: #f0ad4e;
+}
+
+.annulus path {
+  fill: #428bca;
+}
+</style>
     {% endblock %}
 
 {% block body %}
@@ -12,7 +39,7 @@
 <ul class="nav nav-tabs" role="tablist">
   <li class="active"><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Job status information</a></li>
   <li><a href="#models" role="tab" data-toggle="tab"><i class="fa fa-database"></i> Docking results</a></li>
-  <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering</a></li>
+  <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering info</a></li>
   <li><a href="#constraints" role="tab" data-toggle="tab"><i class="fa fa-wrench"></i> Simulation parameters</a></li>
 </ul>
 
@@ -21,12 +48,21 @@
   <div class="tab-pane active" id="summary">
       <div class="panel">
           <div class="panel-body">
+              
+            <div class="row">
+                <div class="col-md-6">
             <h3>
-                {{sys['project_name']}}
-                <span class="pull-right"> <small>Status:                    {{status|safe}}</small>
-                </span>
-                <small>submitted: {{sys['status_date']}}</small>
+                Project name: {{sys['project_name']}}
             </h3>
+
+        </div>
+        <div class="col-md-6">
+            <h4>Status:                    {{status|safe}}</h4>
+            <h6>submitted: {{sys['status_date']}}, status changed: {{sys['status_change']}}</h6>
+            </div>
+
+        </div>
+
             <hr>
 
             <div class="progress">
@@ -44,8 +80,9 @@
   <div class="tab-pane" id="models">
       <div class="panel">
           <div class="panel-body">
-<i class="fa fa-5x fa-spin fa-gear"></i> 
-olele, dwa modele
+                {% if status_type=='running' %}
+                    {{waiting_for_results(a)}}
+              {% endif %}
         </div>
       </div>
       
@@ -53,8 +90,9 @@ olele, dwa modele
   <div class="tab-pane" id="clustering">
       <div class="panel">
           <div class="panel-body">
-<i class="fa fa-5x fa-spin fa-gear"></i> 
-      jakaś tabelka z fajnymi numerkamy
+                {% if status_type=='running' %}
+                    {{waiting_for_results(a)}}
+              {% endif %}
         </div>
       </div>
   </div> <!-- end tab clustering -->
@@ -144,4 +182,8 @@ function tick() {
 }
 tick();
 </script>
+{% if status_type=='running' %}
+    {% include "waiting_applet.html" %}
+{% endif %}
+
 {% endblock %}

@@ -139,10 +139,6 @@ label >img {
 nav.navbar {
     background: #573d7e ;
 }
-nav.navbar li a,
-nav a.navbar-brand {
-	color: #fff;
-}
 
 /* First level of nav */
 .sidenav {

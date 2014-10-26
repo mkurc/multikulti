@@ -214,18 +214,8 @@
                 </div>
                 {{render_field(form.ligand_ss, placeholder='EHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
                 {{render_checkbox_field(form.show)}}
-                <table class="table">
-                    <tr>
-                        <td>
-                Computational server status:
-            </td>
-            <td>
-            <span class="label label-success">Waiting for tasks</span>
-                <br><span class="label pull-right label-warning">High load</span>
-                <br>                <span class="label pull-right label-danger">Offline</span>
-        </td>
-    </tr>
-</table>
+
+                <h6>Computational server status {{status|safe}}</h6>
       </div>
     </div>
   </div>

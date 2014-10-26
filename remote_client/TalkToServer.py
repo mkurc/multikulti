@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 
 import requests
-from requests_toolbelt import MultipartEncoder
 import bz2
 import gzip
 import json
 import urllib2
+import os
+from multiprocessing import cpu_count
 from re import compile,match
 from config_remote import config_remote
-
-def arraytostring(ar):
-    i = []
-    for e in ar:
-        i.append("%d-%d"%(e))
-    return ", ".join(i)
 
 class TalkToServer:
     def __init__(self,jid):
@@ -22,110 +17,63 @@ class TalkToServer:
         self.webserver = config_remote['webserver_url']
         self.remoteuri = self.webserver+"_server_talking/"+self.secret_key+"/"+self.jid
 
-        # delete user jobs
-        url = self.webserver+"_deleteOldJobs"
+#        # delete user jobs
+#        url = self.webserver+"_deleteOldJobs"
+#        try:
+#            r = requests.get(url)
+#            if r.status_code == requests.codes.ok:
+#                print "Probably (if any) deleted old user jobs "+str(r.status_code)
+#            else:
+#                print " ERROR Problem with deleting old user jobs "+str(r.status_code)
+#        except:
+#            print "problem with request to deleteOldJobs"
+
+    def getStructureFile(self,output_path="input.pdb.gz"):
         try:
-            r = requests.get(url)
-            if r.status_code == requests.codes.ok:
-                print "Probably (if any) deleted old user jobs "+str(r.status_code)
-            else:
-                print " ERROR Problem with deleting old user jobs "+str(r.status_code)
+            with open(output_path,"wb") as out:
+                tmp = urllib2.urlopen(self.webserver+"compute_static/"+self.jid+"/input.pdb.gz")
+                out.write(tmp.read())
+                tmp.close()
         except:
-            print "problem with request to deleteOldJobs"
-    def _bzip(self,filename):
-        with open(filename, 'rb') as contentfile:
-            content = contentfile.read()
-            bzipped = bz2.compress(content)
-            return bzipped
-    #def getUserParameters(self):
+            print "ERROR: Nothing found!"
+    def getScalingFactor(self):
+        try:
+            f = urllib2.urlopen(self.remoteuri+'/SCALFACTOR/')
+            data = f.read()
+            f.close()
+            j = json.loads(data)
+            return j
+        except:
+            print "ERROR: problem with scaling factor fetch"
 
-    def getUserFile(self,output_path,filetype):
-        if filetype=='pdb':
-
-            print "downloading "+self.webserver+"compute_static/"+self.jid+"/input.pdb.bz2"
-            tmp = urllib2.urlopen(self.webserver+"compute_static/"+self.jid+"/input.pdb.bz2")
-        else:
-            print "downloading "+self.webserver+"compute_static/"+self.jid+"/input.xyz.bz2"
-            tmp = urllib2.urlopen(self.webserver+"compute_static/"+self.jid+"/input.xyz.bz2")
-
-        out = open(output_path,"wb")
-        out.write(tmp.read())
-        out.close()
-
-    def getUserParameters(self, jid):
-        f = urllib2.urlopen(self.remoteuri+'/INFO/')
-        data = f.read()
-        f.close()
-        j = json.loads(data)
-        return j
-
-    def uploadFile(self,filename): # TODO not very secure!!
-        ''' 
-            File will be uploaded to /compute_static/jid/results/filename on remote webserver
+    def getLigandInfo(self):
         '''
+            get ligand sequence/ss
+        '''
+        try:
+            f = urllib2.urlopen(self.remoteuri+'/LIGANDSEQ/')
+            data = f.read()
+            f.close()
+            j = json.loads(data)
+            return j
+        except:
+            print "ERROR: problem with ligand seq fetch"
 
-        url = self.remoteuri+"/SEND/"
-        m = MultipartEncoder( # TODO w knotFinderze to bylo spierdolone i nie podawalo plikow (ale tam byly dwa - moze to cos znaczy)
-                fields = {
-                    'file': (filename+".bz2", self._bzip(filename), 'application/x-bzip2') 
-                    }
-                )
-        try:
-            r = requests.post(url, data = m, headers = {'Content-Type': m.content_type})
-            if r.status_code == requests.codes.ok:
-                print filename+" uploaded "+str(r.status_code)
-            else:
-                print filename+" NOT uploaded "+str(r.status_code)
-        except:
-            print "NOT uploaded, Probably server down"
-    def updateUserJobDB(self,values,table):        
-        url = self.remoteuri+"/UPD/"
-        m = MultipartEncoder(fields={'values': values,'table':table})
-        try:
-            r = requests.post(url, data = m, headers = {'Content-Type': m.content_type})
-            if r.status_code == requests.codes.ok:
-                print values+" sent. "+str(r.status_code)
-            else:
-                print values+" not. "+str(r.status_code)
-        except:
-            print "NOT sent. Probably server down"
-
-    def tellSomething(self,message):
-        url = self.remoteuri+"/MSG/"
-        m = MultipartEncoder(fields={'message': message})
-        try:
-            r = requests.post(url, data = m, headers = {'Content-Type': m.content_type})
-            if r.status_code == requests.codes.ok:
-                print message, " said",r.status_code
-            else:
-                print message, " NOT said, status: ", r.status_code
-        except:
-            print "NOT uploaded, Probably server down"
     def IamAlive(self): # PING PING PING
+        cc = cpu_count()
+        load = os.getloadavg()[2] # 15 minutes avg
+        percentage = int(100*load/cc)
+        hostn = os.uname()[1]
+        d = {'load': percentage, 'hostname': hostn}
+
+        r = requests.post(self.remoteuri+"/LOAD/", data = d)
+
+        if r.status_code == requests.codes.ok:
+            print "I am healthy, fresh and ready to work.. annonunced.."
+        else:
+            print "Not announced, webserver disconnected!?, status: ", r.status_code
         try:
-            r = requests.get(self.remoteuri+"/PING/")
-            if r.status_code == requests.codes.ok:
-                print "I am healthy, fresh and ready to work.. annonunced.."
-            else:
-                print "Not announced, webserver disconnected!?, status: ", r.status_code
-        except:
-            print "Not announced, webserver disconnected!?, status: " 
-    def tellJobTimeout(self):
-        try:
-            r = requests.get(self.remoteuri+"/S_TOUT/")
-            if r.status_code == requests.codes.ok:
-                print "set job timeout "+str(r.status_code)
-            else:
-                print "Not set >>job timeout<<, webserver disconnected!?, status: ", r.status_code
-        except:
-            print "timeout Not announced, webserver disconnected!?, status: " 
-    def tellJobPending(self):
-        try:
-            r = requests.get(self.remoteuri+"/S_P/")
-            if r.status_code == requests.codes.ok:
-                print  "set job pending "+str(r.status_code)
-            else:
-                print "Not set >>job pending<<, webserver disconnected!?, status: ", r.status_code
+            pass
         except:
             print "Not announced, webserver disconnected!?, status: " 
     def tellJobRunning(self):
@@ -157,15 +105,20 @@ class TalkToServer:
             print "Not announced, webserver disconnected!?, status: " 
     def tellJobWaiting(self):
         try:
-            r = requests.get(self.remoteuri+"/S_W/")
+            r = requests.get(self.remoteuri+"/S_Q/")
             if r.status_code == requests.codes.ok:
-                print "set job waiting "+str(r.status_code)
+                print "set job in queue  "+str(r.status_code)
             else:
-                print "Not set >>job waiting<<, webserver disconnected!?, status: ", r.status_code
+                print "Not set >>job in queue<<, webserver disconnected!?, status: ", r.status_code
         except:
             print "Not announced, webserver disconnected!?, status: " 
 
 if __name__ == "__main__":
-    a = PdbParser("/home/mjamroz/aaa.xyz",fmt='xyz',bzip=False)
-    #a.saveModelXYZ(argv[1]+".xyz")
-    print a.getSequence()
+    a = TalkToServer("5b2d094fe276eb")
+    a.IamAlive() # pinguj, ze zyje
+    a.getStructureFile() # pobierz plik struktury (gzipowany). Domyslnie do ./input.pdb.gz
+    print a.getLigandInfo()
+    print a.getScalingFactor()
+    a.tellJobError()
+    a.tellJobRunning()
+

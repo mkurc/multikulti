@@ -299,7 +299,8 @@ def queue_page(page=1):
 @app.route('/job/<jid>/')
 def job_status(jid):
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
-            datetime(status_date,'unixepoch') status_date, project_name, \
+            datetime(status_date,'unixepoch') status_date, \
+            datetime(status_init,'unixepoch') status_change, project_name, \
             status,constraints_scaling_factor FROM  user_queue WHERE jid=?", 
             [jid],one=True)
     constraints = query_db("SELECT constraint_definition,force FROM constraints\
@@ -308,7 +309,7 @@ def job_status(jid):
     # dodac kolorowe badgesy do statusu
 
     return render_template('job_info.html', status = status, constr=constraints, 
-            jid=jid, sys=system_info)
+            jid=jid, sys=system_info, status_type=system_info['status'])
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
 def user_add_constraints():
@@ -332,6 +333,17 @@ def user_add_constraints():
 
 @app.route('/',methods=['GET','POST'])
 def index_page():
+    # get remote server load. If delay 50 minut - OFLAJN
+    q = query_db("SELECT load FROM server_load where id=0 AND datetime(status_date, 'unixepoch', '+50 minutes')> datetime('now')",one=True)
+    if not q:
+        comp_status = '<span class="label label-danger">server offline</span>'
+        # TODO send_mail ze zjebalo
+    elif int(q[0])> 85:
+        comp_status = '<span class="label label-warning">high load</span>'
+    else:
+        comp_status = '<span class="label label-success">waiting for tasks</span>'
+
+    # forms
     form = MyForm()
     if request.method == 'POST':
         if form.validate():
@@ -339,19 +351,12 @@ def index_page():
                 jid, rec, lig, nam,email = add_init_data_to_db(form)
                 if len(form.name.data)<2:
                     nam = jid
-#                flash('<strong>Input data</strong><table class="table table-bordered"><tr><td>\
-#                        <strong>Ligand sequence</strong></td> \
-#                        <td><strong>Receptor sequence</strong></td> \
-#                        <td><strong>Project name</strong></td> </tr><tr> \
-#                        <td><span class="sequence">%s</span></td> \
-#                        <td><span class="sequence">%s</span></td> \
-#                        <td>%s</td> </tr></table>' %(lig,rec,nam),'info')
                 return redirect(url_for('index_constraints', jid=jid))
             except:
                 flash("Network problem, try again later, contact admin: jamroz(AT)chem.uw.edu.pl ", "error")
-                return render_template('index.html', form=form)
+                return render_template('index.html', form=form, status=comp_status)
 
         else:
             flash('Something goes wrong. Check errors within data input panel','error')
-    return render_template('index.html', form=form)
+    return render_template('index.html', form=form, status=comp_status)
 
