@@ -1,4 +1,5 @@
 {% extends "index.html" %}
+{% set jinja_colors = ["#a6cee3", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#cab2d6", "#6a3d9a", "#b15928"] %}
     {% set v2 = 'Job was already submitted..' %}
     {% set v = 'disabled="disabled"' %}
     {% if status=='pending' %}
@@ -6,7 +7,6 @@
         {% set v2 = 'Submit job!' %}
     {% endif %}
 
-{% set jinja_colors = ["#428bca", "#5cb85c", "#5bc0de", "#f0ad4e", "#d9534f", "#777"] %}
 {% set G = 0 %} 
 {% set GG = 0 %} 
 
@@ -29,8 +29,8 @@ var jmol_selected2 = [];
 var global_constraints_row_index=10000;
 var jmol_temporary_selected = [];
 var global_color_index = 0;
-//var colors = ["#FFBF00", "#A4C639", "#7FFFD4", "#FF9966", "#89CFF0", "#98777B", "#B5A642", "#FF007F", "#CC5500", "#006B3C", "#92A1CF", "#DFFF00", "#DE3163"];
-var colors = ["#428bca", "#5cb85c", "#5bc0de", "#f0ad4e", "#d9534f", "#777"];
+var colors = ["#a6cee3", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#cab2d6", "#6a3d9a", "#b15928"];
+var colors_jmol = ["[xa6cee3]", "[xb2df8a]", "[x33a02c]", "[xfb9a99]", "[xe31a1c]", "[xfdbf6f]", "[xcab2d6]", "[x6a3d9a]", "[xb15928]"];
 var jmol="jmol";
 var jme = "jme";
 var jmolApplet0; // set up in HTML table, below
@@ -168,10 +168,12 @@ var lastPrompt=0;
                             </tr>
                         </thead>
                         <tbody>
+                        <tr><td></td><td></td><td></td></tr>
                         {% for c in constr %}
-                        <tr><td class='del'>
-                                <a href="#" onclick='rowDel(this)' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}'><i class='text-danger fa fa-close'></i></a></td>
-                            <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' name='consrange{{G}}'>{{c['constraint_definition']}}</span></td>
+                           <!--sieczka-->
+                            <tr><td class='del'>
+                                <a href="#" onclick='rowDel(this)' data-jmol='{{c['constraint_jmol']}}' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}'><i class='text-danger fa fa-close'></i></a></td>
+                            <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' data-jmol='{{c['constraint_jmol']}}' name='consrange{{G}}'>{{c['constraint_definition']}}</span></td>
                             <td class='constr'>
                                 <select id="row_weight{{G}}" class="input-sm form-control">
                                     {{di[c['force']|safe]|safe}} 
@@ -180,7 +182,7 @@ var lastPrompt=0;
                                 
                             {% set G = G + 1 %}
                             {% set GG = GG + 1 %}
-                            {% if GG==6 %}
+                            {% if GG==9 %}
                                 {% set GG=0 %}
                             {% endif %}
                         </tr>
@@ -331,27 +333,40 @@ var lastPrompt=0;
                 //var jmol_selected = [];
                 if (global_color_index==colors.length)
                     global_color_index=0;
-
+                var jmolr = [];
                 for (var i = 0; i < currSelection.rangeCount; i++) {
                     var s = getRangesAndChain(currSelection.getRangeAt(i));
                     colorSeq( s[0], s[1], s[2],g);
                     jmol_selected.push(s[1]+"-"+s[2]+":"+s[0]);
+                    jmolr.push(s[1]+"-"+s[2]+":"+s[0]);
+                    Jmol.script(jmolApplet0,"select "+s[1]+"-"+s[2]+":"+s[0]+"; color "+colors_jmol[global_color_index]+"");
                     selected.push(s[1]+":"+s[0]+" - "+s[2]+":"+s[0]);
                 }
                 var newRow = "<tr>" + "<td class='del'>" + 
-                        "<a href='#' onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +
-                        "<td ><span style='color:"+colors[global_color_index]+"' data-rowid='"+g+"' name='consrange"+g+"'>"+selected.join(", ")+"</span></td>" +
+                        "<a href='#' onclick='rowDel(this)' data-jmol='"+jmolr.join(", ")+"' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +
+                        "<td ><span style='color:"+colors[global_color_index]+"' data-jmol='"+jmolr.join(", ")+"' data-rowid='"+g+"' name='consrange"+g+"'>"+selected.join(", ")+"</span></td>" +
                         "<td class='constr'>"+printList("row_weight"+g)+"</td>" +
                         "</tr>";
-                    $('#constraintsTable > tbody > tr:first').before(newRow);
+                    $('#constraintsTable > tbody > tr:first').after(newRow);
                     global_constraints_row_index+=1;
                 currSelection.removeAllRanges ();
 
-                Jmol.script(jmolApplet0,"select "+jmol_selected.join()+"; color green");
+                //Jmol.script(jmolApplet0,"select "+jmol_selected.join()+"; color green");
                 global_color_index += 1;
         }
     }
 $(document).ready(function() {
+{% for row in  jmol_color %}
+    {{row|safe}}
+{% endfor %}
+global_color_index = {{jmol_color|length +1}};
+if (global_color_index>=colors.length)
+   global_color_index=0;
+
+// from database ^
+
+
+
         $("#infobar").slideUp(0);
     $("#sele").click(function () { // dodaj zaznaczenie do listy zaznaczen
             highlightSelectedText();
@@ -365,15 +380,18 @@ $(document).ready(function() {
             saved = 1;
             var scalingFactor = document.getElementById('constrW').value;
             var user_constraints = [];
+            var user_constraints_jmol = [];
             var weights = [];
             $("td span[name^='consrange']").each(function() { 
                 var rngs = $(this).text();
                 var rowid = $(this).data('rowid');
+                var rngs_j = $(this).data('jmol');
                 var weight = $("#row_weight"+rowid).val();
                 weights.push(weight);
                 user_constraints.push(rngs);
+                user_constraints_jmol.push(rngs_j);
             });
-            var variables = {'constr[]': user_constraints, 'constr_w[]': weights, 'overall_weight': scalingFactor, 'jid': '{{jid}}' };
+            var variables = {'constr[]': user_constraints, 'constr_w[]': weights, 'constr_jmol[]': user_constraints_jmol, 'overall_weight': scalingFactor, 'jid': '{{jid}}' };
             $.post("{{url_for('user_add_constraints')}}", variables, function() {
                 $("#infobar").slideDown(500).delay(1500).slideUp(1500);
             });
@@ -388,18 +406,20 @@ function manAdd() {
     var g = global_constraints_row_index;
     var dataToAdd = document.getElementById('addManually').value;
     var newRow = "<tr>" + "<td class='del'>" + 
-"<a href='#' onclick='rowDel(this)' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +
-"<td ><span data-rowid='"+g+"' name='consrange"+g+"'>"+dataToAdd+"</span></td>" +
+"<a href='#' onclick='rowDel(this)' id='rowdel"+g+"' data-jmol='"+dataToAdd+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +
+"<td ><span data-rowid='"+g+"' data-jmol='"+dataToAdd+"' name='consrange"+g+"'>"+dataToAdd+"</span></td>" +
 "<td class='constr'>"+printList("row_weight"+g)+"</td>" +
 "</tr>";
-$('#constraintsTable > tbody > tr:first').before(newRow);
+$('#constraintsTable > tbody > tr:first').after(newRow);
 document.getElementById('addManually').value = '';
 global_constraints_row_index+=1;
 }
 function rowDel(el) {
         var row = $(el).closest('tr');//parent().parent();
         var g = $(el).data("rowid");
+        var jmol_range = $(el).data("jmol");
         row.remove();
+        Jmol.script(jmolApplet0,"select "+jmol_range+"; color deepskyblue");
         $(".colored"+g).removeClass("colored"+g).css({'color':'', 'text-decoration': ''});
         // TODO uncolor on the structure
 }
@@ -411,7 +431,7 @@ $('.tt').tooltip();
 $('.tt2').popover({'content':"Use this panel to add custom distance restraints between ligand \
         and receptor or other distance restraints if you don't want to use visual mode. \
         <br>Examples: <hr>Add 5.0 Angstrom distance constraint between 2nd C&alpha; atom of ligand and 3rd res. of D-chain of complex - add constraint: <strong><nobr>2:LIGAND, 6:D, 5.0</nobr></strong><hr>\
-        Add set of distance restraints between fragment 1-100 of chain A and fragment 1-10 of ligand: <strong><nobr>1-10:LIGAND, 1-100:A</nobr></strong><hr>\
+        Add set of distance restraints (default 0-10A) between fragment 1-100 of chain A and fragment 1-10 of ligand: <strong><nobr>1-10:LIGAND, 1-100:A</nobr></strong><hr>\
         Add set of distance restraints between fragment 1-100 of chain A and fragment 1-10 of chain C: <strong><nobr>1-10:C, 1-100:A</nobr></strong><hr>\
         Add 5.0A distance restraint between res. 1:A and res. 23:B: <strong><nobr>1:A, 23:B, 5.0</nobr></strong>", 'html': true, 'placement':'left'});
     </script>

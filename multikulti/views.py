@@ -157,9 +157,13 @@ def index_constraints(jid):
     ligand_sequence = d[0]
     status = d[1]
     scaling = d[2]
+    jmol_string = 'Jmol.script(jmolApplet0,"select %s; color "+colors_jmol[%d]+"");'
+    jmol_l = []
 
-    constraints = query_db("SELECT constraint_definition,force FROM \
+    constraints = query_db("SELECT constraint_definition,force,constraint_jmol FROM \
             constraints WHERE jid=?", [jid])
+    for i in range(len(constraints)):
+        jmol_l.append(jmol_string % (constraints[i]['constraint_jmol'], i))
     print constraints
     di ={'1.0': '<option value="1.0" selected>default</option><option \
             value="0.25">light</option><option value="5.0">strong</option>',
@@ -169,7 +173,7 @@ def index_constraints(jid):
                     value="1.0">default</option><option value="0.25">light</option>'}
 
     return render_template('add_constraints.html',jid=jid, status=status, 
-            scaling=scaling, constr = constraints, ligand_seq=ligand_sequence,di=di)
+            scaling=scaling, constr = constraints, ligand_seq=ligand_sequence,di=di,jmol_color = jmol_l)
   
 def add_init_data_to_db(form):
     jid = unique_id()
@@ -215,9 +219,9 @@ def add_init_data_to_db(form):
     unzpinp = os.path.join(app.config['USERJOB_DIRECTORY']+"/"+jid, "input.pdb")
     r = restrRanges(unzpinp)
     r.parseRanges()
-    for e,e1 in zip(r.getLabelFormat(), r.getLabelFormat1()):
-        query_db("INSERT INTO constraints(jid,constraint_definition,constraint_definition1) VALUES(?,?,?)", 
-                [jid,e,e1],insert = True)
+    for e,e1,e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),r.getJmolFormat()):
+        query_db("INSERT INTO constraints(jid,constraint_definition,constraint_definition1,constraint_jmol) VALUES(?,?,?,?)", 
+                [jid,e,e1,e2],insert = True)
     # TODO kolorowanie wiezow
 
     return (jid, receptor_seq, ligand_seq, form.name.data,form.email.data)
@@ -319,15 +323,16 @@ def user_add_constraints():
             return Response("OJ OJ, nieladnie", status=404,mimetype='text/plain')
 
         constraints = request.form.getlist('constr[]')
+        constraints_jmol = request.form.getlist('constr_jmol[]')
         weights = request.form.getlist('constr_w[]')
         scaling_factor =   request.form.get('overall_weight','1.0')
         query_db("DELETE FROM constraints WHERE jid=?", [jid], insert=True)
         query_db("UPDATE user_queue SET constraints_scaling_factor=? WHERE jid=?",
                 [scaling_factor, jid], insert=True)
 
-        for r in zip(constraints,weights):
-            query_db("INSERT INTO constraints(jid,constraint_definition,force) \
-                    VALUES(?,?,?)", [jid,r[0],r[1]], insert = True) 
+        for r in zip(constraints,weights,constraints_jmol):
+            query_db("INSERT INTO constraints(jid,constraint_definition,force,constraint_jmol) \
+                    VALUES(?,?,?,?)", [jid,r[0],r[1],r[2]], insert = True) 
 
     return Response("HAHAHAahahahakier",status=200,mimetype='text/plain')
 
@@ -347,14 +352,14 @@ def index_page():
     form = MyForm()
     if request.method == 'POST':
         if form.validate():
-            try:
-                jid, rec, lig, nam,email = add_init_data_to_db(form)
-                if len(form.name.data)<2:
-                    nam = jid
-                return redirect(url_for('index_constraints', jid=jid))
-            except:
-                flash("Network problem, try again later, contact admin: jamroz(AT)chem.uw.edu.pl ", "error")
-                return render_template('index.html', form=form, status=comp_status)
+            #try:
+            jid, rec, lig, nam,email = add_init_data_to_db(form)
+            if len(form.name.data)<2:
+                nam = jid
+            return redirect(url_for('index_constraints', jid=jid))
+           # except:
+           #     flash("Network problem, try again later, contact admin: jamroz(AT)chem.uw.edu.pl ", "error")
+           #     return render_template('index.html', form=form, status=comp_status)
 
         else:
             flash('Something goes wrong. Check errors within data input panel','error')

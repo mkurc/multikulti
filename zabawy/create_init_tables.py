@@ -43,6 +43,7 @@ def createTables():
                   jid text NOT NULL,
                   constraint_definition text,
                   constraint_definition1 text,
+                  constraint_jmol text,
                   force float not null default 1.0,
                   foreign key(jid) REFERENCES user_queue(jid)
                   ) ''')
