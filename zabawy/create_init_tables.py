@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sqlite3
 from sys import exit
+from os import path
+
 #ALTER TABLE {tableName} ADD COLUMN COLNew {type};
 if not path.exists("database-full.db"):
     db = sqlite3.connect("database-full.db")
@@ -11,6 +13,10 @@ else:
 
 def createTables():
     global cur,db
+    cur.execute("DROP TABLE IF EXISTS server_load")
+    cur.execute('''CREATE TABLE server_load(id integer primary key autoincrement, \
+            status_date integer(4) NOT NULL DEFAULT \
+            (strftime('%s', 'now')), load integer, name text)''')
 
     cur.execute("DROP TABLE IF EXISTS user_queue")
     cur.execute('''
