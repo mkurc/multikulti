@@ -49,22 +49,26 @@ def status_color(status,shorter=True):
         elif status=='pre_queue':
             return '<span class="label label-warning"><i class="fa fa-spin fa-spinner"></i> job pending <small>waiting for computational server response</small></span>'
         elif status=='queue':
-            return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>'
+            return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue <small>waiting for free CPU thread</small></span>'
         elif status=='running':
             return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
         elif status=='error':
             return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
+        elif status=='done':
+            return '<span class="label label-success"><i class="fa fa-check"></i> done</span>'
     else:
         if status=='pending':
             return '<span class="label label-primary"><i class="fa fa-edit"></i> job pending</span> <small>waiting for adding/accepting constraints</small>'
         elif status=='pre_queue':
             return '<span class="label label-warning"><i class="fa fa-spin fa-spinner"></i> job pending</span> <small>waiting for computational server response</small>'
         elif status=='queue':
-            return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>'
+            return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span> <small>waiting for free CPU thread</small>'
         elif status=='running':
             return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
         elif status=='error':
             return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
+        elif status=='done':
+            return '<span class="label label-success"><i class="fa fa-check"></i> done</span>'
 
 
 

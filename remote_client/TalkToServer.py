@@ -123,11 +123,10 @@ class TalkToServer:
             print "Not announced, webserver disconnected!?, status: " 
 
 if __name__ == "__main__":
-    a = TalkToServer("5b2d094fe276eb")
+    a = TalkToServer("59b899d366235fa")
     a.IamAlive() # pinguj, ze zyje
     a.getStructureFile() # pobierz plik struktury (gzipowany). Domyslnie do ./input.pdb.gz
     print a.getLigandInfo()
     print a.getScalingFactor()
-    a.tellJobError()
-    a.tellJobRunning()
+    a.tellJobDone()
 

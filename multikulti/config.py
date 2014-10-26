@@ -33,7 +33,7 @@ config = \
          #ADMIN_EMAILS=["michal@yerbamate.com.pl","jsulkows@gmail.com"], # admin mails. Send errors, info about new knots, etc.
          #SMTP_SERVER = "localhost",             # if authorization needed, modify send_mail() method
          PRODUCTION = False,
-         PAGINATION=3)                         # # of records on /browse/ page
+         PAGINATION=5)                         # # of records on /browse/ page
 
 
 #def send_mail(to='', subject="Test",body="Body"):
