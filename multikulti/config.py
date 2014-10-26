@@ -24,6 +24,7 @@ config = \
          ALLOWED_EXTENSIONS = ['pdb','PDB'],
          UPLOAD_FOLDER=prefix+'upload/',
          USERJOB_DIRECTORY=prefix+'computations/',
+         DELETE_USER_JOBS_AFTER = "14",
          REMOTE_SERVER_SECRET_KEY = "23",
          REMOTE_SERVER_IP = ["127.0.0.1"],
          DEBUG=True, 

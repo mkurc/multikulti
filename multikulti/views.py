@@ -215,9 +215,9 @@ def add_init_data_to_db(form):
     unzpinp = os.path.join(app.config['USERJOB_DIRECTORY']+"/"+jid, "input.pdb")
     r = restrRanges(unzpinp)
     r.parseRanges()
-    for e in r.getLabelFormat():
-        query_db("INSERT INTO constraints(jid,constraint_definition) VALUES(?,?)", 
-                [jid,e],insert = True)
+    for e,e1 in zip(r.getLabelFormat(), r.getLabelFormat1()):
+        query_db("INSERT INTO constraints(jid,constraint_definition,constraint_definition1) VALUES(?,?,?)", 
+                [jid,e,e1],insert = True)
     # TODO kolorowanie wiezow
 
     return (jid, receptor_seq, ligand_seq, form.name.data,form.email.data)

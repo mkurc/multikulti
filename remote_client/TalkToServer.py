@@ -17,16 +17,25 @@ class TalkToServer:
         self.webserver = config_remote['webserver_url']
         self.remoteuri = self.webserver+"_server_talking/"+self.secret_key+"/"+self.jid
 
-#        # delete user jobs
-#        url = self.webserver+"_deleteOldJobs"
-#        try:
-#            r = requests.get(url)
-#            if r.status_code == requests.codes.ok:
-#                print "Probably (if any) deleted old user jobs "+str(r.status_code)
-#            else:
-#                print " ERROR Problem with deleting old user jobs "+str(r.status_code)
-#        except:
-#            print "problem with request to deleteOldJobs"
+        # delete user jobs
+        url = self.webserver+"_deleteOldJobs"
+        try:
+            r = requests.get(url)
+            if r.status_code == requests.codes.ok:
+                print "Probably (if any) deleted old user jobs "+str(r.status_code)
+            else:
+                print " ERROR Problem with deleting old user jobs "+str(r.status_code)
+        except:
+            print "problem with request to deleteOldJobs"
+    def setResults(self):
+        pass
+# trzeba ustalic jakie pliki ma wysylac
+#        d = {'load': percentage, 'hostname': hostn}
+#        r = requests.post(self.remoteuri+"/SEND/", data = d, files=filesy)
+#        if r.status_code == requests.codes.ok:
+#            print "Results sent!"
+#        else:
+#            print "Results NOT sent", r.status_code
 
     def getStructureFile(self,output_path="input.pdb.gz"):
         try:

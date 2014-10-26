@@ -32,16 +32,17 @@ def createTables():
                 status text check(status IN ('pending', 'pre_queue', 'queue', 'running', 'error', 'done') )  NOT NULL DEFAULT 'pending',
                 project_name text NOT NULL,
                 status_date integer(4) NOT NULL DEFAULT (strftime('%s', 'now')),
-                status_init integer(4) NOT NULL DEFAULT (strftime('%s', 'now')),
+                status_init integer(4) NOT NULL DEFAULT (strftime('%s', 'now')), 
                 constraints_scaling_factor not null default 1.0
                 ) ''')
-
+# chyba ten definition1 zbedny, bo i tak user bedzie podawal wzgledem pdb
     cur.execute("DROP TABLE IF EXISTS constraints")
     cur.execute('''
                 CREATE TABLE constraints
                 ( id integer primary key,   
                   jid text NOT NULL,
                   constraint_definition text,
+                  constraint_definition1 text,
                   force float not null default 1.0,
                   foreign key(jid) REFERENCES user_queue(jid)
                   ) ''')
