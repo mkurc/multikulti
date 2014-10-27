@@ -55,6 +55,10 @@ def parse_server_talking(task,secret_key,jid):
             hostname = request.form['hostname']
             query_db("UPDATE  server_load SET load=?, name=?,status_date=(strftime('%s','now')) WHERE id=0",[load,hostname], insert=True)
 
+        elif task=="SENDSS" and request.method=='POST': 
+            ss = request.form['ss']
+            query_db("UPDATE  user_queue set ligand_ss=?,ss_psipred=1 WHERE jid=?",[ss,jid], insert=True)
+
         elif task=="LIGANDSEQ":
             t = query_db("SELECT ligand_sequence,ligand_ss FROM user_queue WHERE jid=?",[jid], one=True)
             out =  {'sequence': 'JESTEM', 'secstr': 'HAkER3M'}
@@ -65,6 +69,12 @@ def parse_server_talking(task,secret_key,jid):
         elif task=="SCALFACTOR":
             t = query_db("SELECT constraints_scaling_factor FROM user_queue WHERE jid=?",[jid], one=True)
             return Response(json.dumps({'constraints_scaling_factor': t[0]}), mimetype='application/json')
+        elif task=="RESTRAINTS":
+            t = query_db("SELECT constraint_definition,force FROM constraints WHERE jid=?",[jid])
+            out = []
+            for row in t:
+                out.append( {'def': row[0], 'force': row[1]} )
+            return Response(json.dumps(out), mimetype='application/json')
 
     return Response("HEIL ERIS!",mimetype='text/plain')
 

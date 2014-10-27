@@ -31,6 +31,7 @@ def createTables():
                 hide integer(1) DEFAULT 0,
                 status text check(status IN ('pending', 'pre_queue', 'queue', 'running', 'error', 'done') )  NOT NULL DEFAULT 'pending',
                 project_name text NOT NULL,
+                ss_psipred integer(1) NOT NULL DEFAULT 0,
                 status_date integer(4) NOT NULL DEFAULT (strftime('%s', 'now')),
                 status_init integer(4) NOT NULL DEFAULT (strftime('%s', 'now')), 
                 constraints_scaling_factor not null default 1.0

@@ -120,6 +120,22 @@ Ligand sequence
                 <span class='sequence'>{{sys['ligand_sequence']}}</span>
             </td>
         </tr>
+        <tr>
+            <td><strong>
+                    Ligand secondary structure 
+                </strong>
+                    {% if sys['ss_psipred']==1 %}
+                        <span class="label label-info pull-right">pred. by PSIPRED</span>
+                    {% endif %} 
+            </td>
+            <td>
+                    {% if sys['ligand_ss']|length != sys['ligand_sequence']|length %}
+                    <small><i>waiting for PSIPRED prediction</i></small>
+                    {% else %}
+                <span class='sequence'>{{sys['ligand_ss']}}</span>
+                    {% endif %}
+            </td>
+        </tr>
       <tr><td>
       <h5>Restraints <small>restrained chain fragments and force scaling factor</h5>
       </td>
@@ -130,7 +146,7 @@ Ligand sequence
           {% set iter=0 %}
         <tr>
           {% for row in constr %}
-          <td>{{row['constraint_definition']}} <span class="label label-info pull-right">{{row['force']}}</span></td>
+          <td><small>{{row['constraint_definition']}}</small> <span class="badge">{{row['force']}}</span></td>
             {% set iter = iter + 1 %}
             {% if iter==break %}
                 </tr><tr>
@@ -142,7 +158,7 @@ Ligand sequence
       </table>
   </td>
   </tr>
-      <tr><td><h5>Restraints global scaling factor</td><td> {{sys['constraints_scaling_factor']}}</h5></td></tr>
+  <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td></tr>
 
       </table>
         </div>

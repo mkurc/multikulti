@@ -81,7 +81,7 @@ def sequence_validator(form, field):
             raise ValidationError('Sequence contains non-standard aminoacid symbol: %s' % (letter) )
 def eqlen_validator(form, field):
     if len(field.data) != len(form.ligand_seq.data):
-        raise ValidateError('Secondary structure length != ligand sequence length')
+        raise ValidationError('Secondary structure length != ligand sequence length')
 def ss_validator(form, field):
     allowed_seq = ['C', 'H', 'E']
     d = ''.join(field.data.replace(' ','').split()).upper()
@@ -309,7 +309,7 @@ def job_status(jid):
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
             datetime(status_date,'unixepoch') status_date, \
             datetime(status_init,'unixepoch') status_change, project_name, \
-            status,constraints_scaling_factor FROM  user_queue WHERE jid=?", 
+            status,constraints_scaling_factor, ligand_ss, ss_psipred FROM  user_queue WHERE jid=?", 
             [jid],one=True)
     constraints = query_db("SELECT constraint_definition,force FROM constraints\
             WHERE jid=?",[jid])

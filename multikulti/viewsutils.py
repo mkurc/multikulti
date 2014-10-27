@@ -32,6 +32,9 @@ def page_error(error):
 def compute_static(jobid):
     return send_from_directory(app.config['USERJOB_DIRECTORY']+"/"+jobid, "input.pdb.gz") # TODO co jesli filename bedzie do nadrzednych      
 
+@app.route('/compute_static/<jobid>/input.pdb')
+def compute_static_pdb(jobid):
+    return send_from_directory(app.config['USERJOB_DIRECTORY']+"/"+jobid, "input.pdb") # TODO co jesli filename bedzie do nadrzednych      
 
 @app.route('/robots.txt')
 def robots():
