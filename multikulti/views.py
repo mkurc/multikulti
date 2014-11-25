@@ -4,16 +4,16 @@
 
 import os
 import urllib2
+from glob import glob
 from datetime import datetime
 from StringIO import StringIO
 import gzip
 
 from multikulti import app
-from config import config, query_db, unique_id, gunzip
+from config import config, query_db, unique_id, gunzip, alphanum_key
 
 from flask import render_template, g, url_for, request, flash, \
     Response, redirect, send_from_directory
-#from flask.ext.login import login_required,current_user
 
 from flask.ext.uploads import UploadSet
 
@@ -23,15 +23,17 @@ from wtforms import StringField, BooleanField, TextAreaField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, optional, ValidationError
 
 
-from multikulti_modules.fetchPDBinfo import getCoordinates, fetchPDBinfo
-from multikulti_modules.parsePDB import  PdbParser
+# from multikulti_modules.fetchPDBinfo import getCoordinates, fetchPDBinfo
+from multikulti_modules.parsePDB import PdbParser
 from multikulti_modules.restrRanges import restrRanges
-################################################################################
+###############################################################################
 
 app.config.update(config)
 app.secret_key = 'multikultitosmierdzcywilizacjieurpejzkij'
 input_pdb = UploadSet('inputpdbs', extensions = app.config['ALLOWED_EXTENSIONS'],\
         default_dest = app.config['UPLOAD_FOLDER']) 
+
+
 def url_for_other_page(**kwargs):
     args = request.view_args.copy()
     for (k, v) in kwargs.iteritems():
@@ -39,7 +41,6 @@ def url_for_other_page(**kwargs):
     return url_for(request.endpoint, **args) + '?' + request.query_string
 
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
-
 
 
 def status_color(status,shorter=True):
@@ -51,9 +52,9 @@ def status_color(status,shorter=True):
         elif status=='queue':
             return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue <small>waiting for free CPU thread</small></span>'
         elif status=='running':
-            return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
+            return '<span class="label label-info"><i class="fa fa-bolt"></i> running</span>'
         elif status=='error':
-            return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
+            return '<span class="label label-danger"><i class="fa fa-exclamation-circle"></i> error!</span>'
         elif status=='done':
             return '<span class="label label-success"><i class="fa fa-check"></i> done</span>'
     else:
@@ -64,24 +65,28 @@ def status_color(status,shorter=True):
         elif status=='queue':
             return '<span class="label label-info"><i class="fa fa-sliders"></i> in queue</span> <small>waiting for free CPU thread</small>'
         elif status=='running':
-            return '<span class="label label-info"><i class="fa fa-cog fa-spin"></i> running</span>'
+            return '<span class="label label-info"><i class="fa fa-bolt"></i> running</span>'
         elif status=='error':
-            return '<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i> error!</span>'
+            return '<span class="label label-danger"><i class="fa fa-exclamation-circle"></i> error!</span>'
         elif status=='done':
             return '<span class="label label-success"><i class="fa fa-check"></i> done</span>'
 
 
-
 def sequence_validator(form, field):
-    allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N',\
-            'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
-    d = ''.join(field.data.replace(' ','').split()).upper() # TODO poprawic
+    allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N',
+                   'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
+    d = ''.join(field.data.replace(' ', '').split()).upper()  # TODO poprawic
     for letter in d:
         if letter not in allowed_seq:
-            raise ValidationError('Sequence contains non-standard aminoacid symbol: %s' % (letter) )
+            raise ValidationError('Sequence contains non-standard aminoacid \
+                                  symbol: %s' % (letter))
+
+
 def eqlen_validator(form, field):
     if len(field.data) != len(form.ligand_seq.data):
         raise ValidationError('Secondary structure length != ligand sequence length')
+
+
 def ss_validator(form, field):
     allowed_seq = ['C', 'H', 'E']
     d = ''.join(field.data.replace(' ','').split()).upper()
@@ -90,6 +95,8 @@ def ss_validator(form, field):
             raise ValidationError('Secondary structure contains non-standard \
                     symbol: %s. <br><small>Allowed H - helix, E - extended/beta,\
                     C - coil.</small>' % (letter) )
+
+
 def structure_pdb_validator(form, field):
     if len(form.receptor_file.data.filename)<5 and len(field.data)==5:
         buraki =  urllib2.urlopen('http://www.rcsb.org/pdb/files/'+field.data+'.pdb.gz')
@@ -113,6 +120,7 @@ def structure_pdb_validator(form, field):
                         accepts only continuous chains.' % missing)
         buraki.close()
 
+
 def pdb_input_validator(form, field):
     if len(form.pdb_receptor.data)!=4 and len(form.receptor_file.data.filename)<5:
         raise ValidationError('PDB code or PDB file is required')
@@ -131,12 +139,14 @@ def pdb_input_validator(form, field):
             raise ValidationError('Missing atoms around residue(s): %s. Server \
                     accepts only continuous chains.' % missing)
 
+
 def pdb_input_code_validator(form, field):
     if len(field.data)!=4 and not form.receptor_file.data.filename:
         raise ValidationError('Receptor code must be 4-letter (2PCY). Leave \
                 empty only if PDB file is provided')
     if not form.pdb_receptor.data and not form.receptor_file.data:
         raise ValidationError('Receptor PDB code or PDB file is required')
+
 
 class MyForm(Form):
     name = StringField('Project name', validators=[Length(min=4,max=50),optional()])
@@ -154,6 +164,7 @@ class MyForm(Form):
     show = BooleanField('Do not show my job on the results page', default=False)
     jid = HiddenField(default=unique_id())
 
+
 @app.route('/add_constraints/<jid>/', methods=['GET','POST'])
 def index_constraints(jid):
     d = query_db("SELECT ligand_sequence,status, constraints_scaling_factor \
@@ -168,7 +179,6 @@ def index_constraints(jid):
             constraints WHERE jid=?", [jid])
     for i in range(len(constraints)):
         jmol_l.append(jmol_string % (constraints[i]['constraint_jmol'], i))
-    print constraints
     di ={'1.0': '<option value="1.0" selected>default</option><option \
             value="0.25">light</option><option value="5.0">strong</option>',
             '0.25': '<option value="0.25" selected>light</option><option \
@@ -178,6 +188,7 @@ def index_constraints(jid):
 
     return render_template('add_constraints.html',jid=jid, status=status, 
             scaling=scaling, constr = constraints, ligand_seq=ligand_sequence,di=di,jmol_color = jmol_l)
+
   
 def add_init_data_to_db(form):
     jid = unique_id()
@@ -286,10 +297,8 @@ def queue_page(page=1):
 
             return render_template('queue.html', queue = out, page=page, total_rows=len(q_all))
 
-
-    qall = query_db("SELECT status FROM \
-            user_queue WHERE hide=0 AND status!='pending' \
-            ORDER BY status_date DESC",[])
+    qall = query_db("SELECT status FROM  user_queue WHERE hide=0 AND \
+                    status!='pending' ORDER BY status_date DESC", [])
     q = query_db("SELECT project_name, jid,status, status_date datet FROM \
             user_queue WHERE hide=0 AND status!='pending' \
             ORDER BY status_date DESC LIMIT ?,?",[before, app.config['PAGINATION']])
@@ -300,36 +309,47 @@ def queue_page(page=1):
         displ_to = page * config['PAGINATION']
     else:
         displ_to = count_data
-    
 
-    return render_template('queue.html', queue = out, total_rows = len(qall), page=page)
+    return render_template('queue.html', queue=out, total_rows=len(qall), page=page)
+
 
 @app.route('/job/<jid>/')
 def job_status(jid):
+    jid = os.path.split(jid)[-1]
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
             datetime(status_date,'unixepoch') status_date, \
             datetime(status_init,'unixepoch') status_change, project_name, \
-            status,constraints_scaling_factor, ligand_ss, ss_psipred FROM  user_queue WHERE jid=?", 
-            [jid],one=True)
-    constraints = query_db("SELECT constraint_definition,force FROM constraints\
-            WHERE jid=?",[jid])
+            status,constraints_scaling_factor, ligand_ss, ss_psipred FROM \
+            user_queue WHERE jid=?", [jid], one=True)
+    constraints = query_db("SELECT constraint_definition,force FROM \
+            constraints WHERE jid=?", [jid])
     status = status_color(system_info['status'])
-    # dodac kolorowe badgesy do statusu
+    # wylistuj wyniki jesli done
+    models = {'models': [], 'clusters': [], 'replicas': []}
+    udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
+    if system_info['status'] == 'done':
+        for d in ['models', 'replicas', 'clusters']:
+            tm = [fil.split("/")[-1] for fil in glob(udir_path+"/"+d+"/*")]
+            models[d] = sorted(tm, key=alphanum_key)
+            print models[d]
 
-    return render_template('job_info.html', status = status, constr=constraints, 
-            jid=jid, sys=system_info, status_type=system_info['status'])
+    return render_template('job_info.html', status=status, constr=constraints,
+                           jid=jid, sys=system_info, results=models,
+                           status_type=system_info['status'])
+
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
 def user_add_constraints():
     if request.method == 'POST':
-        jid = request.form.get('jid','')
-        if jid=='':
-            return Response("OJ OJ, nieladnie", status=404,mimetype='text/plain')
+        jid = request.form.get('jid', '')
+        if jid == '':
+            return Response("OJ OJ, nieladnie", status=404,
+                            mimetype='text/plain')
 
         constraints = request.form.getlist('constr[]')
         constraints_jmol = request.form.getlist('constr_jmol[]')
         weights = request.form.getlist('constr_w[]')
-        scaling_factor =   request.form.get('overall_weight','1.0')
+        scaling_factor = request.form.get('overall_weight', '1.0')
         query_db("DELETE FROM constraints WHERE jid=?", [jid], insert=True)
         query_db("UPDATE user_queue SET constraints_scaling_factor=? WHERE jid=?",
                 [scaling_factor, jid], insert=True)

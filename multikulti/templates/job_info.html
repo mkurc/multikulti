@@ -1,35 +1,41 @@
 {% extends "index.html" %}
-{% macro waiting_for_results(t) %}
-<center><h2>Job is running...</h2></center>
-<div class="row">
-    <div id="waiting{{t}}" class="col-md-offset-3 col-md-6"></div>
-</div>
-
-{% endmacro %}
 
         {% block indexuniq %}
         {% endblock %}
     {% block header %}
     <title>CABSdock: {{sys['project_name']}}</title>
-<style>
-path {
-  fill-rule: evenodd;
-  stroke: #333;
-  stroke-width: 2px;
-}
 
-.sun path {
-  fill: #5cb85c;
-}
+    {% if status_type=='done' %}
+        <script src="{{url_for('static', filename='js/jsmol/JSmol.min.js')}}" type="text/javascript" charset="utf-8"></script>
+        <script>
+        var jmol="jmol";
+        var jme = "jme";
+        var jmolApplet0; // set up in HTML table, below
+        var use = "HTML5" // JAVA HTML5 WEBGL IMAGE  are all options
 
-.planet path {
-  fill: #f0ad4e;
+        jmol_isReady = function(applet) {}
+        var JmolInfo = {
+            width: '100%',
+            height: '100%',
+            debug: false,
+            color: "white",
+            addSelectionOptions: false,
+            serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
+            use: "HTML5",
+            readyFunction: jmol_isReady,
+            script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; trace only;color chain",
+            j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
+            isSigned: "true",
+            defaultModel: "",
+            console: "false",
 }
+var JMEInfo = {  
+	use: "HTML5"
+}
+        </script>
+    {% endif %}
 
-.annulus path {
-  fill: #428bca;
-}
-</style>
+
     {% endblock %}
 
 {% block body %}
@@ -37,15 +43,17 @@ path {
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
-  <li class="active"><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Job status information</a></li>
-  <li><a href="#models" role="tab" data-toggle="tab"><i class="fa fa-database"></i> Docking results</a></li>
+    <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Job information</a></li>
+{% if status_type=='done' %}
+  <li class="active"><a href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
+  <li><a href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> <span class="capi">remc</span> replicas</a></li>
   <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering info</a></li>
-  <li><a href="#constraints" role="tab" data-toggle="tab"><i class="fa fa-wrench"></i> Simulation parameters</a></li>
+{% endif %}
 </ul>
 
 <!-- Tab panes -->
 <div class="tab-content">
-  <div class="tab-pane active" id="summary">
+  <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
               
             <div class="row">
                 <div class="col-md-6">
@@ -63,28 +71,7 @@ path {
 
             <hr>
 
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-                    0%
-                </div>
-            </div>
-
-
-            <p> Jakieś lorem ispsumsd alfjsd oac </p>
-
-  </div> <!-- end tab summary -->
-  <div class="tab-pane" id="models">
-                {% if status_type=='running' %}
-                    {{waiting_for_results(a)}}
-              {% endif %}
-  </div> <!-- end tab models -->
-  <div class="tab-pane" id="clustering">
-                {% if status_type=='running' %}
-                    {{waiting_for_results(a)}}
-              {% endif %}
-  </div> <!-- end tab clustering -->
-  <div class="tab-pane" id="constraints">
-      <table class="table table-hover">
+      <table class="table table-striped">
         <tr>
             <td><strong>
 Receptor sequence(s)
@@ -110,7 +97,7 @@ Ligand sequence
                     Ligand secondary structure 
                 </strong>
                     {% if sys['ss_psipred']==1 %}
-                        <span class="label label-info pull-right">pred. by PSIPRED</span>
+                    <span class="label label-info pull-right"><span class='capi'>psipred</span> prediction</span>
                     {% endif %} 
             </td>
             <td>
@@ -126,7 +113,7 @@ Ligand sequence
       </td>
       <td>
           
-      <table class="table table-bordered table-stripped table-condensed">
+      <table class="table table-bordered table-stripped">
           {% set break=5 %}
           {% set iter=0 %}
         <tr>
@@ -146,43 +133,101 @@ Ligand sequence
   <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td></tr>
 
       </table>
+
+
+  </div> <!-- end tab summary -->
+  <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
+      <div class="row">
+          <div class="behind col-md-8">
+            <div id="ooo" style="height:500px;border:0px solid;border-color:#eee;margin-bottom:15px">
+                <script>
+                Jmol._alertNoBinary = false;
+                jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
+                jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
+                var lastPrompt=0;
+                </script>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+              <div class="panel panel-primary">
+                  <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
+                  <div class="panel-body">
+              {% set fir=True %}
+      {% for e in results['models'] %}
+        <div class="row">
+            {% if fir %}
+            <div class="col-md-5"><h5><span name="V{{e}}"><i class="fa fa-arrow-circle-left"></i></span> {{e.split(".")[0]}}</h5></div>
+            {% set fir=False %}
+            {% else %}
+            <div class="col-md-5"><h5><span name="V{{e}}"></span> {{e.split(".")[0]}}</h5></div>
+            {% endif %}
+            <div class="col-md-3"><button onClick="loadStructure(this)" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></div>
+            <div class="col-md-4"><a class="btn btn-xs btn-primary" href="{{url_for('sendfile', filetype='models', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
+        </div>
+
+      {% endfor %}
+                  </div></div>
+      <hr>
+      <a class='btn btn-lg btn-block btn-primary' href="{{url_for('tar', jobid=jid)}}"><i class='fa fa-download'></i> Download all files</a>
+          </div>
+      </div>
+  </div> <!-- end tab models -->
+  <div class="tab-pane" id="clustering">
+      <div class="row">
+        <div class="col-md-8">
+            tabelki eremesy mozeo
+        </div>
+
+        <div class="col-md-4">      
+            <div class="panel panel-primary">
+                <div class="panel-heading"><i class="fa fa-bar-chart"></i> Clusters</div>
+                <div class="panel-body">
+            {% for e in results['clusters'] %}
+                <div class="row">
+                    <div class="col-md-8"><h5><span name="R{{e}}"></span> {{e.split(".")[0]}}</h5></div>
+                    <div class="col-md-4"><a class="btn btn-xs btn-primary" href="{{url_for('sendfile', filetype='clusters', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
+                </div>
+            {% endfor %}
+                </div>
+            </div>
+        </div>
+  </div>
+
+  </div> <!-- end tab clustering -->
+  <div class="tab-pane" id="replicas">
+      <h3>pseudo-trajectories of <span class='capi'>remc</span> replicas</h3>
+      {% for e in results['replicas'] %}
+        <div class="row">
+            <div class="col-md-6"><h5><span name="R{{e}}"></span> {{e.split(".")[0]}}</h5></div>
+            <div class="col-md-6"><a class="btn btn-xs btn-primary" href="{{url_for('sendfile', filetype='replicas', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
+        </div>
+
+      {% endfor %}
+
   </div> <!-- end tab costam -->
 </div>
+{% if status_type=='done' or status_type=='error' %}
 <br>&nbsp;
 <div class="alert alert-warning alert-dismissible" role="alert">
   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-  <i class="fa fa-recycle"></i> <strong>Note</strong> If task is done, page will be deleted after {{config['DELETE_USER_JOBS_AFTER']}} days.
+  <i class="fa fa-recycle"></i> <strong>Note</strong> This page will be deleted after {{config['DELETE_USER_JOBS_AFTER']}} days.
 </div>
+{% endif %}
 
 </div>
 {% endblock %}
 {% block below_js %}
 <script>
-
-var finishUTC = 60000*1; // za 10 minut
-
-var initUTC = 1414257998*1000; // wziac z bazy
-              initUTC =new Date().getTime(); // wypirdolic
-
-function tick() {
-    var bar = $('.progress-bar');
-    setTimeout(function () {
-        var d = new Date().getTime();
-        var progress = Math.max(Math.min(Math.ceil(100.0*(d - initUTC)/finishUTC), 100));
-        var percnt = progress+"%";
-        bar.attr('aria-valuenow', progress).css('width', percnt).html(percnt);
-
-        if (progress==100) {
-            return;
-        }
-
-        tick();
- }, 5000);
+function loadStructure(o) {
+    var oldidx = o.dataset.model;
+    
+    var template = "{{url_for('sendfile', filetype='models', filename='TOREPLACE', jobid=jid)}}";
+    var curr_model = template.replace("TOREPLACE", oldidx);
+            //script: "set platformSpeed 8;background white;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; trace only;color chain",
+    Jmol.script(jmolApplet0,"load "+curr_model+"; restrict protein; trace only; color chain");
+    $("span[name^=V]").html("");
+    $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-arrow-circle-left'></i>");
 }
-tick();
 </script>
-{% if status_type=='running' %}
-    {% include "waiting_applet.html" %}
-{% endif %}
-
 {% endblock %}

@@ -45,7 +45,7 @@
             <li><a href="{{url_for('index_contact')}}">Contact</a></li>
             <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
                 <div class="input-group">
-                        <input type="text" class="form-control" placeholder="search by the project name" name="q" id="q"> 
+                        <input type="text" class="form-control" placeholder="search by name" name="q" id="q"> 
                 </div>
             </form>
           </ul>
@@ -237,7 +237,7 @@
 
 {% endblock %}
 <div class="container">
-    <hr><small class="text-muted" style="float:right">Laboratory of Theory of Biopolymers 2015</small>
+    <small class="text-muted" style="float:right">Laboratory of Theory of Biopolymers 2015</small>
 </div>
 {%block jsdata %}
 <script src="{{url_for('static', filename='js/jquery.js')}}"></script>

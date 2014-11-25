@@ -1,12 +1,15 @@
+scaling factor w pierwszej linijce restr.txt
 example data od razu pokazuje wynik(?)
-oszacowanie czasu symulacji na podstawie dlugosci sekwencji
 logo
 jeśli czeka na dodanie wiezow - dac guzik na stronie zadania
-konwersja formatow jmol<->userinp<->cabs
+może więzy dać jako optional
+czas ustandaryzować między queue a job status (utc)
 
 V kolorowanie fragmentow w jmol na podstawie odczytuz bazy
+V sortowanie modeli po numerze klastra
 V dopasowanie okna jmol
 V dodac guzik, ze comp serweru UP/DOWN?
+V konwersja formatow jmol<->userinp<->cabs
 V poprawic bledy z chrome
 V na stronie zadania wyswietlac procent paska postepu (liczony w views)
 V wyszukiwanie po nazwach projektu/haszach - jesli znaleziono to od razu pokazuje wynik

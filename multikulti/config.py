@@ -7,6 +7,7 @@ from os import path
 import gzip
 import uuid
 import re
+from sys import maxint
 import sqlite3
 import smtplib
 from email.MIMEText import MIMEText
@@ -108,3 +109,17 @@ def query_db(query, args=(), one=False, insert=False):
         rv = cur.fetchall()
         cur.close()
         return ((rv[0] if rv else None) if one else rv)
+
+
+# copied from http://nedbatchelder.com/blog/200712.html#e20071211T054956
+def tryint(s):
+    try:
+        return int(s)
+    except:
+        return s
+    
+def alphanum_key(s):
+    """ Turn a string into a list of string and number chunks.
+        "z23a" -> ["z", 23, "a"]
+    """
+    return [ tryint(c) for c in re.split('([0-9]+)', s) ]
