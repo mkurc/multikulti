@@ -58,8 +58,7 @@ def parse_server_talking(task, secret_key, jid):
                               [jid], one=True)[0]
             send_mail(subject="error "+jid)
             if len(tomail) > 1:
-                send_mail(to=tomail, subject="error with job", body='Your job \
-                        ('+jid+') got error status. Robot will inform admin.')
+                send_mail(to=tomail, subject="error with job", body='Your job ('+jid+') got error status. Robot will inform admin.')
 
         elif task == 'S_R':
             # job running
@@ -70,8 +69,7 @@ def parse_server_talking(task, secret_key, jid):
                               [jid], one=True)[0]
             if len(tomail) > 1:
                 send_mail(to=tomail, subject="Job is running: "+jid,
-                          body="Wait for second mail about job done (or job \
-                                  error).")
+                          body="Wait for second mail about job done (or job error).")
 
         elif task == 'S_D':
             # job done
@@ -128,7 +126,6 @@ def parse_server_talking(task, secret_key, jid):
 
             for file in request.files.keys():
                 filename = file
-                print(filename)
                 request.files[file].save(path.join(user_dir, filename))
 
     return Response("HEIL ERIS!", mimetype='text/plain')

@@ -49,13 +49,13 @@ def send_mail(to='', subject="Test", body="Body"):
         if type(to) is list:
             for tomail in to:
                 msg = MIMEText(body)
-                msg['Subject'] = "[Aggrescan3D] "+subject
+                msg['Subject'] = "[CABSdock] "+subject
                 msg['From'] = fromaddr
                 msg['To'] = tomail
                 server.sendmail(fromaddr, tomail, msg.as_string())
         else:
             msg = MIMEText(body)
-            msg['Subject'] = "[Aggrescan3D] "+subject
+            msg['Subject'] = "[CABSdock] "+subject
             msg['From'] = fromaddr
             msg['To'] = to
             server.sendmail(fromaddr, to, msg.as_string())
