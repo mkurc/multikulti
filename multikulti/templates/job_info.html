@@ -46,8 +46,6 @@ path {
 <!-- Tab panes -->
 <div class="tab-content">
   <div class="tab-pane active" id="summary">
-      <div class="panel">
-          <div class="panel-body">
               
             <div class="row">
                 <div class="col-md-6">
@@ -73,32 +71,19 @@ path {
 
 
             <p> Jakieś lorem ispsumsd alfjsd oac </p>
-        </div>
-    </div>
 
   </div> <!-- end tab summary -->
   <div class="tab-pane" id="models">
-      <div class="panel">
-          <div class="panel-body">
                 {% if status_type=='running' %}
                     {{waiting_for_results(a)}}
               {% endif %}
-        </div>
-      </div>
-      
   </div> <!-- end tab models -->
   <div class="tab-pane" id="clustering">
-      <div class="panel">
-          <div class="panel-body">
                 {% if status_type=='running' %}
                     {{waiting_for_results(a)}}
               {% endif %}
-        </div>
-      </div>
   </div> <!-- end tab clustering -->
   <div class="tab-pane" id="constraints">
-      <div class="panel">
-          <div class="panel-body">
       <table class="table table-hover">
         <tr>
             <td><strong>
@@ -161,8 +146,6 @@ Ligand sequence
   <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td></tr>
 
       </table>
-        </div>
-      </div>
   </div> <!-- end tab costam -->
 </div>
 <br>&nbsp;

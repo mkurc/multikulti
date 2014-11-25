@@ -5,9 +5,10 @@ from os import remove
 from subprocess import Popen
 from config_remote import config_remote
 
+
 class Psipred:
     def __init__(self, sequence):
-        f = tempfile.NamedTemporaryFile(mode='w',delete=False,dir=".")
+        f = tempfile.NamedTemporaryFile(mode='w', delete=False, dir=".")
         f.file.write(sequence)
         f.file.close()
 
@@ -18,12 +19,13 @@ class Psipred:
 
         with open(f.name+".horiz") as ff:
             data = ff.read()
-            d = re.findall(r'^Pred: (\w+)$', data,re.M)
+            d = re.findall(r'^Pred: (\w+)$', data, re.M)
             self.secondary = "".join(d)
         remove(f.name)
         remove(f.name+".ss")
         remove(f.name+".ss2")
         remove(f.name+".horiz")
+
     def getSS(self):
         return self.secondary
 
