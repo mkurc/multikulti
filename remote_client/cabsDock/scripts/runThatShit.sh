@@ -169,4 +169,15 @@ for i in clust*.pdb; do
  mv $i CLUST
 done
 
+for i in CLUST MODELS TRAFS; do
+  cd $i
+  for j in *; do
+   gzip $j
+  done
+  cd -
+done
+
+
+
+
 rm tmp.* 

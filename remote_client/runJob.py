@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from sys import argv, exit
+from glob import glob
 import os
 from subprocess import call
 from config_remote import config_remote
@@ -25,14 +26,17 @@ S.getLigandInfoFile()
 S.getRestraintsFile()
 scaling_factor = S.getScalingFactor()
 
-# cabs_script = os.path.join(scripts_dir, "runThatShit.sh")
-# + " input.pdb ligand.txt restr.txt " + scaling_factor
-cabs_script = os.path.join(scripts_dir, "runThatShit.sh") + " %5.2f" % (scaling_factor)
+cabs_script = os.path.join(scripts_dir,
+                           "runThatShit.sh") + " %5.2f" % (scaling_factor)
 p = call(cabs_script, shell=True)
 
-# for files in .....
-for f in ["clip.ogv", "clip.mp4", "clip.webm", "A3D.csv", "input.pdb"]:
-    if not os.path.isfile(f):
+# check if results exists
+for d in ["CLUST", "MODELS", "TRAFS"]:
+    if os.path.isdir(d):
+        if len(glob(d+"/*")) == 0:
+            S.tellJobError()
+            exit(1)
+    else:
         S.tellJobError()
         exit(1)
 

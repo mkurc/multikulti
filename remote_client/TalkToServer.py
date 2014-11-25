@@ -6,6 +6,7 @@ import gzip
 import json
 import urllib2
 import os
+from glob import glob
 from multiprocessing import cpu_count
 from re import compile, match
 from config_remote import config_remote
@@ -29,28 +30,19 @@ class TalkToServer:
         except:
             print("problem with request to deleteOldJobs")
 
-    def putResults(self, dynamic=False):
-        plots = glob("*.svg")  # fuszerka
-        plo = {}
-        for plot in plots:
-            plo_svg = plot
-            chain = plot.split(".")[0]
-            plo_png = chain+".png"
-            plo[plo_svg] = open(plo_svg, 'rb')
-            plo[plo_png] = open(plo_png, 'rb')
-        files = {'A3D.csv': open('A3D.csv', 'r'),
-                 'output.pdb': open('output.pdb', 'r')}
-        files.update(plo)
-        if dynamic:
-            dyn = {"CABSflex_rmsd.png": open("CABSflex_rmsd.png", "rb"),
-                   "CABSflex_supe.pdb": open("CABSflex_supe.pdb", "rb")}
-            files.update(dyn)
+    def putResults(self):
+        to_send = {}
+        for d in ["CLUST", "MODELS", "TRAFS"]:
+            for filename in glob(d+"/*.gz"):
+                fn = filename.replace("CLUST", "clusters").replace("MODELS", "models").replace("TRAFS", "replicas")
+                to_send[fn] = open(filename, "rb")
+        print(to_send.keys())
 
-        r = requests.post(self.remoteuri+"/SEND/", files=files)
+        r = requests.post(self.remoteuri+"/SEND/", files=to_send)
         if r.status_code == requests.codes.ok:
             print("Results sent!")
         else:
-            print "Results NOT sent", r.status_code
+            print("Results NOT sent" + str(r.status_code))
 
     def getStructureFile(self, output_path="input.pdb"):
         try:
@@ -60,7 +52,7 @@ class TalkToServer:
                 out.write(tmp.read())
                 tmp.close()
         except:
-            print "ERROR: Nothing found!"
+            print("ERROR: Nothing found!")
 
     def getScalingFactor(self):
         try:
@@ -70,7 +62,7 @@ class TalkToServer:
             j = json.loads(data)
             return j['constraints_scaling_factor']
         except:
-            print "ERROR: problem with scaling factor fetch"
+            print("ERROR: problem with scaling factor fetch")
 
     def getLigandInfo(self):
         '''
@@ -89,7 +81,7 @@ class TalkToServer:
                 self.putSecondaryStructureString(ss)
             return j
         except:
-            print "ERROR: problem with ligand seq fetch"
+            print("ERROR: problem with ligand seq fetch")
 
     def getRestraints(self):
         try:
@@ -99,7 +91,7 @@ class TalkToServer:
             j = json.loads(data)
             return j
         except:
-            print "ERROR: problem with restraints fetch"
+            print("ERROR: problem with restraints fetch")
 
     def getRestraintsFile(self, output_file="restr.txt"):
         with open(output_file, "w") as fw:
