@@ -12,15 +12,15 @@ import gzip
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key
 
-from flask import render_template, g, url_for, request, flash, \
-    Response, redirect, send_from_directory
+from flask import render_template, url_for, request, flash, Response, redirect
 
 from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, BooleanField, TextAreaField, HiddenField
-from wtforms.validators import DataRequired, Length, Email, optional, ValidationError
+from wtforms.validators import DataRequired, Length, Email, optional, \
+    ValidationError
 
 
 # from multikulti_modules.fetchPDBinfo import getCoordinates, fetchPDBinfo
@@ -30,8 +30,8 @@ from multikulti_modules.restrRanges import restrRanges
 
 app.config.update(config)
 app.secret_key = 'multikultitosmierdzcywilizacjieurpejzkij'
-input_pdb = UploadSet('inputpdbs', extensions = app.config['ALLOWED_EXTENSIONS'],\
-        default_dest = app.config['UPLOAD_FOLDER']) 
+input_pdb = UploadSet('inputpdbs', extensions=app.config['ALLOWED_EXTENSIONS'],
+                      default_dest=app.config['UPLOAD_FOLDER'])
 
 
 def url_for_other_page(**kwargs):
@@ -122,26 +122,26 @@ def structure_pdb_validator(form, field):
 
 
 def pdb_input_validator(form, field):
-    if len(form.pdb_receptor.data)!=4 and len(form.receptor_file.data.filename)<5:
+    if len(form.pdb_receptor.data) != 4 and len(form.receptor_file.data.filename)<5:
         raise ValidationError('PDB code or PDB file is required')
-    if len(form.pdb_receptor.data) !=4 and form.receptor_file.data: # parse only if pdbcode empty
+    if len(form.pdb_receptor.data) != 4 and form.receptor_file.data: # parse only if pdbcode empty
         p = PdbParser(form.receptor_file.data.stream)
         missing = p.getMissing()
-        seq =  p.getSequence()
-        allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N',\
-                'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
+        seq = p.getSequence()
+        allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M',
+                       'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
         for e in seq:
             if e not in allowed_seq:
                 raise ValidationError('Non-standard residue in the receptor structure')
         if len(p.getBody()) < 16:
             raise ValidationError('File without chain or chain shorter than 4 residues')
-        if len(missing)>0:
+        if len(missing) > 0:
             raise ValidationError('Missing atoms around residue(s): %s. Server \
                     accepts only continuous chains.' % missing)
 
 
 def pdb_input_code_validator(form, field):
-    if len(field.data)!=4 and not form.receptor_file.data.filename:
+    if len(field.data) != 4 and not form.receptor_file.data.filename:
         raise ValidationError('Receptor code must be 4-letter (2PCY). Leave \
                 empty only if PDB file is provided')
     if not form.pdb_receptor.data and not form.receptor_file.data:
@@ -150,25 +150,25 @@ def pdb_input_code_validator(form, field):
 
 class MyForm(Form):
     name = StringField('Project name', validators=[Length(min=4,max=50),optional()])
-    pdb_receptor = StringField('Remote PDB file', \
+    pdb_receptor = StringField('Remote PDB file',
             validators=[pdb_input_code_validator, structure_pdb_validator])
-    receptor_file = FileField('Local PDB file', \
+    receptor_file = FileField('Local PDB file',
             validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), \
             pdb_input_validator])
-    ligand_seq = TextAreaField('Ligand sequence', \
+    ligand_seq = TextAreaField('Ligand sequence',
             validators=[Length(min=3,max=60),DataRequired(),sequence_validator])
-    ligand_ss = TextAreaField('Ligand secondary structure', \
+    ligand_ss = TextAreaField('Ligand secondary structure',
             validators=[Length(min=3,max=60),optional(),ss_validator,eqlen_validator])
-    email = StringField('E-mail address', 
+    email = StringField('E-mail address',
             validators = [optional(), Email()])
     show = BooleanField('Do not show my job on the results page', default=False)
     jid = HiddenField(default=unique_id())
 
 
-@app.route('/add_constraints/<jid>/', methods=['GET','POST'])
+@app.route('/add_constraints/<jid>/', methods=['GET', 'POST'])
 def index_constraints(jid):
     d = query_db("SELECT ligand_sequence,status, constraints_scaling_factor \
-            FROM user_queue WHERE jid=?", [jid],one=True)
+            FROM user_queue WHERE jid=?", [jid], one=True)
     ligand_sequence = d[0]
     status = d[1]
     scaling = d[2]
@@ -186,10 +186,11 @@ def index_constraints(jid):
             '5.0': '<option value="5.0" selected>strong</option><option \
                     value="1.0">default</option><option value="0.25">light</option>'}
 
-    return render_template('add_constraints.html',jid=jid, status=status, 
-            scaling=scaling, constr = constraints, ligand_seq=ligand_sequence,di=di,jmol_color = jmol_l)
+    return render_template('add_constraints.html', jid=jid, status=status,
+                           scaling=scaling, constr=constraints, di=di,
+                           ligand_seq=ligand_sequence, jmol_color=jmol_l)
 
-  
+
 def add_init_data_to_db(form):
     jid = unique_id()
 
@@ -197,62 +198,67 @@ def add_init_data_to_db(form):
         hide = 1
     else:
         hide = 0
-    ligand_seq = ''.join(form.ligand_seq.data.upper().replace(' ','').split())
-    ligand_ss = ''.join(form.ligand_ss.data.upper().replace(' ','').split())
+    ligand_seq = ''.join(form.ligand_seq.data.upper().replace(' ', '').split())
+    ligand_ss = ''.join(form.ligand_ss.data.upper().replace(' ', '').split())
 
     # save receptor structure
-    dest_directory = os.path.join(app.config['USERJOB_DIRECTORY'],jid)
+    dest_directory = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
     dest_file = os.path.join(dest_directory, "input.pdb.gz")
     os.mkdir(dest_directory)
     if form.receptor_file.data.filename:
         p = PdbParser(form.receptor_file.data.stream)
-        receptor_seq =  p.getSequence()
+        receptor_seq = p.getSequence()
         p.savePdbFile(dest_file)
         gunzip(dest_file)
-        
 
     elif form.pdb_receptor.data:
-        buraki =  urllib2.urlopen('http://www.rcsb.org/pdb/files/'+form.pdb_receptor.data+'.pdb.gz')
+        buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+form.pdb_receptor.data+'.pdb.gz')
         b2 = buraki.read()
         ft = StringIO(b2)
-        with gzip.GzipFile(fileobj=ft,mode="rb") as f:
+        with gzip.GzipFile(fileobj=ft, mode="rb") as f:
             p = PdbParser(f)
-            receptor_seq =  p.getSequence()
+            receptor_seq = p.getSequence()
             p.savePdbFile(dest_file)
             gunzip(dest_file)
 
         buraki.close()
     name = form.name.data
-    if len(name)<2:
+    if len(name) < 2:
         name = jid
     query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
-            ligand_sequence, ligand_ss, hide, project_name) VALUES(?,?,?,?,?,?,?)",
-            [jid, form.email.data, receptor_seq, ligand_seq, ligand_ss, hide, 
-                name], insert=True)
+             ligand_sequence, ligand_ss, hide, project_name) \
+             VALUES(?,?,?,?,?,?,?)", [jid, form.email.data, receptor_seq,
+                                      ligand_seq, ligand_ss, hide, name],
+             insert=True)
 
-    #generate constraints
+    # generate constraints
     unzpinp = os.path.join(app.config['USERJOB_DIRECTORY']+"/"+jid, "input.pdb")
     r = restrRanges(unzpinp)
     r.parseRanges()
-    for e,e1,e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),r.getJmolFormat()):
-        query_db("INSERT INTO constraints(jid,constraint_definition,constraint_definition1,constraint_jmol) VALUES(?,?,?,?)", 
-                [jid,e,e1,e2],insert = True)
+    for e, e1, e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),r.getJmolFormat()):
+        query_db("INSERT INTO constraints(jid,constraint_definition, \
+                 constraint_definition1,constraint_jmol) VALUES(?,?,?,?)",
+                 [jid, e, e1, e2], insert=True)
     # TODO kolorowanie wiezow
 
-    return (jid, receptor_seq, ligand_seq, form.name.data,form.email.data)
+    return (jid, receptor_seq, ligand_seq, form.name.data, form.email.data)
+
 
 @app.route('/final_submit', methods=['POST', 'GET'])
 def final_submit():
     if request.method == 'POST':
-        jid = request.form.get('jid','')
-        if jid=='':
-            return Response("OJ OJ, nieladnie", status=404,mimetype='text/plain')
+        jid = request.form.get('jid', '')
+        if jid == '':
+            return Response("OJ OJ, nieladnie", status=404,
+                            mimetype='text/plain')
 
         flash('Job submitted. Bookmark this page to check results (usually within \
                 24h) if you didn\'t povided e-mail address', 'info')
-        query_db("UPDATE user_queue SET status=? WHERE jid=?",['pre_queue',jid], insert=True)
+        query_db("UPDATE user_queue SET status=? WHERE jid=?",
+                 ['pre_queue', jid], insert=True)
         return redirect(url_for('job_status', jid=jid))
-    return Response("HAHAHAahahahakier",status=200,mimetype='text/plain') # tu chyba nikt
+    return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
+
 
 def parse_out(q):
     out = []
@@ -261,15 +267,16 @@ def parse_out(q):
             dtt = datetime.fromtimestamp(float(row['datet'])).strftime('%Y-%m-%d %H:%M')
         else:
             dtt = "-"
-        l = {'project_name': row['project_name'], 
-                'jid': row['jid'], 
-                'date': dtt, 
-                'status': status_color(row['status'])}
+        l = {'project_name': row['project_name'],
+             'jid': row['jid'],
+             'date': dtt,
+             'status': status_color(row['status'])}
 
         out.append(l)
     return out
 
-@app.route('/queue', methods=['POST','GET'], defaults={'page':1})
+
+@app.route('/queue', methods=['POST', 'GET'], defaults={'page': 1})
 @app.route('/queue/page/<int:page>/', methods=['POST', 'GET'])
 def queue_page(page=1):
     before = (page - 1) * app.config['PAGINATION']
@@ -288,14 +295,15 @@ def queue_page(page=1):
                     ["%"+search+"%", search])
             # jesli jest szukanie po nazwie projektu to ukrywanie zadan przestaje miec sens TODO
             out = parse_out(q)
-            if len(out)==0:
+            if len(out) == 0:
                 flash("Nothing found", "error")
-            elif len(out)==1:
+            elif len(out) == 1:
                 flash("Project found!", "info")
                 jid = out[0]['jid']
                 return redirect(url_for('job_status', jid=jid))
 
-            return render_template('queue.html', queue = out, page=page, total_rows=len(q_all))
+            return render_template('queue.html', queue=out, page=page,
+                                   total_rows=len(q_all))
 
     qall = query_db("SELECT status FROM  user_queue WHERE hide=0 AND \
                     status!='pending' ORDER BY status_date DESC", [])
@@ -329,9 +337,8 @@ def job_status(jid):
     udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
     if system_info['status'] == 'done':
         for d in ['models', 'replicas', 'clusters']:
-            tm = [fil.split("/")[-1] for fil in glob(udir_path+"/"+d+"/*")]
+            tm = [fil.split("/")[-1] for fil in glob(udir_path+"/"+d+"/*.gz")]
             models[d] = sorted(tm, key=alphanum_key)
-            print models[d]
 
     return render_template('job_info.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models,
@@ -351,23 +358,27 @@ def user_add_constraints():
         weights = request.form.getlist('constr_w[]')
         scaling_factor = request.form.get('overall_weight', '1.0')
         query_db("DELETE FROM constraints WHERE jid=?", [jid], insert=True)
-        query_db("UPDATE user_queue SET constraints_scaling_factor=? WHERE jid=?",
-                [scaling_factor, jid], insert=True)
+        query_db("UPDATE user_queue SET constraints_scaling_factor=? \
+                WHERE jid=?", [scaling_factor, jid], insert=True)
 
-        for r in zip(constraints,weights,constraints_jmol):
-            query_db("INSERT INTO constraints(jid,constraint_definition,force,constraint_jmol) \
-                    VALUES(?,?,?,?)", [jid,r[0],r[1],r[2]], insert = True) 
+        for r in zip(constraints, weights, constraints_jmol):
+            query_db("INSERT INTO constraints(jid,constraint_definition,force,\
+                     constraint_jmol) VALUES(?,?,?,?)", [jid, r[0], r[1], r[2]],
+                     insert=True)
 
-    return Response("HAHAHAahahahakier",status=200,mimetype='text/plain')
+    return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
 
-@app.route('/',methods=['GET','POST'])
+
+@app.route('/', methods=['GET', 'POST'])
 def index_page():
     # get remote server load. If delay 50 minut - OFLAJN
-    q = query_db("SELECT load FROM server_load where id=0 AND datetime(status_date, 'unixepoch', '+50 minutes')> datetime('now')",one=True)
+    q = query_db("SELECT load FROM server_load where id=0 AND \
+                 datetime(status_date, 'unixepoch', '+50 minutes')> \
+                 datetime('now')", one=True)
     if not q:
         comp_status = '<span class="label label-danger">server offline</span>'
         # TODO send_mail ze zjebalo
-    elif int(q[0])> 85:
+    elif int(q[0]) > 85:
         comp_status = '<span class="label label-warning">high load</span>'
     else:
         comp_status = '<span class="label label-success">waiting for tasks</span>'
