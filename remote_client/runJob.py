@@ -27,7 +27,7 @@ S.getRestraintsFile()
 scaling_factor = S.getScalingFactor()
 
 cabs_script = os.path.join(scripts_dir,
-                           "runThatShit.sh") + " %5.2f" % (scaling_factor)
+                           "runThatShit.sh") + " %5.2f" % (float(scaling_factor))
 p = call(cabs_script, shell=True)
 
 # check if results exists

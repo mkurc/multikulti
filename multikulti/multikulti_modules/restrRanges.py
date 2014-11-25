@@ -17,7 +17,7 @@ class restrRanges:
         for i in range(len(uniq_chains)):
             self.uniq_chains_i[i+1] = uniq_chains[i]
 
-    def parseRanges(self,restr_params=["-max=5.0"]):
+    def parseRanges(self,restr_params=["-max=10.0"]):
         res = {}
         # TODO nie wyciaga wag! 
         # get constraints
@@ -100,7 +100,7 @@ class restrRanges:
                         chain_i, r_j_n[0], chain_j, r_j_n[1], chain_j))
         return o
 if __name__ == '__main__':
-    t = restrRanges("/home/nme/input.pdb")
+    t = restrRanges("/home/nme/aa.pdb")
     t.parseRanges([])
     print "do bazy"
     print t.getLabelFormat()

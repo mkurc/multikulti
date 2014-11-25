@@ -115,9 +115,9 @@ def structure_pdb_validator(form, field):
             if len(p.getBody()) < 16:
                 raise ValidationError('File without chain or chain shorter than \
                         4 residues')
-            if len(missing)>0:
-                raise ValidationError('Missing atoms around residue(s): %s. Server \
-                        accepts only continuous chains.' % missing)
+#            if len(missing)>0:
+#                raise ValidationError('Missing atoms around residue(s): %s. Server \
+#                        accepts only continuous chains.' % missing)
         buraki.close()
 
 
@@ -135,9 +135,9 @@ def pdb_input_validator(form, field):
                 raise ValidationError('Non-standard residue in the receptor structure')
         if len(p.getBody()) < 16:
             raise ValidationError('File without chain or chain shorter than 4 residues')
-        if len(missing) > 0:
-            raise ValidationError('Missing atoms around residue(s): %s. Server \
-                    accepts only continuous chains.' % missing)
+#        if len(missing) > 0:
+#            raise ValidationError('Missing atoms around residue(s): %s. Server \
+#                    accepts only continuous chains.' % missing)
 
 
 def pdb_input_code_validator(form, field):
@@ -232,10 +232,11 @@ def add_init_data_to_db(form):
              insert=True)
 
     # generate constraints
-    unzpinp = os.path.join(app.config['USERJOB_DIRECTORY']+"/"+jid, "input.pdb")
+    unzpinp = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "input.pdb")
     r = restrRanges(unzpinp)
     r.parseRanges()
-    for e, e1, e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),r.getJmolFormat()):
+    for e, e1, e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),
+                         r.getJmolFormat()):
         query_db("INSERT INTO constraints(jid,constraint_definition, \
                  constraint_definition1,constraint_jmol) VALUES(?,?,?,?)",
                  [jid, e, e1, e2], insert=True)
@@ -288,7 +289,7 @@ def queue_page(page=1):
             flash("Searching results for %s ..." %(search), 'warning')
             q = query_db("SELECT project_name, jid,status, status_date datet \
                     FROM user_queue WHERE project_name LIKE ? OR jid=? ORDER BY \
-                    status_date DESC LIMIT ?,?", 
+                    status_date DESC LIMIT ?,?",
                     ["%"+search+"%", search, before, app.config['PAGINATION']])
             q_all = query_db("SELECT status FROM user_queue WHERE project_name \
                     LIKE ? OR jid=? ORDER BY  status_date DESC", 
