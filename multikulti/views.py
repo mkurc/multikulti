@@ -265,7 +265,7 @@ def parse_out(q):
     out = []
     for row in q:
         if row['datet']:
-            dtt = datetime.fromtimestamp(float(row['datet'])).strftime('%Y-%m-%d %H:%M')
+            dtt =  row['datet']
         else:
             dtt = "-"
         l = {'project_name': row['project_name'],
@@ -281,13 +281,12 @@ def parse_out(q):
 @app.route('/queue/page/<int:page>/', methods=['POST', 'GET'])
 def queue_page(page=1):
     before = (page - 1) * app.config['PAGINATION']
-    displ_from = 1 + (page - 1) * config['PAGINATION']
 
     if request.method == 'GET':
         search = request.args.get('q','')
         if search != '':
             flash("Searching results for %s ..." %(search), 'warning')
-            q = query_db("SELECT project_name, jid,status, status_date datet \
+            q = query_db("SELECT project_name, jid,status, datetime(status_date, 'unixepoch') datet \
                     FROM user_queue WHERE project_name LIKE ? OR jid=? ORDER BY \
                     status_date DESC LIMIT ?,?",
                     ["%"+search+"%", search, before, app.config['PAGINATION']])
@@ -308,16 +307,10 @@ def queue_page(page=1):
 
     qall = query_db("SELECT status FROM  user_queue WHERE hide=0 AND \
                     status!='pending' ORDER BY status_date DESC", [])
-    q = query_db("SELECT project_name, jid,status, status_date datet FROM \
+    q = query_db("SELECT project_name, jid,status, datetime(status_date, 'unixepoch') datet FROM \
             user_queue WHERE hide=0 AND status!='pending' \
-            ORDER BY status_date DESC LIMIT ?,?",[before, app.config['PAGINATION']])
+            ORDER BY status_date DESC LIMIT ?,?", [before, app.config['PAGINATION']])
     out = parse_out(q)
-    # pagination
-    count_data = len(qall)
-    if page*config['PAGINATION'] < count_data:
-        displ_to = page * config['PAGINATION']
-    else:
-        displ_to = count_data
 
     return render_template('queue.html', queue=out, total_rows=len(qall), page=page)
 

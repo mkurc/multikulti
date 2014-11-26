@@ -18,7 +18,8 @@ class TalkToServer:
         self.jid = str(jid)
         self.secret_key = config_remote['secret_key']
         self.webserver = config_remote['webserver_url']
-        self.remoteuri = self.webserver+"_server_talking/" + self.secret_key+"/"+self.jid
+        self.remoteuri = self.webserver + "_server_talking/" + self.secret_key
+        + "/" + self.jid
 
         # delete user jobs
         url = self.webserver+"_deleteOldJobs"
@@ -34,7 +35,8 @@ class TalkToServer:
         to_send = {}
         for d in ["CLUST", "MODELS", "TRAFS"]:
             for filename in glob(d+"/*.gz"):
-                fn = filename.replace("CLUST", "clusters").replace("MODELS", "models").replace("TRAFS", "replicas")
+                fn = filename.replace("CLUST", "clusters").replace("MODELS",
+                                      "models").replace("TRAFS", "replicas")
                 to_send[fn] = open(filename, "rb")
         print(to_send.keys())
 
@@ -93,6 +95,14 @@ class TalkToServer:
         except:
             print("ERROR: problem with restraints fetch")
 
+    def getRestraintsFileNew(self, output_file="restr.txt"):
+        with open(output_file, "w") as fw:
+            restr_s = self.getScalingFactor()
+            fw.write("%5.2f\n" % (float(restr_s)))
+            r = self.getRestraints()
+            for row in r:
+                fw.write("%50s WEIGHT %5.2f\n" % (row['def'], row['force']))
+
     def getRestraintsFile(self, output_file="restr.txt"):
         with open(output_file, "w") as fw:
             r = self.getRestraints()
@@ -112,9 +122,9 @@ class TalkToServer:
         r = requests.post(self.remoteuri+"/SENDSS/", data=d)
 
         if r.status_code == requests.codes.ok:
-            print "Psipred prediction sent"
+            print("Psipred prediction sent")
         else:
-            print "Psipred SS not sent", r.status_code
+            print("Psipred SS not sent, %d" % (r.status_code))
 
     def putSecondaryStructure(self, ss_file):
         '''
@@ -128,9 +138,9 @@ class TalkToServer:
             r = requests.post(self.remoteuri+"/SENDSS/", data=d)
 
             if r.status_code == requests.codes.ok:
-                print "Psipred prediction sent"
+                print("Psipred prediction sent")
             else:
-                print "Psipred SS not sent", r.status_code
+                print("Psipred SS not sent %d" % (r.status_code))
 
     def IamAlive(self):  # PING PING PING
         try:
@@ -143,49 +153,50 @@ class TalkToServer:
             r = requests.post(self.remoteuri+"/LOAD/", data=d)
 
             if r.status_code != requests.codes.ok:
-                print "Not announced, webserver disconnected!?, status: ", r.status_code
+                print("Not announced, webserver disconnected!?, status: %d"
+                      % (r.status_code))
         except:
-            print "Not announced, webserver disconnected!?, status: "
+            print("error with iamlive")
 
     def tellJobRunning(self):
         try:
             r = requests.get(self.remoteuri+"/S_R/")
             if r.status_code == requests.codes.ok:
-                print "set job running "+str(r.status_code)
+                print("set job running %d" % (r.status_code))
             else:
-                print "Not set >>job running<<, webserver disconnected!?, status: ", r.status_code
+                print("Not set >>job running<<, status: %d" % (r.status_code))
         except:
-            print "Not announced, webserver disconnected!?, status: "
+            print("error telljobrunning")
 
     def tellJobDone(self):
         try:
             r = requests.get(self.remoteuri+"/S_D/")
             if r.status_code == requests.codes.ok:
-                print "set job DONE "+str(r.status_code)
+                print("set job DONE %d" % (r.status_code))
             else:
-                print "Not set >>job done<<, webserver disconnected!?, status: ", r.status_code
+                print("Not set >>job done<<, status: %d" % (r.status_code))
         except:
-            print "Not announced, webserver disconnected!?, status: "
+            print("error telljobdone")
 
     def tellJobError(self):
         try:
             r = requests.get(self.remoteuri+"/S_E/")
             if r.status_code == requests.codes.ok:
-                print "set job ERROR "+str(r.status_code)
+                print("set job ERROR " % (r.status_code))
             else:
-                print "Not set >>job error<<, webserver disconnected!?, status: ", r.status_code
+                print("Not set >>job error<<, status: %d" % (r.status_code))
         except:
-            print "Not announced, webserver disconnected!?, status: "
+            print("error telljoberror")
 
     def tellJobWaiting(self):
         try:
             r = requests.get(self.remoteuri+"/S_Q/")
             if r.status_code == requests.codes.ok:
-                print "set job in queue  "+str(r.status_code)
+                print("set job in queue %d" % (r.status_code))
             else:
-                print "Not set >>job in queue<<, webserver disconnected!?, status: ", r.status_code
+                print("Not set >>job in queue<< status: %d" % (r.status_code))
         except:
-            print "Not announced, webserver disconnected!?, status: "
+            print("error telljobwaiting")
 
 if __name__ == "__main__":
     a = TalkToServer("1360dac99d8d322")

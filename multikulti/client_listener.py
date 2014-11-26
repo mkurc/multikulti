@@ -82,7 +82,7 @@ def parse_server_talking(task, secret_key, jid):
             tomail, name = q[0], q[1]
             if len(tomail) > 1:
                 send_mail(to=tomail, subject="Job "+name+" completed",
-                          body="Get results: "+url_for('job_status', jid=jid) +
+                          body="Get results: "+url_for('job_status', jid=jid, _external=True) +
                           " . Thanks for using our server")
 
         elif task == "LOAD" and request.method == 'POST':
