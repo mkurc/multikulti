@@ -213,6 +213,7 @@
                     </div>
                 </div>
                 {{render_field(form.ligand_ss, placeholder='EHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                {{render_checkbox_field(form.add_constraints)}}
                 {{render_checkbox_field(form.show)}}
 
                 <h6>Computational server status {{status|safe}}</h6>

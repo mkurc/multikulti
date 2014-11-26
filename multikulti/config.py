@@ -36,7 +36,7 @@ config = \
          SMTP_SERVER="localhost",
          # if authorization needed, modify send_mail() method
          PRODUCTION=False,
-         PAGINATION=5)                         # # of records on /browse/ page
+         PAGINATION=15)                         # # of records on /browse/ page
 
 
 def send_mail(to='', subject="Test", body="Body"):

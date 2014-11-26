@@ -1,14 +1,13 @@
 scaling factor w pierwszej linijce restr.txt
 example data od razu pokazuje wynik(?)
 logo
-jeśli czeka na dodanie wiezow - dac guzik na stronie zadania?
-może więzy dać jako optional
-zacina sie pokazywanie modeli w "get all downloads"
-LimitRequestBody 1048576 code 413
-zmienic restr.txt
+więzy dać jako optional
 
 V kolorowanie fragmentow w jmol na podstawie odczytuz bazy
-VGet results: /job/3dfa57cf2ab4bfb/ . Thanks for using our server <-- brak pelnego urla
+V zacina sie pokazywanie modeli w "get all downloads" <--- target blank
+V LimitRequestBody 1048576 code 413
+V zmienic restr.txt
+V Get results: /job/3dfa57cf2ab4bfb/ . Thanks for using our server <-- brak pelnego urla
 V czas ustandaryzować między queue a job status (utc)
 V sortowanie modeli po numerze klastra
 V dopasowanie okna jmol
