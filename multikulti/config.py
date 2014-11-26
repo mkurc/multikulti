@@ -25,17 +25,17 @@ config = \
          USERJOB_DIRECTORY=prefix+'computations/',
          DELETE_USER_JOBS_AFTER="14",
          REMOTE_SERVER_SECRET_KEY="23",
-         REMOTE_SERVER_IP=["127.0.0.1"],
+	 REMOTE_SERVER_IP = ["127.0.0.1", "212.87.3.12", "212.87.3.11"],
          DEBUG=True,
          DEFAULT_MAIL_SENDER="biocomp@chem.uw.edu.pl",  # FROM field
-         MAX_CONTENT_LENGTH=225 * 1024 * 1024,  # 225MB
+         MAX_CONTENT_LENGTH=625 * 1024 * 1024,  # 225MB
          ADMIN_EMAILS=["michal@yerbamate.com.pl",
                        "sebastian.kmiecik@gmail.com",
-                       "agata.szczasiuk@gmail.com"],
+                       "mkurcinski@gmail.com"],
          # admin mails. Send errors, info about new knots, etc.
          SMTP_SERVER="localhost",
          # if authorization needed, modify send_mail() method
-         PRODUCTION=False,
+         PRODUCTION=True,
          PAGINATION=15)                         # # of records on /browse/ page
 
 

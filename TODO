@@ -1,9 +1,11 @@
-scaling factor w pierwszej linijce restr.txt
 example data od razu pokazuje wynik(?)
 logo
-więzy dać jako optional
 
+V max 5 przerw w lancuchach 
+V max 500 aa protejina
+V scaling factor w pierwszej linijce restr.txt
 V kolorowanie fragmentow w jmol na podstawie odczytuz bazy
+V więzy dać jako optional
 V zacina sie pokazywanie modeli w "get all downloads" <--- target blank
 V LimitRequestBody 1048576 code 413
 V zmienic restr.txt

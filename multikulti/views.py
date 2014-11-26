@@ -87,14 +87,13 @@ def ss_validator(form, field):
 
 
 def structure_pdb_validator(form, field):
-    if len(form.receptor_file.data.filename) < 5 and len(field.data) == 5:
+    if len(form.receptor_file.data.filename) < 5 and len(field.data) == 4:
         buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+field.data+'.pdb.gz')
         b2 = buraki.read()
         ft = StringIO(b2)
         with gzip.GzipFile(fileobj=ft, mode="rb") as f:
             p = PdbParser(f)
             missing = p.getMissing()
-            print missing
             seq = p.getSequence()
             allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
                            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
@@ -108,7 +107,7 @@ def structure_pdb_validator(form, field):
                         4 residues')
             if len(seq) > 500:
                 raise ValidationError('CABSdock allows max 500 receptor \
-                                      residues')
+                                       residues. Provided file contains %d' % (len(seq)))
             if missing > 5:
                 raise ValidationError('Missing atoms within receptor (M+N = %d). \
                         Receptor must fullfill M+N<6, where M - number of \
@@ -122,19 +121,19 @@ def pdb_input_validator(form, field):
     if len(form.pdb_receptor.data) != 4 and form.receptor_file.data: # parse only if pdbcode empty
         p = PdbParser(form.receptor_file.data.stream)
         missing = p.getMissing()
-        print missing
         seq = p.getSequence()
         allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M',
                        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
         for e in seq:
             if e not in allowed_seq:
                 raise ValidationError('Non-standard residue in the receptor \
-                                      structure')
+                                       structure')
         if len(p.getBody()) < 16:
             raise ValidationError('File without chain or chain shorter than \
-                                  4 residues')
+                                   4 residues')
         if len(seq) > 500:
-            raise ValidationError('CABSdock allows max 500 receptor residues')
+            raise ValidationError('CABSdock allows max 500 receptor residues. \
+                                   Provided file contains %d' % (len(seq)))
         if missing > 5:
             raise ValidationError('Missing atoms within receptor (M+N = %d). \
                     Receptor must fullfill M+N<6, where M - number of chains, \

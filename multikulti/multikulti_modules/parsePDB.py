@@ -139,7 +139,8 @@ class PdbParser:
             return out
 
 if __name__ == "__main__":
-    f = open("/home/mjamroz/1hui.pdb")
+    f = open("/home/mjamroz/3j65.pdb")
     a = PdbParser(f)
+    print len(a.getSequence())
     t= a.getMissing()
     print t
