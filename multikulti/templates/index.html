@@ -6,9 +6,7 @@
 <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        {% block indexuniq %}
-        <title> CABSdock: server for protein-peptide docking</title>
-        {% endblock %}
+        {% block indexuniq %}<title> CABSdock: server for protein-peptide docking</title>{% endblock %}
     <link rel="stylesheet" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap-theme.css')}}">
@@ -35,23 +33,29 @@
     </div>
     <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-left">
-        <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=28 class="img-thumbnail" src={{url_for('static',filename='img/CABSdock.svg')}}> CABSdock </a></li>
-        <li><a href="{{url_for('queue_page')}}">Queue</a></li>
-        <li><a href="{{url_for('index_page')}}">Submit new job</a></li>
-    </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="{{url_for('learn_more')}}">Method</a></li>
-            <li><a href="{{url_for('tutorial')}}">Tutorial</a></li>
-            <li><a href="{{url_for('index_contact')}}">Contact</a></li>
-            <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
-                <div class="input-group">
-                        <input type="text" class="form-control" placeholder="search by name" name="q" id="q"> 
-                </div>
-            </form>
+            <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=28 class="img-thumbnail" src={{url_for('static',filename='img/CABSdock.svg')}}> CABSdock </a></li>
+            <li><a href="{{url_for('queue_page')}}">Queue</a></li>
+            <li><a href="{{url_for('index_page')}}">Submit new job</a></li>
           </ul>
 
-      </form>
-     
+            <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="project name search" name="q" id="q"> 
+                </div>
+            </form>
+          <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">More info <span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{{url_for('learn_more')}}"><i class="fa fa-cube"></i> About the method</a></li>
+                    <li><a href="{{url_for('tutorial')}}"><i class="fa fa-question-circle"></i> Tutorial</a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{url_for('index_contact')}}"><i class="fa fa-envelope-o"></i> Contact</a></li>
+                    <li><a href="{{url_for('index_cite')}}"><i class="fa fa-edit"></i> How to cite</a></li>
+                </ul>
+            </li>
+          </ul>
+
     </div><!--/.nav-collapse -->
   </div>
 </div>
@@ -109,7 +113,11 @@
                         <img width="110%" src={{url_for('static',filename='img/CABSdock.svg')}}>
                     </div>
                     <div class="col-md-8">
-                <p> This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p> 
+                This is a template for a simple marketing or informational website. 
+                It includes a large callout called a jumbotron and three supporting pieces of content. 
+                Use it as a starting point to create something more unique.
+                </p>
 
         <p><a href="{{url_for('learn_more')}}" class="btn btn-primary btn-lg" role="button">Learn more »</a></p>
                     </div>
@@ -135,27 +143,14 @@
         <div class="col-md-4">
 
 
-
-
-
-
-
-
-
-
-
-
-
                 <div class="panel panel-default ">
                     <div class="panel-body">
             <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
-       
                 <div class="panel panel-primary">
                     <div class="panel-heading">
                                 Receptor
                     </div>
                     <div class="panel-body">
-
                         <div class="row">
                             <div class="col-md-6">
                                 {{render_field(form.pdb_receptor, placeholder='2PCY')}}
@@ -172,9 +167,6 @@
             {% endfor %}
         {% endif %}
     </div>
-
-
-
 
 
 
@@ -221,14 +213,11 @@
     </div>
   </div>
 </div>
-
                 {{form.jid}}
                 {{form.csrf_token()}}
                 <a href="#" onClick="exampleData()" class="btn btn-default btn-xs">Load example data</a> 
                 <hr>
-                
-                    <input type="submit" class="btn btn-lg btn-block btn-success" value="Next step">
-                </div>
+                    <input type="submit" class="btn btn-lg btn-block btn-success" value="Submit">
             </form>
         </div>
     </div>

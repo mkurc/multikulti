@@ -56,6 +56,11 @@ def favicon():
                                'favicon.png', mimetype='image/png')
 
 
+@app.route('/citation')
+def index_cite():
+    return render_template('cite.html')
+
+
 @app.route('/contact')
 def index_contact():
     return render_template('contact.html')
