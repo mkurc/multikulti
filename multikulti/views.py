@@ -7,11 +7,12 @@ import urllib2
 from glob import glob
 from StringIO import StringIO
 import gzip
+from shutil import make_archive
 
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail
 
-from flask import render_template, url_for, request, flash, Response, redirect
+from flask import render_template, url_for, request, flash, Response, redirect, send_from_directory
 from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
@@ -304,22 +305,27 @@ def queue_page(page=1):
 
     qall = query_db("SELECT status FROM  user_queue WHERE hide=0 AND \
                     status!='pending' ORDER BY status_date DESC", [])
-    q = query_db("SELECT project_name, jid,status, datetime(status_date, 'unixepoch') datet FROM \
-            user_queue WHERE hide=0 AND status!='pending' \
-            ORDER BY status_date DESC LIMIT ?,?", [before, app.config['PAGINATION']])
+    q = query_db("SELECT project_name, jid,status, datetime(status_date, \
+            'unixepoch') datet FROM user_queue WHERE hide=0 \
+            AND status!='pending' ORDER BY status_date DESC LIMIT ?,?",
+                 [before, app.config['PAGINATION']])
     out = parse_out(q)
 
-    return render_template('queue.html', queue=out, total_rows=len(qall), page=page)
+    return render_template('queue.html', queue=out, total_rows=len(qall),
+                           page=page)
 
 
 @app.route('/job/<jid>/')
 def job_status(jid):
     jid = os.path.split(jid)[-1]
+    todel = "+"+str(app.config['DELETE_USER_JOBS_AFTER'])+" days"
+
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
             datetime(status_date,'unixepoch') status_date, \
+            date(status_init, 'unixepoch', ?) del, \
             datetime(status_init,'unixepoch') status_change, project_name, \
             status,constraints_scaling_factor, ligand_ss, ss_psipred FROM \
-            user_queue WHERE jid=?", [jid], one=True)
+            user_queue WHERE jid=?", [todel, jid], one=True)
     constraints = query_db("SELECT constraint_definition,force FROM \
             constraints WHERE jid=?", [jid])
     status = status_color(system_info['status'])
@@ -392,3 +398,42 @@ def index_page():
             flash('Something goes wrong. Check errors within data \
                   input panel', 'error')
     return render_template('index.html', form=form, status=comp_status)
+
+
+def simulation_parameters(jid):
+    with open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
+                           "README.txt"), "w") as fw:
+        q = query_db("SELECT ligand_sequence, ligand_ss, receptor_sequence, \
+                      project_name, datetime(status_date,'unixepoch') \
+                      submitted, datetime(status_init, 'unixepoch') finished, \
+                      constraints_scaling_factor FROM user_queue where jid=?",
+                     [jid], one=True)
+        fw.write("CABSdock simulation results. Kolinski's lab homepage: http://biocomp.chem.uw.edu.pl\n")
+        fw.write("======================================================================================\n")
+        fw.write("%28s : %s\n" % ("job_identifier", jid))
+        for k in q.keys():
+            fw.write("%28s : %s\n" % (k, q[k]))
+        q = query_db("SELECT constraint_definition, force FROM constraints \
+                      WHERE jid=?", [jid])
+        fw.write("\nRESTRAINTS:\n")
+        for row in q:
+            fw.write("%40s force: %5.2f\n" % (row[0], float(row[1])))
+
+
+@app.route('/job/<jobid>/simulation_results.tar')
+def tar(jobid):
+    jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
+    udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jobid,
+                             "simulation_results.tar")
+    udir = app.config['USERJOB_DIRECTORY']
+    if not os.path.exists(udir_path):
+        cwd = os.getcwd()
+        os.chdir(udir)
+        simulation_parameters(jobid)
+    # create file with simulation parameters
+        make_archive(jobid+"/simulation_results", "tar", root_dir=".",
+                     base_dir=jobid)
+        os.chdir(cwd)
+    return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
+                               jobid), "simulation_results.tar",
+                               mimetype='application/x-tar')

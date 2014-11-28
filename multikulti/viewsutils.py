@@ -6,7 +6,6 @@ from multikulti import app
 from flask import render_template, g, url_for, request, jsonify, flash, \
     session, Response, redirect, send_from_directory
 import os
-from shutil import make_archive
 
 @app.teardown_appcontext
 def close_db(error):
@@ -93,23 +92,6 @@ def sendfile(jobid, filetype, filename):
                                    filename, mimetype='application/x-gzip')
     else:
         return (render_template('page_not_found.html', code="404"), 404)
-
-
-@app.route('/job/<jobid>/simulation_results.tar')
-def tar(jobid):
-    jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
-    udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jobid,
-                             "simulation_results.tar")
-    udir = app.config['USERJOB_DIRECTORY']
-    if not os.path.exists(udir_path):
-        cwd = os.getcwd()
-        os.chdir(udir)
-        make_archive(jobid+"/simulation_results", "tar", root_dir=".",
-                     base_dir=jobid)
-        os.chdir(cwd)
-    return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
-                               jobid), "simulation_results.tar",
-                               mimetype='application/x-tar')
 
 
 @app.before_request
