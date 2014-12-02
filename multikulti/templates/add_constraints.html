@@ -63,8 +63,8 @@ jmol_isReady = function(applet) {
         out2[i] = "<span name='"+i+"' id='seq"+i+"ligand' data-chain='LIGAND' data-resid='"+i+"'>" + lig_seq[i] + "</span>";
     }
     var right_info = "";
-    out2 = "<hr><div class='sequence' data-chain='LIGAND' name='sequenceSpanLIGAND' id='sequenceSpanLIGAND'><strong>LIGAND</strong>:"+out2.join('')+right_info+"</div>";
-    $("#sequenceSpan").html(out.join('')+out2); // add ligand seq
+    //out2 = "<hr><div class='sequence' data-chain='LIGAND' name='sequenceSpanLIGAND' id='sequenceSpanLIGAND'><strong>LIGAND</strong>:"+out2.join('')+right_info+"</div>";
+    $("#sequenceSpan").html(out.join(''));//+out2); // add ligand seq
     $("div[name^='sequenceSpan'] > span:nth-child(10n)").css({"text-decoration":"underline"});
 
 
@@ -431,7 +431,6 @@ $('.tt').tooltip();
 $('.tt2').popover({'content':"Use this panel to add custom distance restraints between ligand \
         and receptor or other distance restraints if you don't want to use visual mode. \
         <br>Examples: <hr>Add 5.0 Angstrom distance constraint between 2nd C&alpha; atom of ligand and 3rd res. of D-chain of complex - add constraint: <strong><nobr>2:LIGAND, 6:D, 5.0</nobr></strong><hr>\
-        Add set of distance restraints (default 0-10A) between fragment 1-100 of chain A and fragment 1-10 of ligand: <strong><nobr>1-10:LIGAND, 1-100:A</nobr></strong><hr>\
         Add set of distance restraints between fragment 1-100 of chain A and fragment 1-10 of chain C: <strong><nobr>1-10:C, 1-100:A</nobr></strong><hr>\
         Add 5.0A distance restraint between res. 1:A and res. 23:B: <strong><nobr>1:A, 23:B, 5.0</nobr></strong>", 'html': true, 'placement':'left'});
     </script>
