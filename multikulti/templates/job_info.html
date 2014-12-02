@@ -186,7 +186,7 @@ Ligand sequence
             {% for e in results['clusters'] %}
                 <div class="row">
                     <div class="col-md-8"><h5><span name="R{{e}}"></span> {{e.split(".")[0]}}</h5></div>
-                    <div class="col-md-4"><a class="btn btn-xs btn-primary" href="{{url_for('sendfile', filetype='clusters', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
+                    <div class="col-md-4"><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('sendfile', filetype='clusters', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
                 </div>
             {% endfor %}
                 </div>
