@@ -216,7 +216,7 @@ function loadStructure(o) {
     var template = "{{url_for('sendfile', filetype='models', filename='TOREPLACE', jobid=jid)}}";
     var curr_model = template.replace("TOREPLACE", oldidx);
             //script: "set platformSpeed 8;background white;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; trace only;color chain",
-    Jmol.script(jmolApplet0,"load "+curr_model+"; restrict protein; trace only; color chain");
+    Jmol.script(jmolApplet0,"load "+curr_model+"; restrict protein; color chain;cartoons on");
     $("span[name^=V]").html("");
     $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-arrow-circle-left'></i>");
 }
