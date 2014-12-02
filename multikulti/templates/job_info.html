@@ -43,10 +43,10 @@ var JMEInfo = {
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
-    <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Job information</a></li>
+    <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
 {% if status_type=='done' %}
   <li class="active"><a href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
-  <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering info</a></li>
+  <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li>
 {% endif %}
 </ul>
 
@@ -168,7 +168,7 @@ Ligand sequence
       {% endfor %}
                   </div></div>
       <hr>
-      <a class='btn btn-block btn-primary' href="{{url_for('tar', jobid=jid)}}" target=_blank><i class='fa fa-download'></i> Download all files</a>
+      <a class='btn btn-block btn-lg btn-primary' href="{{url_for('tar', jobid=jid)}}" target=_blank><i class='fa fa-download'></i> Download all files</a>
           </div>
       </div>
   </div> <!-- end tab models -->
