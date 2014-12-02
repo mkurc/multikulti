@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 import requests
-import bz2
 import re
-import gzip
 import json
 import urllib2
 import os
 from glob import glob
 from multiprocessing import cpu_count
-from re import compile, match
 from config_remote import config_remote
 from Psipred import Psipred
 
@@ -18,8 +15,7 @@ class TalkToServer:
         self.jid = str(jid)
         self.secret_key = config_remote['secret_key']
         self.webserver = config_remote['webserver_url']
-        self.remoteuri = self.webserver + "_server_talking/" + self.secret_key
-        + "/" + self.jid
+        self.remoteuri = self.webserver + "_server_talking/" + self.secret_key + "/" + self.jid
 
         # delete user jobs
         url = self.webserver+"_deleteOldJobs"
@@ -35,8 +31,7 @@ class TalkToServer:
         to_send = {}
         for d in ["CLUST", "MODELS", "TRAFS"]:
             for filename in glob(d+"/*.gz"):
-                fn = filename.replace("CLUST", "clusters").replace("MODELS",
-                                      "models").replace("TRAFS", "replicas")
+                fn = filename.replace("CLUST", "clusters").replace("MODELS", "models").replace("TRAFS", "replicas")
                 to_send[fn] = open(filename, "rb")
         print(to_send.keys())
 
