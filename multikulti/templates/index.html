@@ -34,8 +34,8 @@
     <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-left">
             <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=28 class="img-thumbnail" src={{url_for('static',filename='img/CABSdock.svg')}}> CABSdock </a></li>
-            <li><a href="{{url_for('queue_page')}}">Queue</a></li>
-            <li><a href="{{url_for('index_page')}}">Submit new job</a></li>
+            <li><a href="{{url_for('queue_page')}}"><i class="fa fa-reorder"></i> Queue</a></li>
+            <li><a href="{{url_for('index_page')}}"><i class="fa fa-cogs"></i> Submit new job</a></li>
           </ul>
 
             <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">

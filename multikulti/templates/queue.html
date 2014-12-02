@@ -15,6 +15,8 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel panel-heading"><i class="fa fa-reorder"></i> Submitted projects</div>
             <table class="table table-hover table-striped">
                 <thead>
                     <tr>
@@ -26,15 +28,15 @@
                 <tbody  data-link="row" class="rowlink">
                 {% for row in queue %}
                 <tr>
-                    <td>
+                    <td class="col-md-8">
                         <a href="{{url_for('job_status', jid=row['jid'])}}">
                             {{row['project_name']}}
                         </a>
                     </td>
-                    <td>
+                    <td class="col-md-2">
                             {{row['status']|safe}}
                     </td>
-                    <td>
+                    <td class="col-md-2">
                         <a href="{{url_for('job_status', jid=row['jid'])}}">
                             {{row['date']}}
                         </a>
@@ -42,8 +44,7 @@
                 {% endfor %}
                 </tbody>
             </table>
-
-
+            <div class="panel panel-body">
 
 
     <ul class="pager">
@@ -59,6 +60,7 @@
             {% endif %}
             
     </ul>
+            </div></div>
 
 </div>
 
