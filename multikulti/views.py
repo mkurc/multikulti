@@ -110,8 +110,8 @@ def structure_pdb_validator(form, field):
                 raise ValidationError('CABSdock allows max 500 receptor \
                                        residues. Provided file contains %d' % (len(seq)))
             if missing > 5:
-                raise ValidationError('Missing atoms within receptor (M+N = %d). \
-                        Receptor must fullfill M+N<6, where M - number of \
+                raise ValidationError('Missing atoms within protein (M+N = %d). \
+                        Protein must fullfill M+N<6, where M - number of \
                         chains, N - number of breaks' % (missing))
         buraki.close()
 
@@ -137,16 +137,16 @@ def pdb_input_validator(form, field):
                                    Provided file contains %d' % (len(seq)))
         if missing > 5:
             raise ValidationError('Missing atoms within receptor (M+N = %d). \
-                    Receptor must fullfill M+N<6, where M - number of chains, \
+                    Protein must fullfill M+N<6, where M - number of chains, \
                     N - number of breaks' % (missing))
 
 
 def pdb_input_code_validator(form, field):
     if len(field.data) != 4 and not form.receptor_file.data.filename:
-        raise ValidationError('Receptor code must be 4-letter (2PCY). Leave \
+        raise ValidationError('Protein code must be 4-letter (2PCY). Leave \
                 empty only if PDB file is provided')
     if not form.pdb_receptor.data and not form.receptor_file.data:
-        raise ValidationError('Receptor PDB code or PDB file is required')
+        raise ValidationError('Protein PDB code or PDB file is required')
 
 
 class MyForm(Form):
@@ -155,9 +155,9 @@ class MyForm(Form):
             validators=[pdb_input_code_validator, structure_pdb_validator])
     receptor_file = FileField('Local PDB file',
             validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
-    ligand_seq = TextAreaField('Ligand sequence',
+    ligand_seq = TextAreaField('Peptide sequence',
             validators=[Length(min=3, max=30), DataRequired(), sequence_validator])
-    ligand_ss = TextAreaField('Ligand secondary structure',
+    ligand_ss = TextAreaField('Peptide secondary structure',
             validators=[Length(min=3, max=30), optional(), ss_validator, eqlen_validator])
     email = StringField('E-mail address', validators=[optional(), Email()])
     show = BooleanField('Do not show my job on the results page', default=False)
