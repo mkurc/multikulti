@@ -117,9 +117,9 @@
                     </div>
                     <div class="col-md-8">
                 <p> 
-                This is a template for a simple marketing or informational website. 
-                It includes a large callout called a jumbotron and three supporting pieces of content. 
-                Use it as a starting point to create something more unique.
+                CABS-dock: server for molecular docking of peptides to proteins. CABS-dock
+                treats peptide backbone as fully flexible, while the flexibility of
+                receptor proteins is limited to near-native backbone fluctuations.
                 </p>
 
         <p><a href="{{url_for('learn_more')}}" class="btn btn-primary btn-lg" role="button">Learn more »</a></p>
@@ -151,7 +151,7 @@
             <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
                 <div class="panel panel-primary">
                     <div class="panel-heading">
-                                Receptor
+                        Protein
                     </div>
                     <div class="panel-body">
                         <div class="row">
@@ -181,7 +181,7 @@
 
                 <div class="panel panel-primary">
                     <div class="panel-heading">
-                        Ligand
+                        Peptide
                     </div>
                     <div class="panel-body">
                         {{render_field(form.ligand_seq, placeholder='ALA', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
