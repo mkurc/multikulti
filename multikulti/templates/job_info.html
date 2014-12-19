@@ -24,7 +24,7 @@
             use: "HTML5",
             readyFunction: jmol_isReady,
            // script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;set bondTolerance = 5.0;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;trace only",
-            script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;cartoons on",
+            script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;cartoons on;zoom -20",
             j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
             isSigned: "true",
             defaultModel: "",
@@ -139,35 +139,55 @@ Peptide sequence
   <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
       <div class="row">
           <div class="behind col-md-8">
-            <div id="ooo" style="height:500px;border:0px solid;border-color:#eee;margin-bottom:15px">
+
+                        <div class="alert alert-warning alert-dismissable">
+                            Hire ju kan łocz
+              </div>
+
+
+
+            <div id="ooo" style="height:510px;border:0px solid;border-color:#eee;margin-bottom:15px">
                 <script>
                 Jmol._alertNoBinary = false;
                 jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
                 jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
                 var lastPrompt=0;
                 </script>
+
             </div>
+
+
           </div>
 
           <div class="col-md-4">
+                        <div class="alert alert-warning alert-dismissable">
+                            Ju kan klik żeby się zmieniło po lewej.
+              </div>
               <div class="panel panel-primary">
                   <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
                   <div class="panel-body">
+                  </div>
               {% set fir=True %}
+              <table class="table-condensed table">
       {% for e in results['models'] %}
-        <div class="row">
-            {% if fir %}
-            <div class="col-md-5"><h5><span name="V{{e}}"><i class="fa fa-arrow-circle-left"></i></span> {{e.split(".")[0]}}</h5></div>
-            {% set fir=False %}
-            {% else %}
-            <div class="col-md-5"><h5><span name="V{{e}}"></span> {{e.split(".")[0]}}</h5></div>
-            {% endif %}
-            <div class="col-md-3"><button onClick="loadStructure(this)" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></div>
-            <div class="col-md-4"><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('sendfile', filetype='models', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
-        </div>
+          {% if fir %}
+            <tr name="R{{e}}" class="info">
+          <td><span name="V{{e}}"><i class="fa fa-eye"></i></span></td>
+          {% set fir=False %}
 
+          {% else %}
+            <tr name="R{{e}}">
+          <td><span name="V{{e}}"></span></td>
+          {% set fir=False %}
+          {% endif %}
+          <td>{{e.split(".")[0]}}</td>
+            <td><button onClick="loadStructure(this)" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
+            <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('sendfile', filetype='models', filename=e, jobid=jid)}}"><i class='fa fa-        ↪download'></i> Download</a></td>
+      </tr>
       {% endfor %}
-                  </div></div>
+              </table>
+              &nbsp;
+              </div>
       <hr>
       <a class='btn btn-block btn-lg btn-primary' href="{{url_for('tar', jobid=jid)}}" target=_blank><i class='fa fa-download'></i> Download all files</a>
           </div>
@@ -202,7 +222,7 @@ Peptide sequence
 <br>&nbsp;
 <div class="alert alert-warning alert-dismissible" role="alert">
   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-  <i class="fa fa-recycle"></i> <strong>Note</strong> This page will be automatically deleted on {{sys['del']}}.
+  <i class="fa fa-recycle"></i> <strong>Note</strong> Your results will be automatically deleted on {{sys['del']}}.
 </div>
 {% endif %}
 
@@ -216,9 +236,11 @@ function loadStructure(o) {
     var template = "{{url_for('sendfile', filetype='models', filename='TOREPLACE', jobid=jid)}}";
     var curr_model = template.replace("TOREPLACE", oldidx);
             //script: "set platformSpeed 8;background white;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; trace only;color chain",
-    Jmol.script(jmolApplet0,"load "+curr_model+"; restrict protein; color chain;cartoons on");
+    Jmol.script(jmolApplet0,"load "+curr_model+"; restrict protein; color chain;cartoons on;zoom -20");
     $("span[name^=V]").html("");
-    $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-arrow-circle-left'></i>");
+    $("tr[name^=R]").removeClass("info");
+    $("tr[name^=R"+oldidx.split(".")[0]+"]").addClass("info");
+    $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
 }
 </script>
 {% endblock %}

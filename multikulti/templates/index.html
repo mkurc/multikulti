@@ -34,8 +34,8 @@
     <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-left">
               <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=25 class="img-responsive" src={{url_for('static',filename='img/CABSdock.svg')}}></a></li><li><a class="navbar-brand" href="{{url_for("index_page")}}"> CABSdock </a></li>
-            <li><a href="{{url_for('queue_page')}}"><i class="fa fa-reorder"></i> Queue</a></li>
             <li><a href="{{url_for('index_page')}}"><i class="fa fa-cogs"></i> Submit new job</a></li>
+            <li><a href="{{url_for('queue_page')}}"><i class="fa fa-reorder"></i> Queue</a></li>
     </ul>
             <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
                 <div class="form-group">
@@ -175,12 +175,11 @@
     </div>
 
 
-
                             </div>
                         </div>
+                        <small class="text-muted">Max protein size: 500 residues</small>
                     </div>
                 </div>
-
 
                 <div class="panel panel-primary">
                     <div class="panel-heading">
@@ -188,6 +187,8 @@
                     </div>
                     <div class="panel-body">
                         {{render_field(form.ligand_seq, placeholder='ALA', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                        <small class="text-muted">Peptide size: 3-30 residues</small>
+
 
             </div>
         </div>

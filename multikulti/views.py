@@ -151,9 +151,9 @@ def pdb_input_code_validator(form, field):
 
 class MyForm(Form):
     name = StringField('Project name', validators=[Length(min=4, max=50), optional()])
-    pdb_receptor = StringField('Remote PDB file',
+    pdb_receptor = StringField('PDB code',
             validators=[pdb_input_code_validator, structure_pdb_validator])
-    receptor_file = FileField('Local PDB file',
+    receptor_file = FileField('PDB file',
             validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
     ligand_seq = TextAreaField('Peptide sequence',
             validators=[Length(min=3, max=30), DataRequired(), sequence_validator])
