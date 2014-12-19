@@ -215,14 +215,26 @@
                 {{render_checkbox_field(form.add_constraints)}}
                 {{render_checkbox_field(form.show)}}
 
-                <h6>Computational server status {{status|safe}}</h6>
       </div>
     </div>
   </div>
 </div>
                 {{form.jid}}
                 {{form.csrf_token()}}
-                <a href="#" onClick="exampleData()" class="btn btn-default btn-xs">Load example data</a> 
+                <div class="row">
+                    <div class="col-md-5">
+                        <button onClick="exampleData()"  class="btn btn-default btn-xs">Load example</button>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Server status
+                        </h6>
+                    </div>
+                    <div class="col-md-3">
+                        <h6> {{status|safe}} </h6>
+                    </div>
+                </div>
+
+
                 <hr>
                     <input type="submit" class="btn btn-lg btn-block btn-success" value="Submit">
             </form>
