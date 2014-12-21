@@ -11,9 +11,6 @@
 	var glviewer = null;
 	var labels = [];
 
-        $.get("{{url_for('send_unzipped', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
-            $("#moldata_pdb_large").val(data);
-        }, "text");
 
 function styles(){
     glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
@@ -27,16 +24,20 @@ function styles(){
 }
 	$(document).ready(function() {
 
-		moldata = data = $("#moldata_pdb_large").val();
 		glviewer = $3Dmol.createViewer("gldiv", {
 			defaultcolors : $3Dmol.rasmolElementColors
 		});
 		glviewer.setBackgroundColor(0xffffff);
 
+                $.get("{{url_for('send_unzipped', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
+                    $("#moldata_pdb_large").val(data);
+                        moldata = data = $("#moldata_pdb_large").val();
+                        receptorModel = m = glviewer.addModel(data, "pdb");
+                        receptorModel.setStyle({}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+                        styles();
+                }, "text");
+                
 
-		receptorModel = m = glviewer.addModel(data, "pdb");
-                receptorModel.setStyle({}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
-                styles();
 
 
 
@@ -167,10 +168,13 @@ Peptide sequence
   <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
       <div class="row">
           <div class="col-md-8">
-                        <div class="alert alert-warning alert-dismissable"> Hire ju kan łoc asd fsz </div>
+                        <div class="alert alert-success">Here you can zoom/rotate predicted structure of the complex.
+                            <br><a href="#">View structures in JSmol <small>(pure JavaScript)</small> if you got rendering problems.</a>
+                        
+                        </div>
           </div>
           <div class="col-md-4">
-                        <div class="alert alert-warning alert-dismissable"> Ju kan klik żeby się zmieniło po lewej.  </div>
+              <div class="alert alert-success">Click the <i>View</i> button to load other complex. Models are numbered accordingly to their cluster density (1 = most dense cluster).</div>
           </div>
       </div>
 
