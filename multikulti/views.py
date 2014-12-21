@@ -4,11 +4,12 @@
 
 import os
 import urllib2
+import zipfile
 from glob import glob
 from StringIO import StringIO
 from re import compile
 import gzip
-from shutil import make_archive
+from shutil import make_archive, rmtree
 
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail
@@ -426,8 +427,8 @@ def index_page():
 
 
 def simulation_parameters(jid):
-    with open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
-                           "README.txt"), "w") as fw:
+    with gzip.open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
+                                "README.txt"), "w") as fw:
         q = query_db("SELECT ligand_sequence, ligand_ss, receptor_sequence, \
                       project_name, datetime(status_date,'unixepoch') \
                       submitted, datetime(status_init, 'unixepoch') finished, \
@@ -457,20 +458,45 @@ def send_unzipped(jobid, model_name):
     return Response(file_content, status=200, mimetype='chemical/x-pdb')
 
 
-@app.route('/job/<jobid>/simulation_results.tar')
-def tar(jobid):
-    jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
-    udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jobid,
-                             "simulation_results.tar")
-    udir = app.config['USERJOB_DIRECTORY']
-    if not os.path.exists(udir_path):
-        cwd = os.getcwd()
-        os.chdir(udir)
-        simulation_parameters(jobid)
-    # create file with simulation parameters
-        make_archive(jobid+"/simulation_results", "tar", root_dir=".",
-                     base_dir=jobid)
-        os.chdir(cwd)
+def make_zip(jid):
+    if os.path.exists(os.path.join(app.config['USERJOB_DIRECTORY'],
+                                   jid, "CABSdock.zip")):
+        return
+
+    jid = jid.split("/")[0]
+    tu = os.getcwd()
+    os.chdir(os.path.join(app.config['USERJOB_DIRECTORY'], jid))
+    simulation_parameters(jid)
+
+    dir_o = "CABSdock"
+
+    for d in ["models", "clusters", "replicas"]:
+        if not os.path.exists(os.path.join(dir_o, d)):
+                os.makedirs(os.path.join(dir_o, d))
+    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(".")
+             for f in filenames if dp != "CABSdock" and f != "input.pdb"]
+    for file in files:
+        file2 = "/".join(file.split("/")[1:])
+        file2 = os.path.basename(file)
+
+        with gzip.GzipFile(file) as gz:
+            with open(os.path.join("CABSdock", os.path.splitext(file2)[0]),
+                      "w") as un:
+                un.write(gz.read())
+
+    zf = zipfile.ZipFile("CABSdock.zip", "w", zipfile.ZIP_DEFLATED)
+    files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(dir_o)
+             for f in filenames]
+    for file in files:
+        zf.write(file)
+    zf.close()
+    rmtree(dir_o)
+    os.chdir(tu)
+
+
+@app.route('/job/CABSdock_<jobid>.zip')
+def sendzippackage(jobid):
+    make_zip(jobid)
     return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
-                               jobid), "simulation_results.tar",
-                               mimetype='application/x-tar')
+                               jobid), "CABSdock.zip",
+                               mimetype='application/x-zip')
