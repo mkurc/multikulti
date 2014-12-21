@@ -24,7 +24,7 @@
             use: "HTML5",
             readyFunction: jmol_isReady,
            // script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;set bondTolerance = 5.0;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;trace only",
-            script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;cartoons on;zoom -20",
+            script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};chainString = script('show chains');cartoon only;restrict protein; color chain;cartoons on;zoom -20;isoSurface surf1 select(*:A) ignore(hetero) saSurface",
             j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
             isSigned: "true",
             defaultModel: "",

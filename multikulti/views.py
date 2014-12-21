@@ -6,6 +6,7 @@ import os
 import urllib2
 from glob import glob
 from StringIO import StringIO
+from re import compile
 import gzip
 from shutil import make_archive
 
@@ -337,9 +338,30 @@ def job_status(jid):
             tm = [fil.split("/")[-1] for fil in glob(udir_path+"/"+d+"/*.gz")]
             models[d] = sorted(tm, key=alphanum_key)
 
-    return render_template('job_info.html', status=status, constr=constraints,
+        # get indexes for RECEPTOR/LIGAND
+        ligand_txt = ""
+        receptor_txt = ""
+        path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "models", models['models'][0])
+        data = gzip.open(path_dir)
+        file_content = data.readlines()
+        atm = compile(r"^ATOM.{17}(?P<chain>.{1}).*$")
+        data.close()
+        chains_set = []
+        for line in file_content:
+            d = atm.match(line)
+            if d:
+                ch = d.groups()[0]
+                if ch not in chains_set:
+                    chains_set.append(ch)
+        ligand_txt = "{'chain': '"+chains_set[-1]+"'}"
+        for e in range(len(chains_set)-1):
+            receptor_txt += "'"+chains_set[e]+"',"
+        receptor_txt = "[" + receptor_txt[:-1] + "]"
+
+
+    return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models,
-                           status_type=system_info['status'])
+                           status_type=system_info['status'], lig_txt=ligand_txt, rec_txt=receptor_txt)
 
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
@@ -418,6 +440,18 @@ def simulation_parameters(jid):
         fw.write("\nRESTRAINTS:\n")
         for row in q:
             fw.write("%40s force: %5.2f\n" % (row[0], float(row[1])))
+
+
+@app.route('/job/<jobid>/models/<model_name>/model.pdb')
+def send_unzipped(jobid, model_name):
+
+    jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
+    path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, "models",
+                            model_name)
+    data = gzip.open(path_dir)
+    file_content = data.read()
+    data.close()
+    return Response(file_content, status=200, mimetype='chemical/x-pdb')
 
 
 @app.route('/job/<jobid>/simulation_results.tar')
