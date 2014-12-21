@@ -19,7 +19,9 @@ function styles(){
     glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
     glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
     glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
-    glviewer.setStyle({{lig_txt|safe}}, {"sphere":{}});
+    //glviewer.setStyle({{lig_txt|safe}}, {"sphere":{}});
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+    //glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
     glviewer.zoomTo();
     glviewer.render();
 }
