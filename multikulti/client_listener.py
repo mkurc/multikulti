@@ -21,18 +21,18 @@ def index_queue():
 
 @app.route('/_deleteOldJobs')
 def delete_old():
-    days = "-"+str(app.config['DELETE_USER_JOBS_AFTER'])
+    days = "-"+str(app.config['DELETE_USER_JOBS_AFTER'])+" days"
     to_delete = []
-# TODO sprawdzic, czy to dziala
     for keyid in query_db("SELECT jid FROM user_queue WHERE \
-            status_init<=date('now',?)", [days]):
+            status_init<=strftime('%s',date('now',?))", [days]):
         to_delete.append(keyid[0])
         pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid[0])
         rmtree(pat_k)
     for k in to_delete:
         query_db("DELETE FROM constraints WHERE jid=?", [k], insert=True)
-    query_db("DELETE FROM user_queue where jid in (select jid FROM \
-            user_queue WHERE status_init<=date('now',?))", [days], insert=True)
+    query_db("DELETE FROM user_queue where jid in (select jid FROM user_queue \
+            WHERE status_init<=strftime('%s',date('now',?)))",
+             [days], insert=True)
 
     return Response("HEIL ERIS!", mimetype='text/plain')
 
