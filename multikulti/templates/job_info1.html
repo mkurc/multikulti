@@ -42,12 +42,20 @@ function styles(){
 
 	});
 
-function loadMol(file) {
+function loadMol(o) {
+    var file = o.dataset.filename;
+
         $.get(file, null, function (data) {
                 glviewer.clear();
 		receptorModel = m = glviewer.addModel(data, "pdb");
                 receptorModel.setStyle({}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
                 styles();
+
+    var oldidx = o.dataset.model;
+    $("span[name^=V]").html("");
+    $("tr[name^=R]").removeClass("info");
+    $("tr[name^=R"+oldidx.split(".")[0]+"]").addClass("info");
+    $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
 
         }, "text");
 
@@ -190,7 +198,7 @@ Peptide sequence
           {% endif %}
           <td>{{e.split(".")[0]}}</td>
           
-          <td><button onClick="loadMol('{{url_for('send_unzipped', model_name=e, jobid=jid)}}')" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
+          <td><button onClick="loadMol(this)" data-filename="{{url_for('send_unzipped', model_name=e, jobid=jid)}}" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
           <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('send_unzipped', model_name=e, jobid=jid)}}">
                   <i class='fa fa-download'></i> Download</a></td>
 
