@@ -1,0 +1,244 @@
+{% extends "index.html" %}
+
+        {% block indexuniq %}
+        {% endblock %}
+    {% block header %}
+    <title>CABSdock: {{sys['project_name']}}</title>
+
+    {% if status_type=='done' %}
+        <script src="{{url_for('static', filename='js/3Dmol-min.js')}}" type="text/javascript" charset="utf-8"></script>
+    <script>
+	var glviewer = null;
+	var labels = [];
+
+        $.get("{{url_for('send_unzipped', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
+            $("#moldata_pdb_large").val(data);
+        }, "text");
+
+function styles(){
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+    glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+    glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+    glviewer.setStyle({{lig_txt|safe}}, {"sphere":{}});
+    glviewer.zoomTo();
+    glviewer.render();
+}
+	$(document).ready(function() {
+
+		moldata = data = $("#moldata_pdb_large").val();
+		glviewer = $3Dmol.createViewer("gldiv", {
+			defaultcolors : $3Dmol.rasmolElementColors
+		});
+		glviewer.setBackgroundColor(0xffffff);
+
+
+		receptorModel = m = glviewer.addModel(data, "pdb");
+                receptorModel.setStyle({}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+                styles();
+
+
+
+	});
+
+function loadMol(file) {
+        $.get(file, null, function (data) {
+                glviewer.clear();
+		receptorModel = m = glviewer.addModel(data, "pdb");
+                receptorModel.setStyle({}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+                styles();
+
+        }, "text");
+
+}
+</script>
+    {% endif %}
+
+
+    {% endblock %}
+
+{% block body %}
+<div class="container">
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
+{% if status_type=='done' %}
+  <li class="active"><a href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
+  <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li>
+{% endif %}
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
+              
+            <div class="row">
+                <div class="col-md-6">
+            <h3>
+                Project name: {{sys['project_name']}}
+            </h3>
+
+        </div>
+        <div class="col-md-6">
+            <h4>Status:                    {{status|safe}}</h4>
+            <h6>submitted: {{sys['status_date']}}, status changed: {{sys['status_change']}}</h6>
+            </div>
+
+        </div>
+
+            <hr>
+
+      <table class="table table-striped">
+        <tr>
+            <td><strong>
+Protein sequence(s)
+                </strong>
+            </td>
+            <td>
+                <span class='sequence'>{{sys['receptor_sequence']}}</span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td><strong>
+Peptide sequence
+                </strong>
+            </td>
+            <td>
+                <span class='sequence'>{{sys['ligand_sequence']}}</span>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>
+                    Peptide secondary structure 
+                </strong>
+                    {% if sys['ss_psipred']==1 %}
+                    <span class="label label-primary pull-right">by <span class='capi'>psipred</span></span>
+                    {% endif %} 
+            </td>
+            <td>
+                    {% if sys['ligand_ss']|length != sys['ligand_sequence']|length %}
+                    <small><i>waiting for PSIPRED prediction</i></small>
+                    {% else %}
+                <span class='sequence'>{{sys['ligand_ss']}}</span>
+                    {% endif %}
+            </td>
+        </tr>
+      <tr><td>
+      <h5>Restraints <small>restrained chain fragments and force scaling factor</h5>
+      </td>
+      <td>
+          
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in constr %}
+          <td><small>{{row['constraint_definition']}}</small> <span class="badge">{{row['force']}}</span></td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
+
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
+  <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td></tr>
+
+      </table>
+
+
+  </div> <!-- end tab summary -->
+	<textarea  style="display:none" id="moldata_pdb_large"></textarea>
+  <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
+      <div class="row">
+          <div class="col-md-8">
+                        <div class="alert alert-warning alert-dismissable"> Hire ju kan łoc asd fsz </div>
+          </div>
+          <div class="col-md-4">
+                        <div class="alert alert-warning alert-dismissable"> Ju kan klik żeby się zmieniło po lewej.  </div>
+          </div>
+      </div>
+
+      <div class="row">
+          <div class="behind col-md-8">
+            <div id="gldiv" style="width: 100%; height: 50vh; margin: 0; padding: 0; border: 0;"> </div>
+          </div>
+          <div class="col-md-4">
+              <div class="panel panel-primary">
+                  <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
+                  <div class="panel-body">
+                  </div>
+              {% set fir=True %}
+              <table class="table-condensed table">
+      {% for e in results['models'] %}
+          {% if fir %}
+            <tr name="R{{e}}" class="info">
+          <td><span name="V{{e}}"><i class="fa fa-eye"></i></span></td>
+          {% set fir=False %}
+
+          {% else %}
+            <tr name="R{{e}}">
+          <td><span name="V{{e}}"></span></td>
+          {% set fir=False %}
+          {% endif %}
+          <td>{{e.split(".")[0]}}</td>
+          
+          <td><button onClick="loadMol('{{url_for('send_unzipped', model_name=e, jobid=jid)}}')" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
+          <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('send_unzipped', model_name=e, jobid=jid)}}">
+                  <i class='fa fa-download'></i> Download</a></td>
+
+
+      </tr>
+      {% endfor %}
+              </table>
+              &nbsp;
+              </div>
+      <hr>
+      <a class='btn btn-block btn-lg btn-primary' href="{{url_for('tar', jobid=jid)}}" target=_blank><i class='fa fa-download'></i> Download all files</a>
+          </div>
+      </div>
+  </div> <!-- end tab models -->
+  <div class="tab-pane" id="clustering">
+      <div class="row">
+        <div class="col-md-8">
+            tabelki eremesy mozeo
+        </div>
+
+        <div class="col-md-4">      
+            <div class="panel panel-primary">
+                <div class="panel-heading"><i class="fa fa-bar-chart"></i> Clusters</div>
+                <div class="panel-body">
+            {% for e in results['clusters'] %}
+                <div class="row">
+                    <div class="col-md-8"><h5><span name="R{{e}}"></span> {{e.split(".")[0]}}</h5></div>
+                    <div class="col-md-4"><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('sendfile', filetype='clusters', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
+                </div>
+            {% endfor %}
+                </div>
+            </div>
+        </div>
+  </div>
+
+  </div> <!-- end tab clustering -->
+  <div class="tab-pane" id="replicas">
+  </div> <!-- end tab costam -->
+</div>
+{% if status_type=='done' or status_type=='error' %}
+<br>&nbsp;
+<div class="alert alert-warning alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <i class="fa fa-recycle"></i> <strong>Note</strong> Your results will be automatically deleted on {{sys['del']}}.
+</div>
+{% endif %}
+
+</div>
+{% endblock %}
+{% block below_js %}
+<script>
+</script>
+{% endblock %}
