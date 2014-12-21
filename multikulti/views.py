@@ -333,15 +333,17 @@ def job_status(jid):
     # wylistuj wyniki jesli done
     models = {'models': [], 'clusters': [], 'replicas': []}
     udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
+
+    ligand_txt = ""
+    receptor_txt = ""
     if system_info['status'] == 'done':
         for d in ['models', 'replicas', 'clusters']:
             tm = [fil.split("/")[-1] for fil in glob(udir_path+"/"+d+"/*.gz")]
             models[d] = sorted(tm, key=alphanum_key)
 
         # get indexes for RECEPTOR/LIGAND
-        ligand_txt = ""
-        receptor_txt = ""
-        path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "models", models['models'][0])
+        path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid,
+                                "models", models['models'][0])
         data = gzip.open(path_dir)
         file_content = data.readlines()
         atm = compile(r"^ATOM.{17}(?P<chain>.{1}).*$")
@@ -353,15 +355,16 @@ def job_status(jid):
                 ch = d.groups()[0]
                 if ch not in chains_set:
                     chains_set.append(ch)
+        # format as javascript data
         ligand_txt = "{'chain': '"+chains_set[-1]+"'}"
         for e in range(len(chains_set)-1):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
 
-
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models,
-                           status_type=system_info['status'], lig_txt=ligand_txt, rec_txt=receptor_txt)
+                           status_type=system_info['status'],
+                           lig_txt=ligand_txt, rec_txt=receptor_txt)
 
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
