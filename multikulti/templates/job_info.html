@@ -24,7 +24,7 @@
             use: "HTML5",
             readyFunction: jmol_isReady,
            // script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;set bondTolerance = 5.0;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;trace only",
-            script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};chainString = script('show chains');cartoon only;restrict protein; color chain;cartoons on;zoom -20;isoSurface surf1 select(*:A) ignore(hetero) saSurface",
+            script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom -20",
             j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
             isSigned: "true",
             defaultModel: "",
@@ -140,9 +140,8 @@ Peptide sequence
       <div class="row">
           <div class="behind col-md-8">
 
-                        <div class="alert alert-warning alert-dismissable">
-                            Hire ju kan łocz
-              </div>
+                <div class="alert alert-success">Here you can zoom/rotate predicted structure of the complex.
+                </div>
 
 
 
@@ -160,9 +159,7 @@ Peptide sequence
           </div>
 
           <div class="col-md-4">
-                        <div class="alert alert-warning alert-dismissable">
-                            Ju kan klik żeby się zmieniło po lewej.
-              </div>
+              <div class="alert alert-success">Click the <i>View</i> button to load other complex. Models are numbered accordingly to their cluster density (1 = most dense cluster).</div>
               <div class="panel panel-primary">
                   <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
                   <div class="panel-body">
@@ -236,7 +233,7 @@ function loadStructure(o) {
     var template = "{{url_for('sendfile', filetype='models', filename='TOREPLACE', jobid=jid)}}";
     var curr_model = template.replace("TOREPLACE", oldidx);
             //script: "set platformSpeed 8;background white;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; trace only;color chain",
-    Jmol.script(jmolApplet0,"load "+curr_model+"; restrict protein; color chain;cartoons on;zoom -20");
+    Jmol.script(jmolApplet0,"load "+curr_model+"; restrict protein; color chain;cartoons on;cartoon only;zoom -20");
     $("span[name^=V]").html("");
     $("tr[name^=R]").removeClass("info");
     $("tr[name^=R"+oldidx.split(".")[0]+"]").addClass("info");

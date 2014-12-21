@@ -361,6 +361,11 @@ def job_status(jid):
         for e in range(len(chains_set)-1):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
+    if request.args.get('js','') == 'js':
+        return render_template('job_info.html', status=status, constr=constraints,
+                            jid=jid, sys=system_info, results=models,
+                            status_type=system_info['status'],
+                            lig_txt=ligand_txt, rec_txt=receptor_txt)
 
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models,
