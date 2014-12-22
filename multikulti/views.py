@@ -158,9 +158,9 @@ class MyForm(Form):
     receptor_file = FileField('PDB file',
             validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
     ligand_seq = TextAreaField('Peptide sequence',
-            validators=[Length(min=3, max=30), DataRequired(), sequence_validator])
+            validators=[Length(min=4, max=30), DataRequired(), sequence_validator])
     ligand_ss = TextAreaField('Peptide secondary structure',
-            validators=[Length(min=3, max=30), optional(), ss_validator, eqlen_validator])
+            validators=[Length(min=4, max=30), optional(), ss_validator, eqlen_validator])
     email = StringField('E-mail address', validators=[optional(), Email()])
     show = BooleanField('Do not show my job on the results page', default=False)
     add_constraints = BooleanField('Add custom constraints', default=False)
