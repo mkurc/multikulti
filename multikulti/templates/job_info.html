@@ -46,12 +46,16 @@ function loadMol(o) {
 {% block job_viewwindow %}
       <div class="row">
           <div class="col-md-8">
-                <div class="alert alert-success">Here you can zoom/rotate predicted structure of the complex.  
+                <div class="alert alert-success">
+                    Here you can zoom/rotate predicted model of the complex. Click the "View"
+                    button on the right panel to load the appropriate model.
                         <br><small><a href="{{url_for('job_status', jid=jid)}}">View in 3Dmol <small>(WebGL)</small></a></small>
           </div>
           </div>
           <div class="col-md-4">
-              <div class="alert alert-success">Click the <i>View</i> button to load complex structure. Models are numbered accordingly to their cluster density (1 = most dense cluster).</div>
+              <div class="alert alert-success">
+             Models are ranked and numbered according to their occurrence in docking trajectory (1 = most probable result).
+              </div>
           </div>
       </div>
       <div class="row">
