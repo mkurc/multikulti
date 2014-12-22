@@ -1,6 +1,4 @@
-{% from 'macros.html' import render_field %}
-{% from 'macros.html' import render_checkbox_field %}
-<!doctype html>
+{% from 'macros.html' import render_field %} {% from 'macros.html' import render_checkbox_field %}<!doctype html>
 <html lang='en'>
 <head>
 <meta charset="utf-8">
@@ -19,10 +17,7 @@
     {% block header %}
     {% endblock %}
 </head>
-
-
 <body data-spy="scroll" data-target="#affix-nav">
-
 <!-- Fixed navbar -->
 <div class="navbar navbar-default navbar-static-top" role="navigation">
   <div class="container">
@@ -52,14 +47,9 @@
               <li><a href="{{url_for('index_contact')}}"><i class="fa fa-envelope-o"></i> Contact</a></li>
             <li><a href="{{url_for('index_cite')}}"><i class="fa fa-edit"></i> How to cite</a></li>
           </ul>
-
             </li>
-
-
           </ul>
-
     </div><!--/.nav-collapse -->
-
   </div>
 </div>
 <div class="container">
@@ -119,9 +109,7 @@
                     </div>
                     <div class="col-md-8">
                 <p> 
-                CABS-dock
-                treats peptide backbone as fully flexible, while the flexibility of
-                receptor proteins is limited to near-native backbone fluctuations.
+                CABS-dock treats peptide backbone as fully flexible, while the flexibility of receptor proteins is limited to near-native backbone fluctuations.
                 </p>
 
         <p><a href="{{url_for('learn_more')}}" class="btn btn-primary btn-lg" role="button">Learn more »</a></p>
@@ -136,10 +124,7 @@
                                 <i class="fa fa-edit fa-4x" style="padding:15px"></i> 
                                     </td>
                                     <td style="padding:20px">
-                                        Mateusz Kurciński, Michal Jamroz, Sebastian Kmiecik, Maciej Blaszczyk, Andrzej Kolinski
-                                            <strong>CABSdock: server for molecular docking of peptides to proteins</strong>, 
-                                            Nucleic Acids Research,
-                                            <i>submitted</i>
+                                        Mateusz Kurciński, Michal Jamroz, Sebastian Kmiecik, Maciej Blaszczyk, Andrzej Kolinski <strong>CABSdock: server for molecular docking of peptides to proteins</strong>, Nucleic Acids Research, <i>submitted</i>
                                     </td>
                                 </tr>
                             </table>
@@ -147,8 +132,6 @@
 
         </div>
         <div class="col-md-4">
-
-
                 <div class="panel panel-default ">
                     <div class="panel-body">
             <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
@@ -162,17 +145,15 @@
                                 {{render_field(form.pdb_receptor, placeholder='2PCY')}}
                             </div>
                             <div class="col-md-6">
-
-
-    <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
-        or <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
-        <br><span class="btn btn-primary btn-file"><input type=file id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}"> Select file</span>
-                                {% if form.receptor_file.errors %}
-            {% for e in form.receptor_file.errors %}
-                <p class="help-block">{{ e|safe }}</p>
-            {% endfor %}
-        {% endif %}
-    </div>
+                                    <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
+                                        or <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
+                                        <br><span class="btn btn-primary btn-file"><input type=file id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}"> Select file</span>
+                                                                {% if form.receptor_file.errors %}
+                                            {% for e in form.receptor_file.errors %}
+                                                <p class="help-block">{{ e|safe }}</p>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
 
 
                             </div>
@@ -188,8 +169,6 @@
                     <div class="panel-body">
                         {{render_field(form.ligand_seq, placeholder='ALA', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
                         <small class="text-muted">Peptide size: 4-30 residues</small>
-
-
             </div>
         </div>
 <div class="panel-group" id="accordion">
