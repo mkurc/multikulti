@@ -106,8 +106,10 @@ function loadMol(o) {
         </div>
 
             <hr>
+            <div class="panel panel-default">
+                <div class="panel-heading">Project settings</div>
 
-      <table class="table table-striped">
+      <table class="table">
         <tr>
             <td><strong>
 Protein sequence(s)
@@ -133,7 +135,7 @@ Peptide sequence
                     Peptide secondary structure 
                 </strong>
                     {% if sys['ss_psipred']==1 %}
-                    <span class="label label-primary pull-right">by <span class='capi'>psipred</span></span>
+                    <span class="label label-primary pull-right"><span class='capi'>psipred</span></span>
                     {% endif %} 
             </td>
             <td>
@@ -169,6 +171,7 @@ Peptide sequence
   <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td></tr>
 
       </table>
+            </div>
 
 
   </div> <!-- end tab summary -->
