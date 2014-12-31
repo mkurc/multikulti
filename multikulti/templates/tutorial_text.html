@@ -8,9 +8,8 @@
 <a href="#r2">2. Interpreting job status </a><br>
 <a href="#r3">3. Interpreting results data </a><br>
  <a href="#r31">3.1 Docking predictions results tab </a><br>
- <a href="#r32">3.2 Clustering details tab</a><br>
+<!-- <a href="#r32">3.2 Clustering details tab</a><br> -->
 <a href="#r4">4. Example results page</a><hr>
-<hr>
 
 <a id="r1"></a><h3>1. Submitting  new job </h3>
 
@@ -56,24 +55,25 @@ Note that overpredictions of the regular secondary structure (H or E) are more d
 <p align="justify">After clicking the Submit button, you will be redirected to project information page.
 <div class="alert alert-info">
 If you have chosen “Do not show my job on the queue page” it is important to save the link to your job, otherwise your job will be accessible from the queue page. 
-Under the unique link to your job you’ll find the job status updates and finally the job results. 
+Under the unique link to your job you’ll find the job status updates and finally the job results.
 </div>
-The job status information will start from the <span class="label label-warning"><i class="fa fa-spinner fa-spin"></i>job pending</span> status: 
-<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status1.png')}}"></center><br>
-followed by the <span class="label label-primary"><i class="fa fa-bolt"></i> running</span> status:
-<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status2.png')}}"></center><br>
-The job ends with the <span class="label label-success"><i class="fa fa-check-circle-o"></i> done</span> status, and additional tabs containing results are provided: 
-<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status3.png')}}"></center><br>
 </p>
+
+<p>The job status information will start from the <span class="label label-warning"><i class="fa fa-spinner fa-spin"></i>job pending</span> status: </p>
+<p><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status1.png')}}"></center></p>
+<p>followed by the <span class="label label-primary"><i class="fa fa-bolt"></i> running</span> status:</p>
+<p><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status2.png')}}"></center></p>
+<p>The job ends with the <span class="label label-success"><i class="fa fa-check-circle-o"></i> done</span> status, and additional tabs containing results are provided:</p>
+<p><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status3.png')}}"></center></p>
 <hr>
 <a id="r3"></a><h3>3.  Interpreting results data</h3>
 <a id="r31"></a><h4>3.1 Docking predictions results tab</h4>
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/results1.png')}}"></center><br>
 <p align="justify">
 The left panel of the "Docking prediction results" contains visualization of the predicted complex (the peptide is shown in red).  You can easily rotate and zoom the model using mouse. 
-If the model is not displayed, please check if  Web Graphics Library (webGL) is enabled in your browser (see the <a target="_blank" href="http://webglmol.sourceforge.jp/index-en.html"><i class="fa fa-external-link"></i> GLmol page</a> for more details). Alternatively, you can switch to JSmol which is an HTML5 JavaScript-only web app. 
-<br><br>
-The right panel contains list of the resulting models. They are derived from the modeling trajectory by means of hierarchical clustering method  –  all models from the trajectory are divided into 10 groups (clusters) of similar structures. For each of the cluster one representative model is selected. Models are then ranked according to density of the clusters (<code>model_1</code> represents the most dense cluster) and reconstructed to all-atom representation. 
+If the model is not displayed, please check if  Web Graphics Library (webGL) is enabled in your browser (see the <a target="_blank" href="http://webglmol.sourceforge.jp/index-en.html"><i class="fa fa-external-link"></i> GLmol page</a> for more details). Alternatively, you can switch to JSmol which is an HTML5 JavaScript-only web app. </p>
+
+<p align="justify">The right panel contains list of the resulting models. They are derived from the modeling trajectory by means of hierarchical clustering method  –  all models from the trajectory are divided into 10 groups (clusters) of similar structures. For each of the cluster one representative model is selected. Models are then ranked according to density of the clusters (<code>model_1</code> represents the most dense cluster) and reconstructed to all-atom representation.
 </p>
 <div class="alert alert-info">
     When you enter results page, <code>model_1</code> (from the most dense cluster) is shown. To view other models click "View" button. You can also download models as <span class='capi'>pdb</span> files by clicking "Download".
@@ -82,12 +82,12 @@ The right panel contains list of the resulting models. They are derived from the
 
 <hr>
 
-<a id="r32"></a><h4>3.2 Clustering details tab</h4> 
+<!-- <a id="r32"></a><h4>3.2 Clustering details tab</h4>  -->
+<!-- <strong>[będzie ta zakładka?]</strong> -->
+<!-- <hr> -->
 
-<strong>[będzie ta zakładka?]</strong>
-<hr>
 <a id="r4"></a><h4>4. Example results page</h4>
-An example result page can be accessed <a href="{{url_for('job_status', jid='1fb7bab3183b501')}}"><i class="fa fa-external-link"></i> here</a>.
+An example result page can be accessed <a href="{{url_for('job_status', jid=config['EXAMPLE_JOB'])}}"><i class="fa fa-external-link"></i> here</a>.
 
 <!----------------------------------------------------------koniec działań Maćka -->            
 
