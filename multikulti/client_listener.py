@@ -30,10 +30,8 @@ def delete_old():
             pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid[0])
             rmtree(pat_k)
     for k in to_delete:
+        query_db("DELETE FROM user_queue WHERE jid=?", [k])
         query_db("DELETE FROM constraints WHERE jid=?", [k], insert=True)
-    query_db("DELETE FROM user_queue where jid in (select jid FROM user_queue \
-            WHERE status_init<=strftime('%s',date('now',?)))",
-             [days], insert=True)
 
     return Response("HEIL ERIS!", mimetype='text/plain')
 
