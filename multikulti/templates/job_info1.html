@@ -267,5 +267,10 @@ Peptide sequence
 {% endblock %}
 {% block below_js %}
 <script>
+setInterval(function() { 
+    var j_status =  "{{sys['status']}}";
+    if (j_status != "done" && j_status != "error")
+            window.location.reload();
+}, 3000); 
 </script>
 {% endblock %}

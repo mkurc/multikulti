@@ -4,6 +4,11 @@
 {% endblock %}
 {%block below_js%}
     <script src="{{url_for('static', filename='js/jasny-bootstrap.min.js')}}"></script>
+    <script>
+            setInterval(function() { 
+                        window.location.reload();
+            }, 6000); 
+    </script>
 {% endblock %}
 
 {% set page_n = page+1 %}
