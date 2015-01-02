@@ -140,7 +140,7 @@
                             <div class="col-md-6">
                                     <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
                                         or <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
-                                        <br><span class="btn btn-primary btn-file"><input type=file id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}"> Select file</span>
+                                        <br><input  data-filename-placement="inside" class="btn-primary" type=file title="Browse" id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}">
                                                                 {% if form.receptor_file.errors %}
                                             {% for e in form.receptor_file.errors %}
                                                 <p class="help-block">{{ e|safe }}</p>
@@ -226,7 +226,9 @@
 {%endblock %}
 
 {%block below_js%}
+<script src="{{url_for('static', filename='js/bootstrap.file-input.js')}}"></script>
 <script type="text/javascript" charset="utf-8">
+$('input[type=file]').bootstrapFileInput();
 function exampleData() {
     $('#collapseOne').collapse();
     document.getElementById("name").value = "Docking project";
