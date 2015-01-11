@@ -14,8 +14,9 @@
 <a id="r1"></a><h3>1. Submitting  new job </h3>
 
 <a id="r11"></a><h4>1.1 Required input</h4>
-<p align="justify">See below an example screenshot of the “Submit new job” form:</p>
-<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit1.png')}}"></center><br>
+<div class="row">
+    <div class="col-md-7">
+<p align="justify">See an example screenshot of the “Submit new job” form on the right:</p>
 
 <p align="justify">
 The only required data is protein structure and peptide sequence. <br><br>
@@ -30,10 +31,16 @@ The only required data is protein structure and peptide sequence. <br><br>
 <br><br>
 After providing protein structure and peptide sequence, you can simply run simulation by clicking “Submit” button.  However, it is possible to set some more parameters in “Optional” tab (see below for more details). 
 </p>
+    </div>
+    <div class="col-md-5">
+        <img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit1.png')}}">
+    </div>
+</div>
 
 <hr>
 <a id="r12"></a><h4>1.2 Advanced options</h4>
-<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit2.png')}}"></center><br>
+<div class="row">
+    <div class="col-md-7">
 <p align="justify">
 In this tab you can:
 </p>
@@ -45,6 +52,11 @@ In this tab you can:
 </ul>
 <div class="alert alert-info">
 Note that overpredictions of the regular secondary structure (H or E) are more dangerous for the quality of the results than underpredictions (i.e. for residues with ambiguous secondary structure prediction assignment it is better to assign coil (C) than the regular (H or E) structure). 
+</div>
+    </div>
+    <div class="col-md-5">
+        <img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit2.png')}}">
+    </div>
 </div>
 
 
