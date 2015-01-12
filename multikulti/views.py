@@ -492,9 +492,14 @@ def simulation_parameters(jid):
             fw.write("%28s : %s\n" % (k, q[k]))
         q = query_db("SELECT constraint_definition, force FROM constraints \
                       WHERE jid=?", [jid])
-        fw.write("\nRESTRAINTS:\n")
+        fw.write("\nFLEXIBLE:\n")
         for row in q:
             fw.write("%40s force: %5.2f\n" % (row[0], float(row[1])))
+        q = query_db("SELECT excluded_region FROM excluded \
+                      WHERE jid=?", [jid])
+        fw.write("\nEXCLUDED:\n")
+        for row in q:
+            fw.write("%40s \n" % (row[0]))
 
 
 @app.route('/job/<jobid>/models/<model_name>/model.pdb')
@@ -511,7 +516,7 @@ def send_unzipped(jobid, model_name):
 
 def make_zip(jid):
     if os.path.exists(os.path.join(app.config['USERJOB_DIRECTORY'],
-                                   jid, "CABSdock.zip")):
+                                   jid, "CABSdock_"+jid+".zip")):
         return
 
     jid = jid.split("/")[0]
@@ -519,23 +524,23 @@ def make_zip(jid):
     os.chdir(os.path.join(app.config['USERJOB_DIRECTORY'], jid))
     simulation_parameters(jid)
 
-    dir_o = "CABSdock"
+    dir_o = "CABSdock_"+jid
 
     for d in ["models", "clusters", "replicas"]:
         if not os.path.exists(os.path.join(dir_o, d)):
                 os.makedirs(os.path.join(dir_o, d))
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(".")
-             for f in filenames if dp != "CABSdock" and f != "input.pdb"]
+             for f in filenames if dp != "CABSdock_"+jid and f != "input.pdb"]
     for file in files:
         file2 = "/".join(file.split("/")[1:])
         file2 = os.path.basename(file)
 
         with gzip.GzipFile(file) as gz:
-            with open(os.path.join("CABSdock", os.path.splitext(file2)[0]),
+            with open(os.path.join("CABSdock_"+jid, os.path.splitext(file2)[0]),
                       "w") as un:
                 un.write(gz.read())
 
-    zf = zipfile.ZipFile("CABSdock.zip", "w", zipfile.ZIP_DEFLATED)
+    zf = zipfile.ZipFile("CABSdock_"+jid+".zip", "w", zipfile.ZIP_DEFLATED)
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(dir_o)
              for f in filenames]
     for file in files:
@@ -549,5 +554,5 @@ def make_zip(jid):
 def sendzippackage(jobid):
     make_zip(jobid)
     return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
-                               jobid), "CABSdock.zip",
+                               jobid), "CABSdock"+jobid+".zip",
                                mimetype='application/x-zip')
