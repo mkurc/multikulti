@@ -14,11 +14,12 @@ rest=$3
 pdb="input.pdb"
 ligSeq="ligand.txt"
 rest="restr.txt"
+nCycUser=$1
 
 #=============================PARAMETRY================================
 
 nSteps=50	# liczba cykli MC
-nCycle=50	# odstep pomiedzy klatkami
+nCycle=$nCycUser	# odstep pomiedzy klatkami
 T1=2.0		# temp startowa
 T2=1.0		# temp koncowa
 nReps=10	# liczba replik
