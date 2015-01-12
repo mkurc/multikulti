@@ -146,8 +146,9 @@ Peptide sequence
                     {% endif %}
             </td>
         </tr>
-      <tr><td>
-              <h5>Restraints <small>restrained chain fragments and force scaling factor</small></h5>
+      <tr>
+          <td>
+              <h5>Flexible regions <small>flexible chain fragments and force scaling factor</small></h5>
       </td>
       <td>
           
@@ -168,7 +169,32 @@ Peptide sequence
       </table>
   </td>
   </tr>
-  <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td></tr>
+      <tr>
+          <td>
+              <h5>Excluded from docking regions</h5>
+      </td>
+      <td>
+          
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in ex %}
+          <td><small>{{row['excluded_region']}}</small></td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
+
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
+  <!-- <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td> -->
+  
+  </tr>
 
       </table>
             </div>

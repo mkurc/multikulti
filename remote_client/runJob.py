@@ -39,4 +39,5 @@ for d in ["CLUST", "MODELS", "TRAFS"]:
         S.tellJobError()
         exit(1)
 S.putResults()
+S.putLigandChain()
 S.tellJobDone()

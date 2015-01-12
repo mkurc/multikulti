@@ -1,31 +1,37 @@
 #! /bin/bash
-DIR="$( cd "$( dirname "$0" )" && pwd )"
 
-export cabsHome=$DIR/../
+export cabsHome=$(cd `dirname "${BASH_SOURCE[0]}"`/.. && pwd)
 export cabsBin=$cabsHome/bin
 export scripts=$cabsHome/scripts
 export dssp=$cabsBin/dssp
 export bioshell=$cabsHome/data/bioshell.bioinformatics-2.2.jar
+export LC_ALL="C"
+
+pdb=$1
+ligSeq=$2
+rest=$3
 
 pdb="input.pdb"
-ligSeq="ligand.txt" #$2
-rest="restr.txt" #$3
+ligSeq="ligand.txt"
+rest="restr.txt"
 
 #=============================PARAMETRY================================
 
 nSteps=50	# liczba cykli MC
-nCycle=1	# odstep pomiedzy klatkami
+nCycle=50	# odstep pomiedzy klatkami
 T1=2.0		# temp startowa
 T2=1.0		# temp koncowa
-nReps=20	# liczba replik
-fRest=1.0	# sila wiezow
+nReps=10	# liczba replik
 separation=20	# odleglosc pomiedzy powierzchnia receptora i sfera
 		# na ktorej poczatkowo rozmieszczone sa repliki liganda
+dtemp=0.5   # odstep pomiedzy replikami [temperatura]
 
 # do klastrowania
 clMinN=10	# minimalny rozmiar klastra
-clMaxD=3	# maksymalna odleglosc miedzy elementami w klastrze
+clMaxD=5	# maksymalna odleglosc miedzy elementami w klastrze
 clCount=10	# maksymalna liczba klastrow
+# do filtrowania
+fCount=1000	# liczba struktur po filtrowaniu
 
 #======================================================================
 
@@ -35,6 +41,7 @@ recCA=`mktemp -u -p .`
 recSEQ=`mktemp -u -p .`
 $scripts/ss.sh $pdb | $scripts/getCA.sh >$recCA
 $scripts/pdbToSeq.sh $recCA >$recSEQ
+fRest=`awk 'NR==1{print $NF}' $rest`
 
 # dziury
 
@@ -134,7 +141,7 @@ $cabsBin/restr -i=$recCA -min=5.0 -max=10.0 -r -g=5 >RESTR
 
 # zrob INP
 
-$scripts/makeINP.sh $nSteps $nCycle $T1 $T2 $fRest >INP
+$scripts/makeINP.sh $nSteps $nCycle $T1 $T2 $fRest $dtemp >INP
 
 # cabs
 
@@ -149,35 +156,46 @@ $scripts/getModels.sh start.pdb 1 | $cabsBin/align -p1=$recCA -p2=/dev/stdin >$t
 mkdir -p TRAFS
 
 for((i=1;i<=$nReps;++i)); do
- tra=TRAF_$i".pdb"
+ tra=replica_$i".pdb"
  $scripts/trafToPdb.sh TRAF_$i SEQ | $cabsBin/rmsd -t=$recCA -q=/dev/stdin -a=$tempAli -o=TRAFS/$tra >/dev/null
  rm TRAF_$i
 done
 
 # klastrowanie
-
 tempTra=`mktemp -u -p .`
 tempClust=`mktemp -u -p .`
-
-$scripts/lowTempReplica.sh TRAF | $scripts/trafToPdb.sh /dev/stdin SEQ | $cabsBin/rmsd -t=$recCA -q=/dev/stdin -a=$tempAli -o=$tempTra >/dev/null
+$scripts/lowEnergyFrames.sh TRAF $fCount | $scripts/trafToPdb.sh /dev/stdin SEQ | $cabsBin/rmsd -t=$recCA -q=/dev/stdin -a=$tempAli -o=$tempTra >/dev/null
 $scripts/getChains.sh $tempTra $ligChID | $scripts/rmsd-nofit.sh /dev/stdin | java -classpath $bioshell apps.Clust -id=/dev/stdin -n=`awk '/^MODEL/{n++}END{print n}' $tempTra` -complete -min_size=$clMinN -max_dist=$clMaxD -oc=/dev/stdout | $scripts/clustDens.sh /dev/stdin | head -$clCount >$tempClust
 $scripts/getClusters.sh $tempClust $tempTra
 
 mkdir -p CLUST MODELS
-for i in clust*.pdb; do
- $scripts/getMedoid.sh $i >MODELS/model${i#clust}
+rm -f CLUST/* MODELS/*
+
+# odbudowa
+
+tmpMdl=`mktemp -u -p .`
+for i in cluster_*.pdb; do
+ mdl=MODELS/model${i#cluster}
+ $scripts/getMedoid.sh $i >$tmpMdl
+ echo "hoh"
+ $scripts/bbb.sh $tmpMdl | $scripts/scw.sh /dev/stdin >$mdl
  mv $i CLUST
 done
 
 for i in CLUST MODELS TRAFS; do
+    echo $i
   cd $i
-  for j in *; do
-   gzip $j
+  for j in *.pdb; do
+
+      if [ "$i" == "MODELS" ]
+      then
+        bash $scripts/optGro.sh $j >> ../outs_gromacs
+      fi
+
+      gzip $j
   done
   cd -
 done
 
 
-
-
-rm tmp.* 
+rm tmp.* SIDECENT QUASI3S CENTRO R1* ACHAINS_NEW OUT

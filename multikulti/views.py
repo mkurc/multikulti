@@ -19,9 +19,9 @@ from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, BooleanField, TextAreaField, HiddenField
+from wtforms import StringField, BooleanField, TextAreaField, HiddenField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, optional, \
-    ValidationError
+    ValidationError, NumberRange
 
 
 from multikulti_modules.parsePDB import PdbParser
@@ -163,12 +163,35 @@ class MyForm(Form):
             validators=[Length(min=4, max=30), optional(), ss_validator, eqlen_validator])
     email = StringField('E-mail address', validators=[optional(), Email()])
     show = BooleanField('Do not show my job on the results page', default=False)
-    add_constraints = BooleanField('Add custom constraints', default=False)
+    add_constraints = BooleanField('Mark flexible regions', default=False)
+    excluding = BooleanField('Mark unlikely to bind regions', default=False)
     jid = HiddenField(default=unique_id())
+    length = IntegerField('Simulation cycles', default=50, validators=[NumberRange(5, 1000)])
 
 
-@app.route('/add_constraints/<jid>/', methods=['GET', 'POST'])
-def index_constraints(jid):
+@app.route('/exclude_regions/<jid>/<final>/', methods=['GET', 'POST'])
+def index_excluding(jid, final="True"):
+    d = query_db("SELECT ligand_sequence,status \
+            FROM user_queue WHERE jid=? AND status='pending'", [jid], one=True)
+    ligand_sequence = d[0]
+    status = d[1]
+    jmol_string = 'Jmol.script(jmolApplet0,"select %s; color "+colors_jmol[%d]+"");'
+    jmol_l = []
+
+    constraints = query_db("SELECT excluded_region,excluded_jmol FROM \
+            excluded WHERE jid=?", [jid])
+    for i in range(len(constraints)):
+        jmol_l.append(jmol_string % (constraints[i]['excluded_jmol'], i))
+    di = {'0.0': '<option value="0.0" selected>full</option><option \
+          value="0.5">moderate</option>', '0.5': '<option value="0.5" selected>moderate</option>'}
+
+    return render_template('exclude_regions.html', jid=jid, status=status,
+                           constr=constraints, di=di, fin=final,
+                           ligand_seq=ligand_sequence, jmol_color=jmol_l)
+
+
+@app.route('/add_constraints/<jid>/<final>/', methods=['GET', 'POST'])
+def index_constraints(jid, final="True"):
     d = query_db("SELECT ligand_sequence,status, constraints_scaling_factor \
             FROM user_queue WHERE jid=? AND status='pending'", [jid], one=True)
     ligand_sequence = d[0]
@@ -181,15 +204,12 @@ def index_constraints(jid):
             constraints WHERE jid=?", [jid])
     for i in range(len(constraints)):
         jmol_l.append(jmol_string % (constraints[i]['constraint_jmol'], i))
-    di = {'1.0': '<option value="1.0" selected>default</option><option \
-          value="0.25">light</option><option value="5.0">strong</option>',
-          '0.25': '<option value="0.25" selected>light</option><option \
-          value="1.0">default</option><option value="5.0">strong</option>',
-          '5.0': '<option value="5.0" selected>strong</option><option \
-          value="1.0">default</option><option value="0.25">light</option>'}
+    di = {'0.0': '<option value="0.0" selected>full</option><option \
+          value="0.5">moderate</option>', '0.5': '<option value="0.5" selected>moderate</option>'}
+
 
     return render_template('add_constraints.html', jid=jid, status=status,
-                           scaling=scaling, constr=constraints, di=di,
+                           scaling=scaling, constr=constraints, di=di, fin=final,
                            ligand_seq=ligand_sequence, jmol_color=jmol_l)
 
 
@@ -202,6 +222,7 @@ def add_init_data_to_db(form, final=False):
         hide = 0
     ligand_seq = ''.join(form.ligand_seq.data.upper().replace(' ', '').split())
     ligand_ss = ''.join(form.ligand_ss.data.upper().replace(' ', '').split())
+    sim_length = int(form.length.data)
 
     # save receptor structure
     dest_directory = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
@@ -228,20 +249,20 @@ def add_init_data_to_db(form, final=False):
     if len(name) < 2:
         name = jid
     query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
-             ligand_sequence, ligand_ss, hide, project_name) \
-             VALUES(?,?,?,?,?,?,?)", [jid, form.email.data, receptor_seq,
-                                      ligand_seq, ligand_ss, hide, name],
-             insert=True)
+             ligand_sequence, ligand_ss, hide, project_name,simulation_length) \
+             VALUES(?,?,?,?,?,?,?,?)", [jid, form.email.data, receptor_seq,
+                                      ligand_seq, ligand_ss, hide, name, 
+                                      sim_length], insert=True)
 
-    # generate constraints
-    unzpinp = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "input.pdb")
-    r = restrRanges(unzpinp)
-    r.parseRanges()
-    for e, e1, e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),
-                         r.getJmolFormat()):
-        query_db("INSERT INTO constraints(jid,constraint_definition, \
-                 constraint_definition1,constraint_jmol) VALUES(?,?,?,?)",
-                 [jid, e, e1, e2], insert=True)
+#    # generate constraints
+#    unzpinp = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "input.pdb")
+#    r = restrRanges(unzpinp)
+#    r.parseRanges()
+#    for e, e1, e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),
+#                         r.getJmolFormat()):
+#        query_db("INSERT INTO constraints(jid,constraint_definition, \
+#                 constraint_definition1,constraint_jmol) VALUES(?,?,?,?)",
+#                 [jid, e, e1, e2], insert=True)
 
     return (jid, receptor_seq, ligand_seq, form.name.data, form.email.data)
 
@@ -330,6 +351,7 @@ def job_status(jid):
             user_queue WHERE jid=?", [todel, jid], one=True)
     constraints = query_db("SELECT constraint_definition,force FROM \
             constraints WHERE jid=?", [jid])
+    exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=?", [jid])
     status = status_color(system_info['status'])
     # wylistuj wyniki jesli done
     models = {'models': [], 'clusters': [], 'replicas': []}
@@ -361,16 +383,34 @@ def job_status(jid):
         for e in range(len(chains_set)-1):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
-    if request.args.get('js','') == 'js':
+    if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
                             jid=jid, sys=system_info, results=models,
-                            status_type=system_info['status'],
+                            status_type=system_info['status'], ex = exclu,
                             lig_txt=ligand_txt, rec_txt=receptor_txt)
 
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models,
-                           status_type=system_info['status'],
+                           status_type=system_info['status'], ex = exclu,
                            lig_txt=ligand_txt, rec_txt=receptor_txt)
+
+
+@app.route('/_add_excluded', methods=['POST', 'GET'])
+def user_add_excluded():
+    if request.method == 'POST':
+        jid = request.form.get('jid', '')
+        if jid == '':
+            return Response("OJ OJ, nieladnie", status=404,
+                            mimetype='text/plain')
+
+        constraints = request.form.getlist('constr[]')
+        constraints_jmol = request.form.getlist('constr_jmol[]')
+        query_db("DELETE FROM excluded WHERE jid=?", [jid], insert=True)
+
+        for r in zip(constraints, constraints_jmol):
+            query_db("INSERT INTO excluded(jid,excluded_region, excluded_jmol) \
+                    VALUES(?,?,?)", [jid, r[0], r[1]], insert=True)
+    return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
 
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
@@ -416,8 +456,13 @@ def index_page():
     if request.method == 'POST':
         if form.validate():
             jid, rec, lig, nam, email = add_init_data_to_db(form)
-            if form.add_constraints.data:
-                return redirect(url_for('index_constraints', jid=jid))
+            if form.add_constraints.data or form.excluding.data:
+                if form.add_constraints.data and form.excluding.data:
+                    return redirect(url_for('index_constraints', jid=jid, final="False"))
+                elif form.excluding.data:
+                    return redirect(url_for('index_excluding', jid=jid, final="True"))
+                else:
+                    return redirect(url_for('index_constraints', jid=jid, final="True"))
             else:
                 flash('Job submitted. Bookmark this page to check results \
                       (usually within 24h) if you didn\'t povided e-mail \

@@ -31,16 +31,28 @@ def createTables():
                 hide integer(1) DEFAULT 0,
                 status text check(status IN ('pending', 'pre_queue', 'queue', 'running', 'error', 'done') )  NOT NULL DEFAULT 'pending',
                 project_name text NOT NULL,
+                ligand_chain text NOT NULL DEFAULT 'A',
+                simulation_length integer(4) NOT NULL DEFAULT 50,
                 ss_psipred integer(1) NOT NULL DEFAULT 0,
                 status_date integer(4) NOT NULL DEFAULT (strftime('%s', 'now')),
                 status_init integer(4) NOT NULL DEFAULT (strftime('%s', 'now')), 
                 constraints_scaling_factor not null default 1.0
                 ) ''')
+    cur.execute("DROP TABLE IF EXISTS excluded")
+    cur.execute('''
+                CREATE TABLE excluded
+                ( id integer primary key,
+                  jid text NOT NULL,
+                  excluded_region text,
+                  excluded_region1 text,
+                  excluded_jmol text,
+                  foreign key(jid) REFERENCES user_queue(jid)
+                  ) ''')
 # chyba ten definition1 zbedny, bo i tak user bedzie podawal wzgledem pdb
     cur.execute("DROP TABLE IF EXISTS constraints")
     cur.execute('''
                 CREATE TABLE constraints
-                ( id integer primary key,   
+                ( id integer primary key,
                   jid text NOT NULL,
                   constraint_definition text,
                   constraint_definition1 text,

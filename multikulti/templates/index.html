@@ -90,11 +90,9 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-7">
             <div class="jumbotron ">
-                <h2><strong>CABSdock</strong> 
-                <small>server for molecular docking of peptides to proteins</small>
-                </h2>
+                <h2><strong>CABSdock</strong><small> server for flexible protein-peptide docking</small></h2>
                 <div class="row">
 
                     <div class="col-md-4">
@@ -124,7 +122,7 @@
 				</div>
 
         </div>
-        <div class="col-md-4">
+        <div class="col-md-5">
                 <div class="panel panel-default ">
                     <div class="panel-body">
             <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
@@ -184,7 +182,9 @@
                     </div>
                 </div>
                 {{render_field(form.ligand_ss, placeholder='CCCC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                {{render_checkbox_field(form.excluding)}}
                 {{render_checkbox_field(form.add_constraints)}}
+                {{render_field(form.length)}}
                 {{render_checkbox_field(form.show)}}
 
       </div>
@@ -194,10 +194,10 @@
                 {{form.jid}}
                 {{form.csrf_token()}}
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <a href="#" onClick="exampleData()"  class="btn btn-default btn-xs">Load example</a>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <h6>Server status
                         </h6>
                     </div>
@@ -237,7 +237,7 @@ function exampleData() {
     document.getElementById("pdb_receptor").value = "2PCY";
     var a = ["receptor_file", "show","name", "ligand_ss", "ligand_seq", "pdb_receptor"];
     for (var i=0; i<a.length;i++){
-        document.getElementById(a[i]).readOnly = true;
+      //  document.getElementById(a[i]).readOnly = true;
     }
 }
 </script>

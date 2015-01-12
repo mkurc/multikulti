@@ -1,10 +1,6 @@
 {% extends "index.html" %}
 {% set jinja_colors = ["#a6cee3", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#cab2d6", "#6a3d9a", "#b15928"] %}
-                {% if fin=="True" %}
-                {% set vtem = 'Submit job!' %} 
-                {% else %}
-                {% set vtem = 'Go to the next step!' %} 
-                {%endif%}
+    {% set vtem = 'Submit job!' %} 
     {% set v2 = 'Job was already submitted..' %}
     {% set v = 'disabled="disabled"' %}
     {% if status=='pending' %} {% set v = '' %} {% set v2 = vtem %} {% endif %}
@@ -127,17 +123,13 @@ var JMEInfo = {
     <div class="row-fluid">
         <div class="col-md-12">
             <h3>Step 
-                {% if fin=="True" %}
-                2/2
-                {% else %}
-                2/3
-                {%endif%}
+                {% if fin=="True" %} 2/2 {% else %} 3/3 {%endif%}
                 
                 <small>
-Mark the protein regions, which are likely to be flexible. The backbone
-of marked residues will be treated as moderately or fully flexible
-(depending on your choice), while the rest of protein backbone will be
-weakly flexible.
+Mark the protein residues, which are unlikely to bind the peptide. The
+marked residues will be unattractive for binding - technically, their
+interaction forces with the peptide will be switched off.
+                
                 </small></h3>
             <hr>
         </div>
@@ -148,9 +140,9 @@ weakly flexible.
         <div  class="col-md-9">
         <div class="panel panel-primary">
                 <div class="panel-heading"> 
-                    <p>Select flexible regions on the sequences below
+                    <p>Select excluded from docking regions on the sequences below
                     <button data-toggle="popover" class="tt2 btn btn-xs btn-info"><i class="fa fa-info"></i> Help</button>
-                    <button class="pull-right btn btn-sm btn-warning" {{v}}  id="sele">Add region</button></p>
+                    <button class="pull-right btn btn-sm btn-warning" {{v}}  id="sele">Add excluded region</button></p>
 
                 </div>
                 <div class="panel-body">
@@ -174,44 +166,30 @@ weakly flexible.
 
 
         <div class="panel panel-primary">
-                <div class="panel-heading"> Selected flexible regions </div>
+                <div class="panel-heading"> Selected excluded regions </div>
                 <div class="panel-body">
                     <div style="overflow-y:auto;height:180px">
                     <table id="constraintsTable" class="table table-hover table-condensed"> 
-                        <thead>
-                            <tr>
-                                <th>&nbsp;</th>
-                                <th>region</th>
-                                <th>flexibility</th>
-                            </tr>
-                        </thead>
                         <tbody>
-                        <tr><td></td><td></td><td></td></tr>
+                        <tr><td></td><td></td></tr>
                         {% for c in constr %}
                            <!--sieczka-->
-                           <tr><td class='del'> <a href="#" onclick='rowDel(this)' data-jmol='{{c['constraint_jmol']}}' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}'><i class='text-danger fa fa-close'></i></a></td> <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' data-jmol='{{c['constraint_jmol']}}' name='consrange{{G}}'>{{c['constraint_definition']}}</span></td> 
-                           <td class='constr'>
-                                <select id="row_weight{{G}}" class="input-sm form-control">
-                                    {{di[c['force']|safe]|safe}} 
-                                </select> 
-                            </td> 
-                               {% set G = G + 1 %} {% set GG = GG + 1 %} {% if GG==9 %} {% set GG=0 %} {% endif %} </tr>
+                           <tr><td class='del'> <a href="#" onclick='rowDel(this)' data-jmol='{{c['constraint_jmol']}}' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}'><i class='text-danger fa fa-close'></i></a></td> <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' data-jmol='{{c['constraint_jmol']}}' name='consrange{{G}}'>{{c['constraint_definition']}}</span></td> {% set G = G + 1 %} {% set GG = GG + 1 %} {% if GG==9 %} {% set GG=0 %} {% endif %} </tr>
                             {% endfor %}
                     </tbody>
                 </table>
-                <input type="hidden" id='constrW' value='1.0'>
             </div>
             <hr>
                 <div class="row">
                     <div class="col-md-12">
-                        <button {{v}} class="btn btn-block btn-warning" id="saveConstrains"><i class="fa fa-save"></i> Save regions definition</button>
+                        <button {{v}} class="btn btn-block btn-warning" id="saveConstrains"><i class="fa fa-save"></i> Save excluded regions</button>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-12">
                         <div id="infobar">
-                                <hr><div data-dismissable=true data-fade=true class="alert alert-info alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><i class="fa fa-save"></i> Regions definition saved.</div>
+                                <hr><div data-dismissable=true data-fade=true class="alert alert-info alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><i class="fa fa-save"></i> Excluded regions saved.</div>
                         </div>
                     </div>
                 </div>
@@ -236,7 +214,7 @@ weakly flexible.
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title" id="laba">Flexible regions definition not saved</h4>
+        <h4 class="modal-title" id="laba">Excluded regions definition not saved</h4>
       </div>
       <div class="modal-body">
           <div class="row">
@@ -249,15 +227,10 @@ weakly flexible.
     </div>
       </div>
       <div class="modal-footer">
-        {% if fin=="True" %}
-            <form class="form-horizontal" id="finalform" role="form" method="post" action="{{url_for('final_submit')}}">
-        {% else %}
-            <form class="form-horizontal" id="finalform" role="form" method="post" action="{{url_for('index_excluding', jid=jid, final="False")}}">
-        {% endif %}
-
+        <form class="form-horizontal" id="finalform" role="form" method="post" action="{{url_for('final_submit')}}">
         <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-undo"></i> Back</button>
         <input type="hidden" name="jid" value="{{jid}}">
-            <button type="submit" class="btn btn-success"><i class="fa fa-gears"></i> {% if fin=="True" %} Submit, anyway!  {% else %} Go to next step, skip my modifications {%endif%}</button>
+        <button type="submit" class="btn btn-success"><i class="fa fa-gears"></i> Submit, anyway!</button>
         </form>
       </div>
     </div><!-- /.modal-content -->
@@ -313,7 +286,6 @@ weakly flexible.
                 var newRow = "<tr>" + "<td class='del'>" + 
                         "<a href='#' onclick='rowDel(this)' data-jmol='"+jmolr.join(", ")+"' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +
                         "<td ><span style='color:"+colors[global_color_index]+"' data-jmol='"+jmolr.join(", ")+"' data-rowid='"+g+"' name='consrange"+g+"'>"+selected.join(", ")+"</span></td>" +
-                        "<td class='constr'>"+printList("row_weight"+g)+"</td>" +
                         "</tr>";
                     $('#constraintsTable > tbody > tr:first').after(newRow);
                     global_constraints_row_index+=1;
@@ -346,21 +318,17 @@ if (global_color_index>=colors.length)
     });
     $("#saveConstrains").click(function() {
             saved = 1;
-            var scalingFactor = document.getElementById('constrW').value;
             var user_constraints = [];
             var user_constraints_jmol = [];
-            var weights = [];
             $("td span[name^='consrange']").each(function() { 
                 var rngs = $(this).text();
                 var rowid = $(this).data('rowid');
                 var rngs_j = $(this).data('jmol');
-                var weight = $("#row_weight"+rowid).val();
-                weights.push(weight);
                 user_constraints.push(rngs);
                 user_constraints_jmol.push(rngs_j);
             });
-            var variables = {'constr[]': user_constraints, 'constr_w[]': weights, 'constr_jmol[]': user_constraints_jmol, 'overall_weight': scalingFactor, 'jid': '{{jid}}' };
-            $.post("{{url_for('user_add_constraints')}}", variables, function() {
+            var variables = {'constr[]': user_constraints, 'constr_jmol[]': user_constraints_jmol, 'jid': '{{jid}}' };
+            $.post("{{url_for('user_add_excluded')}}", variables, function() {
                 $("#infobar").slideDown(500).delay(1500).slideUp(1500);
             });
     });
@@ -396,7 +364,7 @@ function printList(lab) {
     return sel;
 }
 $('.tt').tooltip();
-$('.tt2').popover({'content':"<span style='color:black'><ul><li>After selecting proper regions, click <u>Add region</u> button</li> <li>Select flexibility level (default is <i>none</i>, i.e. fully flexible, unconstrained fragment).</li> <li> You can bookmark this page to postpone flexible regions selection. Do not forget to press <u>regions definition</u> if you made some changes</li> <li> When finish, just click <u>{{vtem}}</u> to send job to computational server.</li> <li>Use <kbd>Ctrl</kbd> with mouse to select second region of chain (on the sequence) to increase flexibility</li></ul></span>", 'html': true, 'placement':'bottom'});
+$('.tt2').popover({'content':"<span style='color:black'><ul><li>After selecting proper regions, click <u>Add excluded region</u> button</li> <li> You can bookmark this page to postpone excluded regions selection. Do not forget to press <u>Save excluded regions</u> if you made some changes</li> <li> When finish, just click <u>Submit job!</u> to send job to the computational server.</li> <li>Use <kbd>Ctrl</kbd> with mouse to select second region of chain (on the sequence) to use multiple selection</li></ul></span>", 'html': true, 'placement':'bottom'});
     </script>
 
 {%endblock%}

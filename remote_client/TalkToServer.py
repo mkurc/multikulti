@@ -31,7 +31,9 @@ class TalkToServer:
         to_send = {}
         for d in ["CLUST", "MODELS", "TRAFS"]:
             for filename in glob(d+"/*.gz"):
-                fn = filename.replace("CLUST", "clusters").replace("MODELS", "models").replace("TRAFS", "replicas")
+                fn = filename.replace("CLUST", "clusters")
+                fn = fn.replace("MODELS", "models")
+                fn = fn.replace("TRAFS", "replicas")
                 to_send[fn] = open(filename, "rb")
         print(to_send.keys())
 
@@ -58,6 +60,16 @@ class TalkToServer:
             f.close()
             j = json.loads(data)
             return j['constraints_scaling_factor']
+        except:
+            print("ERROR: problem with scaling factor fetch")
+
+    def getSimLength(self):
+        try:
+            f = urllib2.urlopen(self.remoteuri+'/LENGTH/')
+            data = f.read()
+            f.close()
+            j = json.loads(data)
+            return j['sim_length']
         except:
             print("ERROR: problem with scaling factor fetch")
 
@@ -90,6 +102,16 @@ class TalkToServer:
         except:
             print("ERROR: problem with restraints fetch")
 
+    def getExcluded(self):
+        try:
+            f = urllib2.urlopen(self.remoteuri+'/EXCLUDED/')
+            data = f.read()
+            f.close()
+            j = json.loads(data)
+            return j
+        except:
+            print("ERROR: problem with excluded fetch")
+
     def getRestraintsFileNew(self, output_file="restr.txt"):
         with open(output_file, "w") as fw:
             restr_s = self.getScalingFactor()
@@ -98,11 +120,11 @@ class TalkToServer:
             for row in r:
                 fw.write("%50s WEIGHT %5.2f\n" % (row['def'], row['force']))
 
-    def getRestraintsFile(self, output_file="restr.txt"):
+    def getExcludedFile(self, output_file="excluded.txt"):
         with open(output_file, "w") as fw:
-            r = self.getRestraints()
+            r = self.getExcluded()
             for row in r:
-                fw.write("%50s WEIGHT %5.2f\n" % (row['def'], row['force']))
+                fw.write("%50s\n" % (row['excluded']))
 
     def getLigandInfoFile(self, output_file="ligand.txt"):
         r = self.getLigandInfo()
@@ -111,6 +133,19 @@ class TalkToServer:
         with open(output_file, "w") as fw:
             for ss, sq in zip(sec, seq):
                 fw.write("%1s %1s\n" % (sq, ss))
+
+    def putLigandChain(self):
+        with open("SEQ", "r") as seq:
+            ll = seq.readlines()[-1].split()
+            # 5   GLY A  1  1.00
+            d = {'chain': ll[2]}
+            print(d)
+            r = requests.post(self.remoteuri+"/LIGCHAIN/", data=d)
+
+            if r.status_code == requests.codes.ok:
+                print("Ligand chain id sent")
+            else:
+                print("Ligand chain id not sent, %d" % (r.status_code))
 
     def putSecondaryStructureString(self, ss_string):
         d = {'ss': ss_string}

@@ -96,6 +96,11 @@ def parse_server_talking(task, secret_key, jid):
             query_db("UPDATE  user_queue set ligand_ss=?,ss_psipred=1 \
                      WHERE jid=?", [ss, jid], insert=True)
 
+        elif task == "LIGCHAIN" and request.method == 'POST':
+            ss = request.form['chain']
+            query_db("UPDATE  user_queue set ligand_chain=? \
+                     WHERE jid=?", [ss, jid], insert=True)
+
         elif task == "LIGANDSEQ":
             t = query_db("SELECT ligand_sequence,ligand_ss FROM user_queue \
                          WHERE jid=?", [jid], one=True)
@@ -104,11 +109,15 @@ def parse_server_talking(task, secret_key, jid):
                 out = {'sequence': t['ligand_sequence'],
                        'secstr': t['ligand_ss']}
             return Response(json.dumps(out), mimetype='application/json')
-
         elif task == "SCALFACTOR":
             t = query_db("SELECT constraints_scaling_factor FROM user_queue \
                          WHERE jid=?", [jid], one=True)
             return Response(json.dumps({'constraints_scaling_factor': t[0]}),
+                            mimetype='application/json')
+        elif task == "LENGTH":
+            t = query_db("SELECT simulation_length FROM user_queue \
+                         WHERE jid=?", [jid], one=True)
+            return Response(json.dumps({'sim_length': t[0]}),
                             mimetype='application/json')
         elif task == "RESTRAINTS":
             t = query_db("SELECT constraint_definition,force FROM constraints \
@@ -116,6 +125,13 @@ def parse_server_talking(task, secret_key, jid):
             out = []
             for row in t:
                 out.append({'def': row[0], 'force': row[1]})
+            return Response(json.dumps(out), mimetype='application/json')
+        elif task == "EXCLUDED":
+            t = query_db("SELECT excluded_range FROM excluded \
+                         WHERE jid=?", [jid])
+            out = []
+            for row in t:
+                out.append({'excluded': row[0]})
             return Response(json.dumps(out), mimetype='application/json')
         elif task == "SEND" and request.method == 'POST':
             user_dir = path.join(app.config['USERJOB_DIRECTORY'], jid)
