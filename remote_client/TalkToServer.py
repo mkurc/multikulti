@@ -112,7 +112,7 @@ class TalkToServer:
         except:
             print("ERROR: problem with excluded fetch")
 
-    def getRestraintsFileNew(self, output_file="restr.txt"):
+    def getRestraintsFile(self, output_file="restr.txt"):
         with open(output_file, "w") as fw:
             restr_s = self.getScalingFactor()
             fw.write("%5.2f\n" % (float(restr_s)))

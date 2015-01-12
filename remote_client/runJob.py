@@ -24,10 +24,11 @@ os.chdir(out_path)
 S.getStructureFile()
 S.getLigandInfoFile()
 S.getRestraintsFile()
-scaling_factor = S.getScalingFactor()
+S.getExcludedFile()
+simlen = S.getSimLength()
 
 cabs_script = os.path.join(scripts_dir, "runThatShit.sh")
-p = call(cabs_script, shell=True)
+p = call(cabs_script+" "+str(simlen), shell=True)
 
 # check if results exists
 for d in ["CLUST", "MODELS", "TRAFS"]:

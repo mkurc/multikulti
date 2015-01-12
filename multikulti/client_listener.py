@@ -127,7 +127,7 @@ def parse_server_talking(task, secret_key, jid):
                 out.append({'def': row[0], 'force': row[1]})
             return Response(json.dumps(out), mimetype='application/json')
         elif task == "EXCLUDED":
-            t = query_db("SELECT excluded_range FROM excluded \
+            t = query_db("SELECT excluded_region FROM excluded \
                          WHERE jid=?", [jid])
             out = []
             for row in t:

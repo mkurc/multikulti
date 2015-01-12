@@ -148,7 +148,7 @@ Peptide sequence
         </tr>
       <tr>
           <td>
-              <h5>Flexible regions <small>flexible chain fragments and force scaling factor</small></h5>
+              <h5>Flexible regions <small></small></h5>
       </td>
       <td>
           
@@ -157,7 +157,8 @@ Peptide sequence
           {% set iter=0 %}
         <tr>
           {% for row in constr %}
-          <td><small>{{row['constraint_definition']}}</small> <span class="badge">{{row['force']}}</span></td>
+          <td><small>{{row['constraint_definition']}}</small> <!-- <span class="badge">{{row['force']}}</span> -->
+          </td>
             {% set iter = iter + 1 %}
             {% if iter==break %}
                 </tr><tr>
@@ -171,7 +172,7 @@ Peptide sequence
   </tr>
       <tr>
           <td>
-              <h5>Excluded from docking regions</h5>
+              <h5>Unlikely to bind regions</h5>
       </td>
       <td>
           

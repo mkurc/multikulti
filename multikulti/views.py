@@ -345,7 +345,7 @@ def job_status(jid):
 
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
             datetime(status_date,'unixepoch') status_date, \
-            date(status_init, 'unixepoch', ?) del, \
+            date(status_init, 'unixepoch', ?) del, ligand_chain, \
             datetime(status_init,'unixepoch') status_change, project_name, \
             status,constraints_scaling_factor, ligand_ss, ss_psipred FROM \
             user_queue WHERE jid=?", [todel, jid], one=True)
@@ -379,14 +379,15 @@ def job_status(jid):
                 if ch not in chains_set:
                     chains_set.append(ch)
         # format as javascript data
-        ligand_txt = "{'chain': '"+chains_set[-1]+"'}"
-        for e in range(len(chains_set)-1):
+        ligand_txt = "{'chain': '"+system_info['ligand_chain']+"'}" #chains_set[-1]+"'}"
+        chains_set.remove(system_info['ligand_chain'])
+        for e in range(len(chains_set)):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
                             jid=jid, sys=system_info, results=models,
-                            status_type=system_info['status'], ex = exclu,
+                            status_type=system_info['status'], ex=exclu,
                             lig_txt=ligand_txt, rec_txt=receptor_txt)
 
     return render_template('job_info1.html', status=status, constr=constraints,
