@@ -7,9 +7,9 @@ export dssp=$cabsBin/dssp
 export bioshell=$cabsHome/data/bioshell.bioinformatics-2.2.jar
 export LC_ALL="C"
 
-pdb=$1
-ligSeq=$2
-rest=$3
+#pdb=$1
+#ligSeq=$2
+#rest=$3
 
 pdb="input.pdb"
 ligSeq="ligand.txt"

@@ -148,7 +148,7 @@ weakly flexible.
         <div  class="col-md-9">
         <div class="panel panel-primary">
                 <div class="panel-heading"> 
-                    <p>Select flexible regions on the sequences below
+                    <p>Select flexible regions on the sequence(s) below
                     <button data-toggle="popover" class="tt2 btn btn-xs btn-info"><i class="fa fa-info"></i> Help</button>
                     <button class="pull-right btn btn-sm btn-warning" {{v}}  id="sele">Add region</button></p>
 
@@ -400,6 +400,11 @@ $('.tt2').popover({'content':"<span style='color:black'><ul><li>After selecting 
     </script>
 
 {%endblock%}
+{% block footer %}
+<div class="container-fluid">
+    <small class="text-muted" style="float:right">Laboratory of Theory of Biopolymers 2015</small>
+</div>
+{% endblock %}
 
 
 

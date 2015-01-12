@@ -166,7 +166,7 @@ class MyForm(Form):
     add_constraints = BooleanField('Mark flexible regions', default=False)
     excluding = BooleanField('Mark unlikely to bind regions', default=False)
     jid = HiddenField(default=unique_id())
-    length = IntegerField('Simulation cycles', default=50, validators=[NumberRange(5, 1000)])
+    length = IntegerField('Simulation cycles', default=50, validators=[NumberRange(5, 200)])
 
 
 @app.route('/exclude_regions/<jid>/<final>/', methods=['GET', 'POST'])

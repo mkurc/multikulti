@@ -140,7 +140,7 @@ interaction forces with the peptide will be switched off.
         <div  class="col-md-9">
         <div class="panel panel-primary">
                 <div class="panel-heading"> 
-                    <p>Select excluded from docking regions on the sequences below
+                    <p>Select excluded from docking regions on the sequence(s) below
                     <button data-toggle="popover" class="tt2 btn btn-xs btn-info"><i class="fa fa-info"></i> Help</button>
                     <button class="pull-right btn btn-sm btn-warning" {{v}}  id="sele">Add excluded region</button></p>
 
@@ -371,3 +371,12 @@ $('.tt2').popover({'content':"<span style='color:black'><ul><li>After selecting 
 
 
 
+{% block footer %}
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="col-md-12">
+    <small class="text-muted" style="float:right">Laboratory of Theory of Biopolymers 2015</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
