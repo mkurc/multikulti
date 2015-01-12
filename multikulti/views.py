@@ -554,5 +554,5 @@ def make_zip(jid):
 def sendzippackage(jobid):
     make_zip(jobid)
     return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
-                               jobid), "CABSdock"+jobid+".zip",
+                               jobid), "CABSdock_"+jobid+".zip",
                                mimetype='application/x-zip')
