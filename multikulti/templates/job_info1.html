@@ -37,7 +37,8 @@ function styles(){
                     $("#moldata_pdb_large").val(data);
                         moldata = data = $("#moldata_pdb_large").val();
                         receptorModel = m = glviewer.addModel(data, "pdb");
-                        receptorModel.setStyle({}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+                        receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}});
+                        receptorModel.setStyle({{lig_txt|safe}}, {stick:{}});
                         styles();
                 }, "text");
                 
