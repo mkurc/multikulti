@@ -6,6 +6,7 @@ import os
 import urllib2
 import zipfile
 import json
+import re
 from glob import glob
 from StringIO import StringIO
 from re import compile
@@ -516,6 +517,29 @@ def send_unzipped(jobid, model_name):
     return Response(file_content, status=200, mimetype='chemical/x-pdb')
 
 
+@app.route('/job/<jobid>/models/<model_idx>/<rep_idx>/model.pdb')
+def send_unzipped_cluster(jobid, model_idx, rep_idx):
+    jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
+    path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, "replicas",
+                            "replica_"+str(rep_idx)+".pdb.gz")
+    with gzip.open(path_dir) as fo:
+        te = re.compile(r"^MODEL\s+"+str(model_idx)+"$")
+        te2 = re.compile(r"^ENDMDL")
+        line_start = -1
+        line_stop = -1
+        data = fo.readlines()
+        for i in xrange(len(data)):
+            if te.search(data[i]):
+                line_start = i
+                break
+        for i in xrange(i, len(data)):
+            if te2.search(data[i]):
+                line_stop = i
+                break
+        return Response("".join(data[line_start:line_stop]), status=200,
+                        mimetype='chemical/x-pdb')
+
+
 def make_zip(jid):
     if os.path.exists(os.path.join(app.config['USERJOB_DIRECTORY'],
                                    jid, "CABSdock_"+jid+".zip")):
@@ -566,6 +590,8 @@ def clustsep(jid):
                 te.append([int(tt[0]),int(tt[1])])
             data.append({'visible': False, 'name': cluster, 'data': te})
     return Response(json.dumps(data), mimetype='application/json')
+
+
 
 
 
