@@ -126,7 +126,7 @@ class TalkToServer:
             r = self.getExcluded()
             for row in r:
                 for spl in row['excluded'].split(","):
-                fw.write("%50s\n" % (spl.strip())
+                    fw.write("%50s\n" % (spl.strip()))
 
     def getLigandInfoFile(self, output_file="ligand.txt"):
         r = self.getLigandInfo()
