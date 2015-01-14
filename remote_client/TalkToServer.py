@@ -118,13 +118,15 @@ class TalkToServer:
             fw.write("%5.2f\n" % (float(restr_s)))
             r = self.getRestraints()
             for row in r:
-                fw.write("%50s WEIGHT %5.2f\n" % (row['def'], row['force']))
+                for spl in row['def'].split(","):
+                    fw.write("%50s WEIGHT %5.2f\n" % (spl.strip(), row['force']))
 
     def getExcludedFile(self, output_file="excluded.txt"):
         with open(output_file, "w") as fw:
             r = self.getExcluded()
             for row in r:
-                fw.write("%50s\n" % (row['excluded']))
+                for spl in row['excluded'].split(","):
+                fw.write("%50s\n" % (spl.strip())
 
     def getLigandInfoFile(self, output_file="ligand.txt"):
         r = self.getLigandInfo()
