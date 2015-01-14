@@ -111,7 +111,7 @@ function loadMol(o) {
 <ul class="nav nav-tabs" role="tablist">
     <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
 {% if status_type=='done' %}
-  <li class="active"><a href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
+  <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
   <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li>
   <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Replica separation</a></li>
 {% endif %}
