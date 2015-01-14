@@ -381,7 +381,8 @@ def job_status(jid):
                     chains_set.append(ch)
         # format as javascript data
         ligand_txt = "{'chain': '"+system_info['ligand_chain']+"'}" #chains_set[-1]+"'}"
-        chains_set.remove(system_info['ligand_chain'])
+        if system_info['ligand_chain'] in chains_set:
+            chains_set.remove(system_info['ligand_chain'])
         for e in range(len(chains_set)):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
