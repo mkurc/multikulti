@@ -1,0 +1,59 @@
+{% extends "index.html" %}
+{% block header %}
+{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="container" style="height:400px;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{%block below_js%}
+<script src="{{url_for('static', filename='js/highcharts.js')}}"></script>
+<script type="text/javascript" charset="utf-8">
+$.getJSON('{{url_for('clustsep', jid='aaa')}}', function (csv) {
+
+    $('#container').highcharts({
+        chart: {type: 'scatter',
+            zoomType: 'xy'
+        },
+        title: { text: 'Clusters separation between replicas'},
+        yAxis: { tickInterval: 1, title: { text: 'Replica index' } },
+        xAxis: { tickInterval: 20, title: { text: 'Model index' } },
+        legend: { enabled: true, align: "right",layout: "vertical", verticalAlign: "middle"},
+
+        series: csv,
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 4,
+                    states: {
+                        hover: {
+                            enabled: false,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: 'Cluster: <b>{series.name}</b><br>',
+                    pointFormat: 'Model number: {point.x}, Replica: {point.y}'
+                }
+            }
+        },
+
+    });
+});
+
+
+</script>
+{%endblock%}

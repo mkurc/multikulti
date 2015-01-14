@@ -5,6 +5,7 @@
 import os
 import urllib2
 import zipfile
+import json
 from glob import glob
 from StringIO import StringIO
 from re import compile
@@ -14,7 +15,7 @@ from shutil import make_archive, rmtree
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail
 
-from flask import render_template, url_for, request, flash, Response, redirect, send_from_directory
+from flask import render_template, url_for, request, flash, Response, redirect, send_from_directory, jsonify
 from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
@@ -548,6 +549,28 @@ def make_zip(jid):
     zf.close()
     rmtree(dir_o)
     os.chdir(tu)
+
+
+@app.route('/_clust_sep/<jid>')
+def clustsep(jid):
+    path = os.path.join(app.config['USERJOB_DIRECTORY'], "klastry.txt")
+    with open(path, "r") as rl:
+        data = []
+        for line in rl.readlines():
+            d = line.split(" ")
+            cluster = d[0][:-1]
+            te = []
+            for e in d[1:]:
+                tt = e.split("_")
+                te.append([int(tt[0]),int(tt[1])])
+            data.append({'visible': False, 'name': cluster, 'data': te})
+    return Response(json.dumps(data), mimetype='application/json')
+
+
+
+@app.route('/plot')
+def plotclust():
+    return render_template('cluster_sep.html')
 
 
 @app.route('/job/CABSdock_<jobid>.zip')
