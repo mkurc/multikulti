@@ -1,4 +1,30 @@
 {% extends "index.html" %}
+    {% block header %}
+        <script src="{{url_for('static', filename='js/jsmol/JSmol.min.js')}}" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var jmol="jmol";
+        var jme = "jme";
+        var jmolApplet0; // set up in HTML table, below
+        var use = "HTML5" // JAVA HTML5 WEBGL IMAGE  are all options
+        jmol_isReady = function(applet) {}
+        var JmolInfo = {
+            width: '100%',
+            height: '100%',
+            debug: false,
+            color: "white",
+            addSelectionOptions: false,
+            serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
+            use: "HTML5",
+            readyFunction: jmol_isReady,
+            script: "set platformSpeed 2;set frank off;set hoverDelay 0.001;background white;load http://localhost:5000/job/55510f4e94c601a/clusters/cluster_3.pdb.gz;color chain; connect 3.2 4.4 (carbon) (carbon)  create;wireframe 0.6;anim mode loop;anim fps 8;anim on",
+            j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
+            isSigned: "true",
+            defaultModel: "",
+            console: "false",
+}
+var JMEInfo = {  use: "HTML5" }
+    </script>
+    {% endblock %}
 {% block body %}
 <div class="container">
     <div class="row">
@@ -6,102 +32,24 @@
             sdfsadafsd
         </div>
         <div class="col-md-8">
-            <div id="container"></div>
+          <div class="behind col-md-8">
+            <div id="ooo" style="height:510px;border:0px solid;border-color:#eee;margin-bottom:15px">
+                <h3>Select trajectory from the right panel to view. Note that it may hangs browser windows for few minutes</h3>
+                <script>
+                Jmol._alertNoBinary = false;
+                jmol = Jmol.getApplet("jmolApplet0", JmolInfo);
+                jme = Jmol.getJMEApplet(jme , JMEInfo, jmol);
+                var lastPrompt=0;
+                </script>
+            </div>
+        </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {%block below_js%}
-<script src="{{url_for('static', filename='js/highcharts.js')}}"></script>
-<script type="text/javascript" charset="utf-8">
+        <script>
 
-$.getJSON('{{url_for('clustsep', jid='aaa')}}', function (csv) {
-var chart;
-    csv.push(
-{
-            type: 'pie',
-            name: 'Number of elements in selected cluster',
-            data: [],
-            center: [270, 260],
-             slicedOffset: 0,
-                stickyTracking: true,
-                 enableMouseTracking: false,
-            size: 50,
-                innerSize: 5,
-            showInLegend: false,
-            shadow: false,
-            ignoreHiddenPoint: true,
-            dataLabels: { enabled: true }
-        });
-
-chart = $('#container').highcharts({
-        chart: {type: 'scatter',
-            zoomType: 'xy', 
-            events: {
-            click: function(e) {
-                    console.dir(e);
-            }
-            }
-        },
-        title: { text: 'Clusters separation between replicas'},
-        yAxis: { tickInterval: 1, title: { text: 'Replica index' } },
-        xAxis: { min: 0, max: 1000, tickInterval: 50, title: { text: 'Model index' } },
-        legend: { enabled: true, align: "right",layout: "vertical", verticalAlign: "middle"},
-        series: csv,
-        plotOptions: {
-            series: {
-                cursor: 'pointer',
-                    point: {
-                        events: {
-                            // click on a point
-                            'click': function () {  
-                                    console.log(this.x + "ee " + this.y);
-                            }
-                        }
-                    },
-                events: {
-                            // clicking on the legend
-                            'legendItemClick': function() { 
-                                
-                                var reps = {};
-
-                                for (var i=0;i<this.data.length;i++) { 
-                                    var v  = this.data[i].y;
-                                    if (v in reps)
-                                        reps[v]++;
-                                    else
-                                        reps[v] = 1;
-                                }
-                                var n = [];
-                                for (k in reps) {
-                                    n.push({name: 'Replica '+k+" in "+this.name, y: reps[k]});
-                                }
-
-                                this.chart.series[this.chart.series.length-1].setData(n, true);
-                                this.chart.redraw();
-                            }
-                }
-                    },
-            scatter: {
-                marker: {
-                    radius: 4,
-                    states: {
-                        hover: {
-                            enabled: true,
-                            lineColor: 'rgb(100,100,100)'
-                        }
-                    }
-                },
-                tooltip: {
-                    headerFormat: 'Cluster: <b>{series.name}</b><br>',
-                    pointFormat: 'Model number: {point.x}, Replica: {point.y}'
-                }
-            }
-        },
-
-    });
-});
-
-</script>
+        </script>
 {%endblock%}

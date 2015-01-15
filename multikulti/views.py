@@ -387,14 +387,17 @@ def job_status(jid):
         for e in range(len(chains_set)):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
+
+
+    pie = calc_first_cluster_composition(jid)
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
-                            jid=jid, sys=system_info, results=models,
+                            jid=jid, sys=system_info, results=models, pie=pie,
                             status_type=system_info['status'], ex=exclu,
                             lig_txt=ligand_txt, rec_txt=receptor_txt)
 
     return render_template('job_info1.html', status=status, constr=constraints,
-                           jid=jid, sys=system_info, results=models,
+                           jid=jid, sys=system_info, results=models, pie=pie,
                            status_type=system_info['status'], ex = exclu,
                            lig_txt=ligand_txt, rec_txt=receptor_txt)
 
@@ -505,11 +508,13 @@ def simulation_parameters(jid):
             fw.write("%40s \n" % (row[0]))
 
 
-@app.route('/job/<jobid>/models/<model_name>/model.pdb')
-def send_unzipped(jobid, model_name):
+@app.route('/job/<jobid>/<models>/<model_name>/model.pdb')#, defaults={"models": "models"})
+def send_unzipped(jobid, model_name, models):
 
     jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
-    path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, "models",
+    models = models.split("/")[0]
+
+    path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, models,
                             model_name)
     data = gzip.open(path_dir)
     file_content = data.read()
@@ -562,8 +567,8 @@ def make_zip(jid):
         file2 = os.path.basename(file)
 
         with gzip.GzipFile(file) as gz:
-            with open(os.path.join("CABSdock_"+jid, os.path.splitext(file2)[0]),
-                      "w") as un:
+            with open(os.path.join("CABSdock_"+jid,
+                      os.path.splitext(file2)[0]), "w") as un:
                 un.write(gz.read())
 
     zf = zipfile.ZipFile("CABSdock_"+jid+".zip", "w", zipfile.ZIP_DEFLATED)
@@ -576,23 +581,62 @@ def make_zip(jid):
     os.chdir(tu)
 
 
-@app.route('/_clust_sep/<jid>')
-def clustsep(jid):
+def calc_first_cluster_composition(jid):
     path = os.path.join(app.config['USERJOB_DIRECTORY'], "klastry.txt")
     with open(path, "r") as rl:
-        data = []
         for line in rl.readlines():
             d = line.split(" ")
             cluster = d[0][:-1]
             te = []
             for e in d[1:]:
                 tt = e.split("_")
-                te.append([int(tt[0]),int(tt[1])])
-            data.append({'visible': False, 'name': cluster, 'data': te})
+                te.append([int(tt[0]), int(tt[1])])
+            if cluster == "cluster_1.pdb":
+                # calc pie chart
+                clusts = {}
+                for e in te:
+                    if e[1] in clusts:
+                        clusts[e[1]] += 1
+                    else:
+                        clusts[e[1]] = 1
+                break
+        return json.dumps(clusts)
+
+
+@app.route('/_clust_sep/<jid>')
+def clustsep(jid):
+    path = os.path.join(app.config['USERJOB_DIRECTORY'], "klastry.txt")
+    with open(path, "r") as rl:
+        data = []
+        data_tmp = {}
+        pie_data = []
+        for line in rl.readlines():
+            d = line.split(" ")
+            cluster = d[0][:-1]
+            te = []
+            for e in d[1:]:
+                tt = e.split("_")
+                te.append([int(tt[0]), int(tt[1])])
+            if cluster == "cluster_1.pdb":
+                # calc pie chart
+                clusts = {}
+                for e in te:
+                    if e[1] in clusts:
+                        clusts[e[1]] += 1
+                    else:
+                        clusts[e[1]] = 1
+                for k in clusts:
+                    pie_data.append({'name': 'Trajectory '+str(k), 'y': clusts[k]})
+
+                data_tmp[cluster] = {'visible': True, 'name': cluster, 'data': te}
+            else:
+                data_tmp[cluster] = {'visible': False, 'name': cluster, 'data': te}
+        # sort clusters by number
+        for i in sorted(data_tmp, key=alphanum_key):
+            data.append(data_tmp[i])
+        data.append({"type": 'pie', "name": 'Number of elements in selected cluster(s)', "data": pie_data, "center": [-160, 180], "size": 50, "showInLegend": False, "shadow": False, "ignoreHiddenPoint": True, "dataLabels": {"enabled": True}})
+
     return Response(json.dumps(data), mimetype='application/json')
-
-
-
 
 
 @app.route('/plot')
