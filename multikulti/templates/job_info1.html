@@ -174,7 +174,7 @@ function loadMol(o) {
   <!-- <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li> -->
   {% if clust %}
     <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Trajectory separation</a></li>
-  {% endif %}
+    {% endif %}
   <li><a href="#traf" role="tab" data-toggle="tab"><i class="fa fa-sliders"></i> Trajectories</a></li>
 {% endif %}
 </ul>
@@ -463,7 +463,7 @@ chart = $('#container').highcharts({
         title: { text: 'Clusters composition',
             align: "right"
         },
-        yAxis: { tickInterval: 1, title: { text: 'Trajectory index' } },
+        yAxis: { minRange: 0, tickLength: 18, tickInterval: 1, minTickInterval: 1,minorTickInterval: null, title: { text: 'Trajectory index' } },
         xAxis: { tickInterval: 50, title: { text: 'Model index' } },
         legend: { enabled: true, align: "left", layout: "vertical", verticalAlign: "top"},
         series: csv,

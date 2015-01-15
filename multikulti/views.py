@@ -589,7 +589,7 @@ def make_zip(jid):
 
 
 def calc_first_cluster_composition(jid):
-    path = os.path.join(app.config['USERJOB_DIRECTORY'], "klastry.txt")
+    path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
     with open(path, "r") as rl:
         for line in rl.readlines():
             d = line.split(" ")
@@ -613,6 +613,7 @@ def calc_first_cluster_composition(jid):
 @app.route('/_clust_sep/<jid>')
 def clustsep(jid):
     path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
+    #path = os.path.join(app.config['USERJOB_DIRECTORY'],  "klastry.txt")
     with open(path, "r") as rl:
         data = []
         data_tmp = {}
