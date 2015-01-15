@@ -389,13 +389,14 @@ def job_status(jid):
         receptor_txt = "[" + receptor_txt[:-1] + "]"
 
 
-    pie = calc_first_cluster_composition(jid)
 
     # TODO usunac pozniej !!!!!
     if os.path.exists(os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")):
+        pie = calc_first_cluster_composition(jid)
         clust = True
     else:
         clust = False
+        pie = "{}"
 
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
