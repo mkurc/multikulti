@@ -30,12 +30,11 @@ class TalkToServer:
     def putResults(self):
         to_send = {}
         for d in ["CLUST", "MODELS", "TRAFS"]:
-            for filename in glob(d+"/*.gz"):
+            for filename in glob(d+"/*.gz") + ["klastry.txt"]:
                 fn = filename.replace("CLUST", "clusters")
                 fn = fn.replace("MODELS", "models")
                 fn = fn.replace("TRAFS", "replicas")
                 to_send[fn] = open(filename, "rb")
-        print(to_send.keys())
 
         r = requests.post(self.remoteuri+"/SEND/", files=to_send)
         if r.status_code == requests.codes.ok:

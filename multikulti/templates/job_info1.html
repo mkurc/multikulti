@@ -26,7 +26,7 @@
             use: "HTML5",
         //    readyFunction: jmol_isReady,
            // script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;set bondTolerance = 5.0;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;trace only",
-            //script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom -20",
+            script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom 0",
             j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
             isSigned: "true",
             defaultModel: "",
@@ -97,7 +97,8 @@ function loadTraf(o) {
 
     var curr_model = template.replace("TOREPLACE", oldidx);
     console.log(curr_model);
-    var scr = "set platformSpeed 2;set frank off;set hoverDelay 0.001;background white;load "+curr_model+";color chain; connect 3.2 4.4 (carbon) (carbon)  create;wireframe 0.6;anim mode loop;anim fps 8;anim on";
+    var scr = "set platformSpeed 1;set frank off;set hoverDelay 0.001;background white;load "+curr_model+";color chain; connect 3.2 4.4 (carbon) (carbon)  create;wireframe 0.6;anim mode loop;anim fps 8;anim on";
+    scr = "set bondTolerance 1.1;set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load trajectory "+curr_model+";color chain; connect 3.2 4.2 (carbon) (carbon)  create;anim mode loop;zoom -20; anim fps 6;anim on";
 
     Jmol.script(jmolApplet1,scr);
     $("span[name^=TV]").html("");
@@ -106,6 +107,17 @@ function loadTraf(o) {
     $("span[name^=TV"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
 }
 
+function loadReplicaJmol(o) {
+    var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
+    fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
+            console.log(fetch_url+" "+o.x+" "+o.y);
+    console.log(fetch_url);
+    var scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load "+fetch_url+";color chain; connect 3.2 4.3 (carbon) (carbon) create;wireframe 0.4";
+
+    Jmol.script(jmolApplet1,scr);
+    $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
+
+}
 function loadReplica(o) {
     var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
     fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
@@ -159,9 +171,11 @@ function loadMol(o) {
     <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
 {% if status_type=='done' %}
   <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
-  <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li>
-  <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Trajectory separation</a></li>
-  <li><a onClick="loadTraf()" href="#traf" role="tab" data-toggle="tab"><i class="fa fa-sliders"></i> Trajectories</a></li>
+  <!-- <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li> -->
+  {% if clust %}
+    <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Trajectory separation</a></li>
+  {% endif %}
+  <li><a href="#traf" role="tab" data-toggle="tab"><i class="fa fa-sliders"></i> Trajectories</a></li>
 {% endif %}
 </ul>
 
@@ -271,8 +285,6 @@ Peptide sequence
       </table>
   </td>
   </tr>
-  <!-- <tr><td><h5>Restraints global scaling factor</h5></td><td> {{sys['constraints_scaling_factor']}}</td> -->
-  
   </tr>
 
       </table>
@@ -363,7 +375,7 @@ Peptide sequence
                 <div class="alert alert-success">
                     Select trajectory from the right panel to display animation in JSmol. Note that <strong>it may hangs browser window for few minutes or ever</strong>.
                 </div>
-            <div id="traj_mol" style="height:510px;border:0px solid;border-color:#eee;margin-bottom:15px"> 
+            <div id="traj_mol" style="height:40vh;width:100%;border:0px solid;border-color:#eee;"> 
                 <script>
                 Jmol._alertNoBinary = false;
                 jmol1 = Jmol.getApplet("jmolApplet1", JmolInfo1);
@@ -409,7 +421,7 @@ Peptide sequence
   <div class="tab-pane" id="replicas">
     <div class="row">
         <div class="col-md-4">
-              <div id="gldiv_replica" style="width: 100%; height: 40vh; margin: 0; padding: 0; border: 0;"> </div> 
+              <div id="gldiv_replica" style="width: 100%; height: 40vh; margin: 0; padding: 0; border: 0;"> </div>
               <center><h5><small><div id="model_desc"></div></small></h5></center>
 
         </div>
@@ -437,7 +449,7 @@ function dT() {
     setTimeout(function () { $(window).resize()}, 100);
 }
 
-$.getJSON('{{url_for('clustsep', jid='aaa')}}', function (csv) {
+$.getJSON('{{url_for('clustsep', jid=jid)}}', function (csv) {
 var chart;
 var reps = {{pie|safe}};
 chart = $('#container').highcharts({

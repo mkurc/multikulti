@@ -390,15 +390,22 @@ def job_status(jid):
 
 
     pie = calc_first_cluster_composition(jid)
+
+    # TODO usunac pozniej !!!!!
+    if os.path.exists(os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")):
+        clust = True
+    else:
+        clust = False
+
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
                             jid=jid, sys=system_info, results=models, pie=pie,
-                            status_type=system_info['status'], ex=exclu,
+                            status_type=system_info['status'], ex=exclu, clust=clust,
                             lig_txt=ligand_txt, rec_txt=receptor_txt)
 
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models, pie=pie,
-                           status_type=system_info['status'], ex = exclu,
+                           status_type=system_info['status'], ex = exclu, clust=clust,
                            lig_txt=ligand_txt, rec_txt=receptor_txt)
 
 
@@ -605,7 +612,7 @@ def calc_first_cluster_composition(jid):
 
 @app.route('/_clust_sep/<jid>')
 def clustsep(jid):
-    path = os.path.join(app.config['USERJOB_DIRECTORY'], "klastry.txt")
+    path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
     with open(path, "r") as rl:
         data = []
         data_tmp = {}
