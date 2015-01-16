@@ -24,8 +24,9 @@ class PdbParser:
         self.allnumber = 0
         seq = compile(r"^ATOM.{9}CA..(?P<seqid>.{3}).(?P<chain>.{1})(?P<resid>.{4})") # TODO zle dla alternatywnych
         if chain != '':
-            seq_c = compile(r"^ATOM.{9}CA.( |A).{4}"+chain)
-            atm = compile(r"^ATOM.{9}(.{2}).( |A).{4}"+chain+"(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
+            ch = "|".join(list(chain))
+            seq_c = compile(r"^ATOM.{9}CA.( |A).{4}("+ch+")")
+            atm = compile(r"^ATOM.{9}(.{2}).( |A).{4}("+ch+")(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
         else:
             atm = compile(r"^ATOM.{9}(.{2}).( |A).{5}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
             seq_c = compile(r"^ATOM.{9}CA.( |A).{4}")
@@ -49,11 +50,11 @@ class PdbParser:
             if seq_c.match(line):
                 self.canumber += 1
             if data_seq:
-                seqid = data_seq.groups()[0].strip()
-                chainid = data_seq.groups()[1].strip()
+                seqid = data_seq.group('seqid').strip()
+                chainid = data_seq.group('chain').strip()
                 if chainid not in chains_order:
                     chains_order.append(chainid)
-                resid = data_seq.groups()[2].strip()
+                resid = data_seq.group('resid').strip()
 
                 if seqid in keys:
                     self.sequence += self.codification[seqid]
@@ -72,7 +73,7 @@ class PdbParser:
                 self.onlycalfa += line
                 dg = data.groups()
                 if dg[0] == 'CA':
-                    tmp.append(int(dg[2]))
+                    tmp.append(int(data.group('resid')))
             if ter.match(line) or counter == end:
                 self.resindexes.append(tmp)
                 tmp = []
@@ -131,7 +132,10 @@ class PdbParser:
 
     def getSequence(self):
         if self.chain != '':
-            return self.sequences[self.chain]
+            o = ""
+            for e in list(self.chain):
+                o += self.sequences[e]
+            return o
         else:
             out = ""
             for k in self.sequences.keys():
@@ -139,8 +143,9 @@ class PdbParser:
             return out
 
 if __name__ == "__main__":
-    f = open("/home/mjamroz/3j65.pdb")
-    a = PdbParser(f)
+    f = open("/home/mjamroz/2iv9.pdb")
+    a = PdbParser(f, chain="AB")
     print len(a.getSequence())
-    t= a.getMissing()
-    print t
+    #print a.getBody()
+    #t= a.getMissing()
+    #print t

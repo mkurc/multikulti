@@ -133,7 +133,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-6">
-                                {{render_field(form.pdb_receptor, placeholder='2PCY')}}
+                                {{render_field(form.pdb_receptor, placeholder='2IV9 or 2IV9:AB')}}
                             </div>
                             <div class="col-md-6">
                                     <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
@@ -158,7 +158,7 @@
                         Peptide
                     </div>
                     <div class="panel-body">
-                        {{render_field(form.ligand_seq, placeholder='AAAA', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                        {{render_field(form.ligand_seq, placeholder='SFGDGFADF', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
                         <small class="text-muted">Peptide size: 4-30 residues</small>
             </div>
         </div>
@@ -181,7 +181,7 @@
                         {{render_field(form.email, placeholder='john@doe.com')}}
                     </div>
                 </div>
-                {{render_field(form.ligand_ss, placeholder='CCCC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                {{render_field(form.ligand_ss, placeholder='CCCCHHHHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
                 {{render_checkbox_field(form.excluding)}}
                 {{render_checkbox_field(form.add_constraints)}}
                 {{render_field(form.length)}}
@@ -238,9 +238,9 @@ $('input[type=file]').bootstrapFileInput();
 function exampleData() {
     $('#collapseOne').collapse();
     document.getElementById("name").value = "Docking project";
-    document.getElementById("ligand_ss").value =  "CCCCCCC";
-    document.getElementById("ligand_seq").value = "AAAAAAA";
-    document.getElementById("pdb_receptor").value = "2PCY";
+    document.getElementById("ligand_ss").value =  "CCCCHHHHC";
+    document.getElementById("ligand_seq").value = "SFGDGFADF";
+    document.getElementById("pdb_receptor").value = "2IV9:AB";
     var a = ["receptor_file", "show","name", "ligand_ss", "ligand_seq", "pdb_receptor"];
     for (var i=0; i<a.length;i++){
       //  document.getElementById(a[i]).readOnly = true;

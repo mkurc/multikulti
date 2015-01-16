@@ -121,9 +121,9 @@ def structure_pdb_validator(form, field):
 
 
 def pdb_input_validator(form, field):
-    if len(form.pdb_receptor.data) != 4 and len(form.receptor_file.data.filename) < 5:
+    if len(form.pdb_receptor.data) < 4 and len(form.receptor_file.data.filename) < 5:
         raise ValidationError('PDB code or PDB file is required')
-    if len(form.pdb_receptor.data) != 4 and form.receptor_file.data: # parse only if pdbcode empty
+    if len(form.pdb_receptor.data) < 4 and form.receptor_file.data: # parse only if pdbcode empty
         p = PdbParser(form.receptor_file.data.stream)
         missing = p.getMissing()
         seq = p.getSequence()
@@ -146,9 +146,8 @@ def pdb_input_validator(form, field):
 
 
 def pdb_input_code_validator(form, field):
-    if len(field.data) != 4 and not form.receptor_file.data.filename:
-        raise ValidationError('Protein code must be 4-letter (2PCY). Leave \
-                empty only if PDB file is provided')
+    if len(field.data) < 4 and not form.receptor_file.data.filename:
+        raise ValidationError('Protein code must be 4-letter (2PCY) or >5 letters (2PCY:A or 2PCY:AB ...). Leave empty only if PDB file is provided')
     if not form.pdb_receptor.data and not form.receptor_file.data:
         raise ValidationError('Protein PDB code or PDB file is required')
 
@@ -231,17 +230,25 @@ def add_init_data_to_db(form, final=False):
     dest_file = os.path.join(dest_directory, "input.pdb.gz")
     os.mkdir(dest_directory)
     if form.receptor_file.data.filename:
+        print "plikkkkk" + form.receptor_file.data.filename
         p = PdbParser(form.receptor_file.data.stream)
         receptor_seq = p.getSequence()
         p.savePdbFile(dest_file)
         gunzip(dest_file)
 
     elif form.pdb_receptor.data:
-        buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+form.pdb_receptor.data+'.pdb.gz')
+        print "receptor "+form.pdb_receptor.data
+        d = form.pdb_receptor.data.split(":")
+        pdbcode = d[0]
+        if len(d)>1:
+            chain = d[1]
+        else:
+            chain = ''
+        buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+pdbcode+'.pdb.gz')
         b2 = buraki.read()
         ft = StringIO(b2)
         with gzip.GzipFile(fileobj=ft, mode="rb") as f:
-            p = PdbParser(f)
+            p = PdbParser(f, chain=chain)
             receptor_seq = p.getSequence()
             p.savePdbFile(dest_file)
             gunzip(dest_file)
