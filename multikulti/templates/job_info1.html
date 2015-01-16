@@ -24,8 +24,6 @@
             addSelectionOptions: false,
             serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
             use: "HTML5",
-        //    readyFunction: jmol_isReady,
-           // script: "set platformSpeed 8;background white;set frank off;set hoverDelay 0.001;set bondTolerance = 5.0;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};restrict protein; color chain;trace only",
             script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom 0",
             j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
             isSigned: "true",
@@ -56,11 +54,12 @@ function styles(){
 			defaultcolors : $3Dmol.rasmolElementColors
 		});
 		glviewer.setBackgroundColor(0xffffff);
-                
+               /* 
 		glviewer2 = $3Dmol.createViewer("gldiv_replica", {
 			defaultcolors : $3Dmol.rasmolElementColors
 		});
 		glviewer2.setBackgroundColor(0xffffff);
+                */
 
                 $.get("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
                     $("#moldata_pdb_large").val(data);
@@ -70,6 +69,7 @@ function styles(){
                         receptorModel.setStyle({{lig_txt|safe}}, {cartoon:{}});
                         styles();
 
+                        /*
                         // load default for clusters
                         receptorModel = m = glviewer2.addModel(data, "pdb");
                         receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}});
@@ -80,8 +80,9 @@ function styles(){
                         glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
                         glviewer2.zoomTo();
                         glviewer2.render();
-                        $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
 
+                        $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
+                        */
 
                 }, "text");
                 
@@ -110,10 +111,7 @@ function loadTraf(o) {
 function loadReplica(o) {
     var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
     fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
-            console.log(fetch_url+" "+o.x+" "+o.y);
-    console.log(fetch_url);
     var scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load "+fetch_url+";color chain; connect 3.2 4.3 (carbon) (carbon) create;wireframe 0.4";
-
     Jmol.script(jmolApplet1,scr);
     $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
 
@@ -381,7 +379,11 @@ Peptide sequence
                 var lastPrompt=0;
                 </script>
             </div>
-              <center><h5><small><div id="model_desc"></div></small></h5></center>
+              <center><h5><small><div id="model_desc">
+                        Selected model: model_1.pdb (most representative model of the best cluster)
+                        <br><a href="{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}" target=_blank><i class='fa fa-download'></i> download this model</a>
+                          
+                          </div></small></h5></center>
 
         </div>
         <div class="col-md-8">
@@ -405,7 +407,10 @@ Peptide sequence
 <script src="{{url_for('static', filename='js/themes/grid-light.js')}}"></script>
 <script type="text/javascript" charset="utf-8">
 function dT() {
-    setTimeout(function () { $(window).resize()}, 100);
+    setTimeout(function () { 
+        $(window).resize();
+        Jmol.script(jmolApplet1,"refresh");
+    }, 200);
 }
 
 $.getJSON('{{url_for('clustsep', jid=jid)}}', function (csv) {
