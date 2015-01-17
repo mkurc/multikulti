@@ -9,25 +9,26 @@ import json
 import re
 from glob import glob
 from StringIO import StringIO
-from re import compile
 import gzip
 from shutil import make_archive, rmtree
 
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail
 
-from flask import render_template, url_for, request, flash, Response, redirect, send_from_directory, jsonify
+from flask import render_template, url_for, request, flash, Response, \
+    redirect, send_from_directory, jsonify
 from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, BooleanField, TextAreaField, HiddenField, IntegerField
+from wtforms import StringField, BooleanField, TextAreaField, HiddenField,\
+    IntegerField
 from wtforms.validators import DataRequired, Length, Email, optional, \
     ValidationError, NumberRange
 
 
 from multikulti_modules.parsePDB import PdbParser
-from multikulti_modules.restrRanges import restrRanges
+# from multikulti_modules.restrRanges import restrRanges
 ###############################################################################
 
 app.config.update(config)
@@ -378,7 +379,7 @@ def job_status(jid):
                                 "models", models['models'][0])
         data = gzip.open(path_dir)
         file_content = data.readlines()
-        atm = compile(r"^ATOM.{17}(?P<chain>.{1}).*$")
+        atm = re.compile(r"^ATOM.{17}(?P<chain>.{1}).*$")
         data.close()
         chains_set = []
         for line in file_content:
