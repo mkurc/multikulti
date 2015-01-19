@@ -83,6 +83,13 @@ jmol_isReady = function(applet) {
             var selRange = s.getRangeAt(i);
             var endRes0 = selRange.endContainer.parentNode.dataset['resid'];
             var endRes1 = selRange.startContainer.parentNode.dataset['resid'];
+            var endRes1_d = endRes1.indexOf("^");
+            var endRes0_d = endRes0.indexOf("^");
+            if (endRes1_d != -1)
+                endRes1 = endRes1.substring(0, endRes1_d);
+            if (endRes0_d != -1)
+                endRes0 = endRes0.substring(0, endRes0_d);
+
             var seqFrom = Math.min(endRes0, endRes1);
             var seqTo = Math.max(endRes0, endRes1);
             var chain = selRange.endContainer.parentNode.dataset['chain'];
@@ -282,9 +289,37 @@ weakly flexible.
             var endRes1 = selection.startContainer.parentNode.dataset['resid'];
             var chain = selection.startContainer.parentNode.parentNode.dataset['chain'];
             // tutaj mozna iteracje po tym zakresie i zmienic styl sekwencji
-            var seqFrom = Math.min(endRes0, endRes1);
-            var seqTo = Math.max(endRes0, endRes1);
-            return [chain,seqFrom, seqTo];
+
+            var endRes1_d = endRes1.indexOf("^");
+            var endRes0_d = endRes0.indexOf("^");
+            endRes1o = endRes1;
+            endRes0o = endRes0;
+
+            if (endRes1_d != -1){
+                endRes1o = endRes1.replace("^", "");
+                endRes1 = endRes1.substring(0, endRes1_d);
+            }
+            if (endRes0_d != -1){ 
+                endRes0o = endRes0.replace("^", "");
+                endRes0 = endRes0.substring(0, endRes0_d);
+            }
+
+            //var seqFrom = Math.min(endRes0, endRes1);
+            //var seqTo = Math.max(endRes0, endRes1);
+
+                if (endRes1 >= endRes0) {
+                    seqTo = endRes1;
+                    seqToLabel = endRes1o;
+                    seqFrom = endRes0;
+                    seqFromLabel = endRes0o;
+                }
+                else{
+                    seqFrom = endRes1;
+                    seqFromLabel = endRes1o;
+                    seqTo = endRes0;
+                    seqToLabel = endRes0o;
+                }
+            return [chain,seqFrom, seqTo, seqFromLabel, seqToLabel];
     }
     function colorSeq(chain, seqFrom, seqTo,g) {
         var col = colors[global_color_index];
@@ -308,7 +343,7 @@ weakly flexible.
                     jmol_selected.push(s[1]+"-"+s[2]+":"+s[0]);
                     jmolr.push(s[1]+"-"+s[2]+":"+s[0]);
                     Jmol.script(jmolApplet0,"select "+s[1]+"-"+s[2]+":"+s[0]+"; color "+colors_jmol[global_color_index]+"");
-                    selected.push(s[1]+":"+s[0]+" - "+s[2]+":"+s[0]);
+                    selected.push(s[3]+":"+s[0]+" - "+s[4]+":"+s[0]);
                 }
                 var newRow = "<tr>" + "<td class='del'>" + 
                         "<a href='#' onclick='rowDel(this)' data-jmol='"+jmolr.join(", ")+"' id='rowdel"+g+"' data-rowid='"+g+"' name='rowdel"+g+"'><i class='text-danger fa fa-close'></i></a></td>" +

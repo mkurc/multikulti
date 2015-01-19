@@ -13,6 +13,25 @@
         <script src="{{url_for('static', filename='js/3Dmol-min.js')}}" type="text/javascript" charset="utf-8"></script>
         <script src="{{url_for('static', filename='js/jsmol/JSmol.min.js')}}" type="text/javascript" charset="utf-8"></script>
         <script>
+        var jmol0="jmol";
+        var jme0 = "jme";
+        var jmolApplet0; // set up in HTML table, below
+        var JmolInfo0 = {
+            width: '100%',
+            height: '100%',
+            debug: false,
+            color: "white",
+            addSelectionOptions: false,
+            serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
+            use: "HTML5",
+            script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom 0",
+            j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
+            isSigned: "true",
+            defaultModel: "",
+            console: "false",
+}
+        var JMEInfo0 = {  use: "HTML5" }
+
         var jmol1="jmol";
         var jme1 = "jme";
         var jmolApplet1; // set up in HTML table, below
@@ -99,9 +118,9 @@ function loadTraf(o) {
     var curr_model = template.replace("TOREPLACE", oldidx);
     console.log(curr_model);
     var scr = "set platformSpeed 1;set frank off;set hoverDelay 0.001;background white;load "+curr_model+";color chain; connect 3.2 4.4 (carbon) (carbon)  create;wireframe 0.6;anim mode loop;anim fps 8;anim on";
-    scr = "set bondTolerance 1.1;set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load trajectory "+curr_model+";color chain; connect 3.2 4.2 (carbon) (carbon)  create;anim mode loop;zoom -20; anim fps 6;anim on";
+    scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load trajectory "+curr_model+";color chain; connect 3.2 4.2 (carbon) (carbon)  create;wireframe 0.4;anim mode loop;zoom -20; anim fps 6;anim on";
 
-    Jmol.script(jmolApplet1,scr);
+    Jmol.script(jmolApplet0,scr);
     $("span[name^=TV]").html("");
     $("tr[name^=TR]").removeClass("info");
     $("tr[name^=TR"+oldidx.split(".")[0]+"]").addClass("info");
@@ -169,11 +188,12 @@ function loadMol(o) {
     <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
 {% if status_type=='done' %}
   <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
-  <!-- <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li> -->
   {% if clust %}
     <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Trajectories separation</a></li>
     {% endif %}
-    <!-- <li><a href="#traf" role="tab" data-toggle="tab"><i class="fa fa-sliders"></i> Trajectories</a></li> -->
+
+    <!-- <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li> -->
+      <!-- <li><a href="#traf" role="tab" data-toggle="tab"><i class="fa fa-sliders"></i> Trajectories</a></li>  -->
 {% endif %}
 </ul>
 
@@ -367,17 +387,64 @@ Peptide sequence
   </div>
 
   </div> <!-- end tab clustering -->
+<div class="tab-pane" id="traf">
+          
+               <div class="row">
+                <div class="behind col-md-8"> 
+                        <div class="alert alert-success"> Select trajectory from the right panel to display animation in JSmol. Note that <strong>it may hangs browser window for few minutes or ever</strong>. </div>
+                        <div id="tra_rep" style="height:40vh;width:100%;border:0px solid;border-color:#eee;">
+{% if status_type=='done' %}
+                            <script>
+                            Jmol._alertNoBinary = false;
+                            jmol0 = Jmol.getApplet("jmolApplet0", JmolInfo0);
+                            jme0 = Jmol.getJMEApplet(jme0, JMEInfo0, jmol0);
+                            var lastPrompt=0;
+                            </script>
+{% endif %}
+                        </div>
+
+                </div>
+                <div class="col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading"><i class="fa fa-flask"></i> Trajectories</div>
+            <div class="panel-body">
+                    {% set fir=True %}
+                        <table class="table-condensed table">
+                            {% for e in results['replicas'] %}
+                                {% if fir %}
+                                    <tr name="TR{{e}}" class="info">
+                                    <td><span name="TV{{e}}"><i class="fa fa-eye"></i></span></td>
+                                    {% set fir=False %}
+                                {% else %}
+                                    <tr name="TR{{e}}">
+                                    <td><span name="TV{{e}}"></span></td>
+                                    {% set fir=False %}
+                                {% endif %}
+                                <td>{{e.split(".")[0]}}</td>
+                                <td><button onClick="loadTraf(this)" data-filename="{{url_for('send_unzipped', models='replicas', model_name=e, jobid=jid)}}" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
+                                <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('send_unzipped', models='replicas', model_name=e, jobid=jid)}}">
+                                <i class='fa fa-download'></i> Download</a></td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+        </div>
+      </div>
+                </div>
+              </div>
+</div>
 
   <div class="tab-pane" id="replicas">
     <div class="row">
         <div class="col-md-4">
             <div id="traj_mol" style="height:40vh;width:100%;border:0px solid;border-color:#eee;"> 
+{% if status_type=='done' %}
                 <script>
                 Jmol._alertNoBinary = false;
                 jmol1 = Jmol.getApplet("jmolApplet1", JmolInfo1);
                 jme1 = Jmol.getJMEApplet(jme1, JMEInfo1, jmol1);
                 var lastPrompt=0;
                 </script>
+{% endif %}
             </div>
               <center><h5><small><div id="model_desc">
                         Selected model: model_1.pdb (most representative model of the best cluster)
@@ -413,6 +480,7 @@ function dT() {
     }, 200);
 }
 
+{% if status_type=='done' %}
 $.getJSON('{{url_for('clustsep', jid=jid)}}', function (csv) {
 var chart;
 var reps = {{pie|safe}};
@@ -491,7 +559,7 @@ chart = $('#container').highcharts({
 
     });
 });
-
+{%endif%}
 </script>
 <script>
 setInterval(function() { 
