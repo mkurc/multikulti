@@ -577,7 +577,7 @@ def make_zip(jid):
         if not os.path.exists(os.path.join(dir_o, d)):
                 os.makedirs(os.path.join(dir_o, d))
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(".")
-             for f in filenames if dp != "CABSdock_"+jid and f != "input.pdb"]
+             for f in filenames if f != "klastry.txt" and dp != "CABSdock_"+jid and f != "input.pdb"]
     for file in files:
         file2 = "/".join(file.split("/")[1:])
         file2 = os.path.basename(file)
