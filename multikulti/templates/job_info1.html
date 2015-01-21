@@ -1,0 +1,562 @@
+{% extends "index.html" %}
+
+        {% block indexuniq %}
+        {% endblock %}
+    {% block header %}
+    <title>CABSdock: {{sys['project_name']}}</title>
+
+    {% if status_type=='done' %}
+
+
+    {% block job_scripts %}
+
+        <script src="{{url_for('static', filename='js/3Dmol-min.js')}}" type="text/javascript" charset="utf-8"></script>
+        <script src="{{url_for('static', filename='js/jsmol/JSmol.min.js')}}" type="text/javascript" charset="utf-8"></script>
+        <script>
+        var jmol0="jmol";
+        var jme0 = "jme";
+        var jmolApplet0; // set up in HTML table, below
+        var JmolInfo0 = {
+            width: '100%',
+            height: '100%',
+            debug: false,
+            color: "white",
+            addSelectionOptions: false,
+            serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
+            use: "HTML5",
+            //script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom 0",
+            j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
+            isSigned: "true",
+            defaultModel: "",
+            console: "false",
+}
+        var JMEInfo0 = {  use: "HTML5" }
+
+        var jmol1="jmol";
+        var jme1 = "jme";
+        var jmolApplet1; // set up in HTML table, below
+        var JmolInfo1 = {
+            width: '100%',
+            height: '100%',
+            debug: false,
+            color: "white",
+            addSelectionOptions: false,
+            serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
+            use: "HTML5",
+            script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom 0",
+            j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
+            isSigned: "true",
+            defaultModel: "",
+            console: "false",
+}
+var JMEInfo1 = {  use: "HTML5" }
+        </script>
+    <script>
+	var glviewer = null;
+	var glviewer2 = null;
+	var labels = [];
+
+
+function styles(){
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+    glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+    glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+    glviewer.zoomTo();
+    glviewer.render();
+}
+	$(document).ready(function() {
+
+		glviewer = $3Dmol.createViewer("gldiv", {
+			defaultcolors : $3Dmol.rasmolElementColors
+		});
+		glviewer.setBackgroundColor(0xffffff);
+                
+		glviewer2 = $3Dmol.createViewer("gldiv2", {
+			defaultcolors : $3Dmol.rasmolElementColors
+		});
+		glviewer2.setBackgroundColor(0xffffff);
+                
+
+                $.get("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
+                    $("#moldata_pdb_large").val(data);
+                        moldata = data = $("#moldata_pdb_large").val();
+                        receptorModel = m = glviewer.addModel(data, "pdb");
+                        receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}});
+                        receptorModel.setStyle({{lig_txt|safe}}, {cartoon:{'color': 'spectrum'}});
+                        styles();
+
+                        
+                        // load default for clusters
+                        receptorModel = m = glviewer2.addModel(data, "pdb");
+                        receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
+                        receptorModel.setStyle({{lig_txt|safe}}, {cartoon:{}});
+                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+                        glviewer2.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+                        glviewer2.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+                        glviewer2.zoomTo();
+                        glviewer2.render();
+
+                        $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
+                        
+
+                }, "text");
+                
+
+
+
+
+	});
+function loadTraf(o) {
+    var oldidx = o.dataset.model;
+    
+    var template = "{{url_for('sendfile', filetype='replicas', filename='TOREPLACE', jobid=jid)}}";
+
+    var curr_model = template.replace("TOREPLACE", oldidx);
+    console.log(curr_model);
+    var scr = "set platformSpeed 1;set frank off;set hoverDelay 0.001;background white;load "+curr_model+";color chain; connect 3.2 4.4 (carbon) (carbon)  create;wireframe 0.6;anim mode loop;anim fps 8;anim on";
+    scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load trajectory "+curr_model+";color chain; connect 3.2 4.2 (carbon) (carbon)  create;wireframe 0.4;anim mode loop;zoom -20; anim fps 6;anim on";
+
+    Jmol.script(jmolApplet0,scr);
+    $("span[name^=TV]").html("");
+    $("tr[name^=TR]").removeClass("info");
+    $("tr[name^=TR"+oldidx.split(".")[0]+"]").addClass("info");
+    $("span[name^=TV"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
+}
+
+function loadReplica(o) {
+    var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
+    fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
+    var scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load "+fetch_url+";color chain; connect 3.2 4.3 (carbon) (carbon) create;wireframe 0.4";
+    Jmol.script(jmolApplet1,scr);
+    $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
+
+}
+function loadReplicaGL(o) {
+    var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
+    fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
+            //console.log(fetch_url+" "+o.x+" "+o.y);
+        $.get(fetch_url, null, function (data) {
+                glviewer2.clear();
+		receptorModel = m = glviewer2.addModel(data, "pdb");
+                receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{style: 'trace', color:"white"}});
+                //receptorModel.setStyle({}, {cartoon: { "hidden": false}});
+             //   glviewer2.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+                glviewer2.addStyle({{lig_txt|safe}},{cartoon: {style: 'trace', color: "red"}});
+                glviewer2.zoomTo({"chain":{{rec_txt|safe}}});
+                glviewer2.render();
+                $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
+
+        }, "text");
+
+}
+function loadMol(o) {
+    var file = o.dataset.filename;
+
+        $.get(file, null, function (data) {
+                glviewer.clear();
+		receptorModel = m = glviewer.addModel(data, "pdb");
+                receptorModel.setStyle({}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+                styles();
+
+    var oldidx = o.dataset.model;
+    $("span[name^=V]").html("");
+    $("tr[name^=R]").removeClass("info");
+    $("tr[name^=R"+oldidx.split(".")[0]+"]").addClass("info");
+    $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
+
+        }, "text");
+
+}
+</script>
+
+
+    {% endblock %}
+
+    {% endif %}
+
+
+    {% endblock %}
+
+{% block body %}
+<div class="container">
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
+{% if status_type=='done' %}
+  <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
+  {% if clust %}
+    <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Trajectories separation</a></li>
+    {% endif %}
+
+    <!-- <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li> -->
+      <!-- <li><a href="#traf" role="tab" data-toggle="tab"><i class="fa fa-sliders"></i> Trajectories</a></li>  -->
+{% endif %}
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
+              
+            <div class="row">
+                <div class="col-md-6">
+            <h3>
+                Project name: {{sys['project_name']}}
+            </h3>
+
+        </div>
+        <div class="col-md-6">
+            <h4>Status:                    {{status|safe}}</h4>
+            <h6>submitted: {{sys['status_date']}}, status changed: {{sys['status_change']}}</h6>
+            </div>
+
+        </div>
+
+            <hr>
+            <div class="panel panel-default">
+                <div class="panel-heading">Project settings</div>
+
+      <table class="table">
+        <tr>
+            <td><strong>
+Protein sequence(s)
+                </strong>
+            </td>
+            <td>
+                <span class='sequence'>{{sys['receptor_sequence']}}</span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td><strong>
+Peptide sequence
+                </strong>
+            </td>
+            <td>
+                <span class='sequence'>{{sys['ligand_sequence']}}</span>
+            </td>
+        </tr>
+        <tr>
+            <td><strong>
+                    Peptide secondary structure 
+                </strong>
+                    {% if sys['ss_psipred']==1 %}
+                    <span class="label label-primary pull-right"><span class='capi'>psipred</span></span>
+                    {% endif %} 
+            </td>
+            <td>
+                    {% if sys['ligand_ss']|length != sys['ligand_sequence']|length %}
+                    <small><i>waiting for PSIPRED prediction</i></small>
+                    {% else %}
+                <span class='sequence'>{{sys['ligand_ss']}}</span>
+                    {% endif %}
+            </td>
+        </tr>
+      <tr>
+          <td>
+              <h5><strong>Flexible regions</strong></h5>
+      </td>
+      <td>
+          
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in constr %}
+          <td><small>{{row['constraint_definition']}}</small> <!-- <span class="badge">{{row['force']}}</span> -->
+          </td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
+
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
+      <tr>
+          <td>
+              <h5><strong>Unlikely to bind regions</strong></h5>
+      </td>
+      <td>
+          
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in ex %}
+          <td><small>{{row['excluded_region']}}</small></td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
+
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
+  </tr>
+
+      </table>
+            </div>
+
+
+  </div> <!-- end tab summary -->
+  <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
+{% block job_viewwindow %}
+      <div class="row">
+          <div class="col-md-8">
+                <textarea  style="display:none" id="moldata_pdb_large"></textarea>
+                <div class="alert alert-success">
+                    Here you can zoom/rotate predicted model of the complex. Click the "View" button on the right panel to load the appropriate model.
+                        <br><small><a href="{{url_for('job_status', jid=jid)}}?js=js">View in JSmol <small>(pure <span class='capital'>html5</span>)</small> if you got rendering problems.</a></small>
+                </div>
+
+          </div>
+          <div class="col-md-4">
+              <div class="alert alert-success">
+                  Models are ranked and numbered according to their occurrence in docking trajectory (1 = most probable result).
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="behind col-md-8"> <div id="gldiv" style="width: 100%; height: 50vh; margin: 0; padding: 0; border: 0;"> </div> </div>
+{% endblock %}
+          <div class="col-md-4">
+              <div class="panel panel-primary">
+                  <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
+                  <div class="panel-body">
+                  </div>
+              {% set fir=True %}
+              <table class="table-condensed table">
+      {% for e in results['models'] %}
+          {% if fir %}
+            <tr name="R{{e}}" class="info">
+          <td><span name="V{{e}}"><i class="fa fa-eye"></i></span></td>
+          {% set fir=False %}
+
+          {% else %}
+            <tr name="R{{e}}">
+          <td><span name="V{{e}}"></span></td>
+          {% set fir=False %}
+          {% endif %}
+          <td>{{e.split(".")[0]}}</td>
+          
+          <td><button onClick="loadMol(this)" data-filename="{{url_for('send_unzipped', model_name=e, models='models', jobid=jid)}}" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
+          <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('send_unzipped', model_name=e, models='models', jobid=jid)}}">
+                  <i class='fa fa-download'></i> Download</a></td>
+
+
+      </tr>
+      {% endfor %}
+              </table>
+              &nbsp;
+              </div>
+      <hr>
+      <a class='btn btn-block btn-lg btn-primary' href="{{url_for('sendzippackage', jobid=jid)}}" target=_blank><i class='fa fa-download'></i> Download all files</a>
+          </div>
+      </div>
+  </div> <!-- end tab models -->
+  <div class="tab-pane" id="clustering">
+      <div class="row">
+        <div class="col-md-8">
+            tabelki eremesy mozeo
+        </div>
+
+        <div class="col-md-4">      
+            <div class="panel panel-primary">
+                <div class="panel-heading"><i class="fa fa-bar-chart"></i> Clusters</div>
+                <div class="panel-body">
+            {% for e in results['clusters'] %}
+                <div class="row">
+                    <div class="col-md-8"><h5><span name="R{{e}}"></span> {{e.split(".")[0]}}</h5></div>
+                    <div class="col-md-4"><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('sendfile', filetype='clusters', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
+                </div>
+            {% endfor %}
+                </div>
+            </div>
+        </div>
+  </div>
+
+  </div> <!-- end tab clustering -->
+<div class="tab-pane" id="traf">
+          
+               <div class="row">
+                <div class="behind col-md-8"> 
+                        <div class="alert alert-success"> Select trajectory from the right panel to display animation in JSmol. Note that <strong>it may hangs browser window for few minutes or ever</strong>. </div>
+                        <div id="tra_rep" style="height:40vh;width:100%;border:0px solid;border-color:#eee;">
+{% if status_type=='done' %}
+<!--                            <script> -->
+<!--                            Jmol._alertNoBinary = false; -->
+<!--                            jmol0 = Jmol.getApplet("jmolApplet0", JmolInfo0); -->
+<!--                            jme0 = Jmol.getJMEApplet(jme0, JMEInfo0, jmol0); -->
+<!--                            var lastPrompt=0; -->
+<!--                            </script> -->
+{% endif %}
+                        </div>
+
+                </div>
+                <div class="col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading"><i class="fa fa-flask"></i> Trajectories</div>
+            <div class="panel-body">
+                    {% set fir=True %}
+                        <table class="table-condensed table">
+                            {% for e in results['replicas'] %}
+                                {% if fir %}
+                                    <tr name="TR{{e}}" class="info">
+                                    <td><span name="TV{{e}}"><i class="fa fa-eye"></i></span></td>
+                                    {% set fir=False %}
+                                {% else %}
+                                    <tr name="TR{{e}}">
+                                    <td><span name="TV{{e}}"></span></td>
+                                    {% set fir=False %}
+                                {% endif %}
+                                <td>{{e.split(".")[0]}}</td>
+                                <td><button onClick="loadTraf(this)" data-filename="{{url_for('send_unzipped', models='replicas', model_name=e, jobid=jid)}}" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
+                                <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('send_unzipped', models='replicas', model_name=e, jobid=jid)}}">
+                                <i class='fa fa-download'></i> Download</a></td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+        </div>
+      </div>
+                </div>
+              </div>
+</div>
+
+  <div class="tab-pane" id="replicas">
+    <div class="row">
+        <div class="col-md-4">
+            <div id="gldiv2" style="height:40vh;width:100%;border:0px solid;border-color:#eee;"> 
+            </div>
+              <center><h5><small><div id="model_desc">
+                        Selected model: model_1.pdb (most representative model of the best cluster)
+                        <br><a href="{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}" target=_blank><i class='fa fa-download'></i> download this model</a>
+                          
+                          </div></small></h5></center>
+
+        </div>
+        <div class="col-md-8">
+            <div style=" width:100%; margin: 0; padding: 0; border: 0;" id="container"></div>
+        </div>
+    </div>
+  </div> <!-- end tab costam -->
+</div>
+{% if status_type=='done' or status_type=='error' %}
+<br>&nbsp;
+<div class="alert alert-warning alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <i class="fa fa-recycle"></i> <strong>Note</strong> Your results will be automatically deleted on {{sys['del']}}.
+</div>
+{% endif %}
+
+</div>
+{% endblock %}
+{% block below_js %}
+<script src="{{url_for('static', filename='js/highcharts.js')}}"></script>
+<script src="{{url_for('static', filename='js/themes/grid-light.js')}}"></script>
+<script type="text/javascript" charset="utf-8">
+function dT() {
+    setTimeout(function () { 
+        $(window).resize();
+        Jmol.script(jmolApplet1,"refresh");
+    }, 200);
+}
+
+{% if status_type=='done' %}
+$.getJSON('{{url_for('clustsep', jid=jid)}}', function (csv) {
+var chart;
+var reps = {{pie|safe}};
+chart = $('#container').highcharts({
+        chart: {type: 'scatter',
+            marginLeft: 280,
+            zoomType: 'xy', 
+            events: {
+                click: function(e) {}
+            }
+        },
+        title: { text: 'Clusters composition',
+            align: "right"
+        },
+        yAxis: { minRange: 0, tickLength: 18, tickInterval: 1, minTickInterval: 1,minorTickInterval: null, title: { text: 'Trajectory index' } },
+        xAxis: { tickInterval: 50, title: { text: 'Model index' } },
+        legend: { enabled: true, align: "left", layout: "vertical", verticalAlign: "top"},
+        series: csv,
+        plotOptions: {
+            series: {
+                cursor: 'pointer',
+                    point: {
+                        events: {
+                            // click on a point
+                            'click': function () {  
+                                loadReplicaGL(this);
+                            }
+                        }
+                    },
+                events: {
+                            // clicking on the legend
+                            'legendItemClick': function() { 
+
+                                for (var i=0;i<this.data.length;i++) { 
+                                    var v  = this.data[i].y;
+                                    if (this.visible) {
+                                            if (v in reps)
+                                                reps[v]--;
+                                            else
+                                                reps[v] = 0;
+                                    }
+                                    else {
+                                            if (v in reps)
+                                                reps[v]++;
+                                            else
+                                                reps[v] = 1;
+                                    }
+
+                                }
+                                var n = [];
+                                for (k in reps) {
+                                    n.push({name: 'Trajectory '+k, y: reps[k]});
+                                }
+
+                                this.chart.series[this.chart.series.length-1].setData(n, true);
+                                //this.chart.redraw();
+                            }
+                }
+                    },
+            scatter: {
+                marker: {
+                    radius: 4,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: 'Cluster: <b>{series.name}</b><br>',
+                    pointFormat: 'Model number: {point.x}, Trajectory: {point.y}<br><small>Click to display the complex</small>'
+                }
+            }
+        },
+
+    });
+});
+{%endif%}
+</script>
+<script>
+setInterval(function() { 
+    var j_status =  "{{sys['status']}}";
+    if (j_status != "done" && j_status != "error")
+            window.location.reload();
+}, 3000); 
+</script>
+{% endblock %}
