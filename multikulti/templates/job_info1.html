@@ -148,7 +148,7 @@ function loadReplicaGL(o) {
 		receptorModel2 = m = glviewer2.addModel(data, "pdb");
                 glviewer2.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{style: 'trace', color:"spectrum"}});
                 glviewer2.addStyle({{lig_txt|safe}},{cartoon:{style: 'trace', color: 'red'}, sphere: {radius: 0.9, color: 'red'}});
-                glviewer2.zoomTo({"chain":{{rec_txt|safe}}});
+                glviewer2.zoomTo();//{"chain":{{rec_txt|safe}}});
                 glviewer2.render();
                 $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
 
