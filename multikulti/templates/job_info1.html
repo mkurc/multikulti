@@ -24,7 +24,7 @@
             addSelectionOptions: false,
             serverURL: "http://biocomp.chem.uw.edu.pl/jsmol.php",
             use: "HTML5",
-            script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom 0",
+            //script: "set platformSpeed 9;background white;set frank off;set hoverDelay 0.001;load {{url_for('sendfile', filetype='models', filename=results['models'][0], jobid=jid)}};cartoon only;restrict protein; color chain;cartoons on;zoom 0",
             j2sPath: "{{url_for('static', filename='js/jsmol/j2s')}}",
             isSigned: "true",
             defaultModel: "",
@@ -61,9 +61,7 @@ function styles(){
     glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
     glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
     glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
-    //glviewer.setStyle({{lig_txt|safe}}, {"sphere":{}});
     glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
-    //glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
     glviewer.zoomTo();
     glviewer.render();
 }
@@ -73,35 +71,35 @@ function styles(){
 			defaultcolors : $3Dmol.rasmolElementColors
 		});
 		glviewer.setBackgroundColor(0xffffff);
-               /* 
-		glviewer2 = $3Dmol.createViewer("gldiv_replica", {
+                
+		glviewer2 = $3Dmol.createViewer("gldiv2", {
 			defaultcolors : $3Dmol.rasmolElementColors
 		});
 		glviewer2.setBackgroundColor(0xffffff);
-                */
+                
 
                 $.get("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
                     $("#moldata_pdb_large").val(data);
                         moldata = data = $("#moldata_pdb_large").val();
                         receptorModel = m = glviewer.addModel(data, "pdb");
                         receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}});
-                        receptorModel.setStyle({{lig_txt|safe}}, {cartoon:{}});
+                        receptorModel.setStyle({{lig_txt|safe}}, {cartoon:{'color': 'spectrum'}});
                         styles();
 
-                        /*
+                        
                         // load default for clusters
                         receptorModel = m = glviewer2.addModel(data, "pdb");
-                        receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}});
+                        receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
                         receptorModel.setStyle({{lig_txt|safe}}, {cartoon:{}});
-                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
                         glviewer2.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
                         glviewer2.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
-                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
                         glviewer2.zoomTo();
                         glviewer2.render();
 
                         $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
-                        */
+                        
 
                 }, "text");
                 
@@ -138,14 +136,15 @@ function loadReplica(o) {
 function loadReplicaGL(o) {
     var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
     fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
-            console.log(fetch_url+" "+o.x+" "+o.y);
+            //console.log(fetch_url+" "+o.x+" "+o.y);
         $.get(fetch_url, null, function (data) {
                 glviewer2.clear();
 		receptorModel = m = glviewer2.addModel(data, "pdb");
-                receptorModel.setStyle({}, {sphere:{"hidden": false}});
-                glviewer2.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
-                glviewer2.addStyle({{lig_txt|safe}},{sphere:{"color": "red"}});
-                glviewer2.zoomTo();
+                receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{style: 'trace', color:"white"}});
+                //receptorModel.setStyle({}, {cartoon: { "hidden": false}});
+             //   glviewer2.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+                glviewer2.addStyle({{lig_txt|safe}},{cartoon: {style: 'trace', color: "red"}});
+                glviewer2.zoomTo({"chain":{{rec_txt|safe}}});
                 glviewer2.render();
                 $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
 
@@ -394,12 +393,12 @@ Peptide sequence
                         <div class="alert alert-success"> Select trajectory from the right panel to display animation in JSmol. Note that <strong>it may hangs browser window for few minutes or ever</strong>. </div>
                         <div id="tra_rep" style="height:40vh;width:100%;border:0px solid;border-color:#eee;">
 {% if status_type=='done' %}
-                            <script>
-                            Jmol._alertNoBinary = false;
-                            jmol0 = Jmol.getApplet("jmolApplet0", JmolInfo0);
-                            jme0 = Jmol.getJMEApplet(jme0, JMEInfo0, jmol0);
-                            var lastPrompt=0;
-                            </script>
+<!--                            <script> -->
+<!--                            Jmol._alertNoBinary = false; -->
+<!--                            jmol0 = Jmol.getApplet("jmolApplet0", JmolInfo0); -->
+<!--                            jme0 = Jmol.getJMEApplet(jme0, JMEInfo0, jmol0); -->
+<!--                            var lastPrompt=0; -->
+<!--                            </script> -->
 {% endif %}
                         </div>
 
@@ -436,15 +435,7 @@ Peptide sequence
   <div class="tab-pane" id="replicas">
     <div class="row">
         <div class="col-md-4">
-            <div id="traj_mol" style="height:40vh;width:100%;border:0px solid;border-color:#eee;"> 
-{% if status_type=='done' %}
-                <script>
-                Jmol._alertNoBinary = false;
-                jmol1 = Jmol.getApplet("jmolApplet1", JmolInfo1);
-                jme1 = Jmol.getJMEApplet(jme1, JMEInfo1, jmol1);
-                var lastPrompt=0;
-                </script>
-{% endif %}
+            <div id="gldiv2" style="height:40vh;width:100%;border:0px solid;border-color:#eee;"> 
             </div>
               <center><h5><small><div id="model_desc">
                         Selected model: model_1.pdb (most representative model of the best cluster)
@@ -506,7 +497,7 @@ chart = $('#container').highcharts({
                         events: {
                             // click on a point
                             'click': function () {  
-                                loadReplica(this);
+                                loadReplicaGL(this);
                             }
                         }
                     },
