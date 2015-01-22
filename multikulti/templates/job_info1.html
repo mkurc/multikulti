@@ -104,7 +104,7 @@ function styles(){
                         glviewer2.zoomTo();
                         glviewer2.render();
 
-                        $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
+                       // $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
                         
 
                 }, "text");
@@ -136,7 +136,7 @@ function loadReplica(o) {
     fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
     var scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load "+fetch_url+";color chain; connect 3.2 4.3 (carbon) (carbon) create;wireframe 0.4";
     Jmol.script(jmolApplet1,scr);
-    $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
+    $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+") <a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download the model</a>");
 
 }
 function loadReplicaGL(o) {
@@ -147,10 +147,10 @@ function loadReplicaGL(o) {
                 glviewer2.clear();
 		receptorModel2 = m = glviewer2.addModel(data, "pdb");
                 glviewer2.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{style: 'trace', color:"spectrum"}});
-                glviewer2.addStyle({{lig_txt|safe}},{cartoon:{style: 'trace', color: 'red'}, sphere: {radius: 0.9, color: 'red'}});
+                glviewer2.addStyle({{lig_txt|safe}},{cartoon:{style: 'trace', color: 'red', thickness: 0.2}, sphere: {radius: 0.5, color: 'red'}});
                 glviewer2.zoomTo();//{"chain":{{rec_txt|safe}}});
                 glviewer2.render();
-                $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+")<br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download this model</a>");
+                $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+") <br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download the model</a>");
 
         }, "text");
 
@@ -443,7 +443,7 @@ Peptide sequence
             </div>
               <center><h5><small><div id="model_desc">
                         Selected model: model_1.pdb (most representative model of the best cluster)
-                        <br><a href="{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}" target=_blank><i class='fa fa-download'></i> download this model</a>
+                        <a href="{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}" target=_blank><i class='fa fa-download'></i> download the model</a>
                           
                           </div></small></h5></center>
 
