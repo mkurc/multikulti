@@ -62,6 +62,16 @@ class TalkToServer:
         except:
             print("ERROR: problem with scaling factor fetch")
 
+    def getJobName(self):
+        try:
+            f = urllib2.urlopen(self.remoteuri+'/JOBNAME/')
+            data = f.read()
+            f.close()
+            j = json.loads(data)
+            return j['jobname']
+        except:
+            print("ERROR: problem with scaling factor fetch")
+
     def getSimLength(self):
         try:
             f = urllib2.urlopen(self.remoteuri+'/LENGTH/')

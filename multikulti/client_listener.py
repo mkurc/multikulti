@@ -119,6 +119,11 @@ def parse_server_talking(task, secret_key, jid):
                          WHERE jid=?", [jid], one=True)
             return Response(json.dumps({'sim_length': t[0]}),
                             mimetype='application/json')
+        elif task == "JOBNAME":
+            t = query_db("SELECT project_name FROM user_queue WHERE jid=?",
+                         [jid], one=True)
+            return Response(json.dumps({'jobname': t[0]}),
+                            mimetype='application/json')
         elif task == "RESTRAINTS":
             t = query_db("SELECT constraint_definition,force FROM constraints \
                          WHERE jid=?", [jid])
