@@ -1,4 +1,5 @@
 receptora fragmenty min 4aa
+dynamiczne przewijanie bottoma
 
 V chyba gromacs zmienia indeksy lancuchow (zle si koloruje) <-- fix_chain. powinno byc
 V mozliwosc podawania lancuchow w stylu 2pcy:AB
