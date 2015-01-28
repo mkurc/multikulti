@@ -12,8 +12,8 @@ $(document).ready(function(){
         $('div#lastPostsLoader').html('<center>loading...<br><i class="text-primary fa fa-4x fa-pulse fa-spinner"></i></center>');
         var url_status = "{{url_for('job_status', jid='REPLACE')}}";
         $.get("{{url_for('queue_page_json')}}/page/"+global_page, function(data){
-            if (data != "") {
-                var row = '<tr><td class="col-md-8"><hr></td><td class="col-md-2"><hr></td><td class="col-md-2"><hr></td></tr>';
+            if (data.data.length>0) {
+                var row = '<tr><td class="col-md-8"><small>Project name</small></td><td class="col-md-2"><small>Status</small></td><td class="col-md-2"><small>Date</small></td></tr>';
                     $(".rowlink").append(row);
                 for (var i=0; i< data.data.length; i++) {
                     var curr_url = url_status.replace('REPLACE', data.data[i].jid);
