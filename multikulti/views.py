@@ -309,6 +309,19 @@ def parse_out(q):
     return out
 
 
+@app.route('/_queue_json', methods=['POST', 'GET'], defaults={'page': 1})
+@app.route('/_queue_json/page/<int:page>/', methods=['POST', 'GET'])
+def queue_page_json(page=1):
+    before = (page - 1) * app.config['PAGINATION']
+    # TODO przy searchu to nie bedzie dzialac, z lenistwa
+    q = query_db("SELECT project_name, jid,status, datetime(status_date, \
+            'unixepoch') datet FROM user_queue WHERE hide=0 \
+            AND status!='pending' ORDER BY status_date DESC LIMIT ?,?",
+                 [before, app.config['PAGINATION']])
+    out = parse_out(q)
+    return jsonify({'data': out, 'page': page})
+
+
 @app.route('/queue', methods=['POST', 'GET'], defaults={'page': 1})
 @app.route('/queue/page/<int:page>/', methods=['POST', 'GET'])
 def queue_page(page=1):
