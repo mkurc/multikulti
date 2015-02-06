@@ -154,21 +154,20 @@ def pdb_input_code_validator(form, field):
 
 
 class MyForm(Form):
-    name = StringField('Project name', validators=[Length(min=4, max=50), optional()])
-    pdb_receptor = StringField('PDB code',
-            validators=[pdb_input_code_validator, structure_pdb_validator])
-    receptor_file = FileField('PDB file',
-            validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
-    ligand_seq = TextAreaField('Peptide sequence',
-            validators=[Length(min=4, max=30), DataRequired(), sequence_validator])
-    ligand_ss = TextAreaField('Peptide secondary structure',
-            validators=[Length(min=4, max=30), optional(), ss_validator, eqlen_validator])
+    name = StringField('Project name', validators=[Length(min=4, max=50),
+                                                   optional()])
+    pdb_receptor = StringField('PDB code', validators=[pdb_input_code_validator, structure_pdb_validator])
+    receptor_file = FileField('PDB file', validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
+    ligand_seq = TextAreaField('Peptide sequence', validators=[Length(min=4, max=30), DataRequired(), sequence_validator])
+    ligand_ss = TextAreaField('Peptide secondary structure', validators=[Length(min=4, max=30), optional(), ss_validator, eqlen_validator])
     email = StringField('E-mail address', validators=[optional(), Email()])
-    show = BooleanField('Do not show my job on the results page', default=False)
+    show = BooleanField('Do not show my job on the results page',
+                        default=False)
     add_constraints = BooleanField('Mark flexible regions', default=False)
     excluding = BooleanField('Mark unlikely to bind regions', default=False)
     jid = HiddenField(default=unique_id())
-    length = IntegerField('Simulation cycles', default=50, validators=[NumberRange(5, 200)])
+    length = IntegerField('Simulation cycles', default=50,
+                          validators=[NumberRange(5, 200)])
 
 
 @app.route('/exclude_regions/<jid>/<final>/', methods=['GET', 'POST'])
@@ -231,17 +230,17 @@ def add_init_data_to_db(form, final=False):
     dest_file = os.path.join(dest_directory, "input.pdb.gz")
     os.mkdir(dest_directory)
     if form.receptor_file.data.filename:
-        print "plikkkkk" + form.receptor_file.data.filename
+        # print "plikkkkk" + form.receptor_file.data.filename
         p = PdbParser(form.receptor_file.data.stream)
         receptor_seq = p.getSequence()
         p.savePdbFile(dest_file)
         gunzip(dest_file)
 
     elif form.pdb_receptor.data:
-        print "receptor "+form.pdb_receptor.data
+        # print "receptor "+form.pdb_receptor.data
         d = form.pdb_receptor.data.split(":")
         pdbcode = d[0]
-        if len(d)>1:
+        if len(d) > 1:
             chain = d[1]
         else:
             chain = ''
@@ -261,8 +260,8 @@ def add_init_data_to_db(form, final=False):
     query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
              ligand_sequence, ligand_ss, hide, project_name,simulation_length) \
              VALUES(?,?,?,?,?,?,?,?)", [jid, form.email.data, receptor_seq,
-                                      ligand_seq, ligand_ss, hide, name, 
-                                      sim_length], insert=True)
+                                        ligand_seq, ligand_ss, hide, name,
+                                        sim_length], insert=True)
 
 #    # generate constraints
 #    unzpinp = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "input.pdb")
@@ -402,7 +401,7 @@ def job_status(jid):
                 if ch not in chains_set:
                     chains_set.append(ch)
         # format as javascript data
-        ligand_txt = "{'chain': '"+system_info['ligand_chain']+"'}" #chains_set[-1]+"'}"
+        ligand_txt = "{'chain': '"+system_info['ligand_chain']+"'}"
         if system_info['ligand_chain'] in chains_set:
             chains_set.remove(system_info['ligand_chain'])
         for e in range(len(chains_set)):
@@ -513,8 +512,8 @@ def index_page():
 
 
 def simulation_parameters(jid):
-    with gzip.open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
-                                "README.txt"), "w") as fw:
+    with open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
+                           "README.txt"), "w") as fw:
         q = query_db("SELECT ligand_sequence, ligand_ss, receptor_sequence, \
                       project_name, datetime(status_date,'unixepoch') \
                       submitted, datetime(status_init, 'unixepoch') finished, \
@@ -537,7 +536,7 @@ def simulation_parameters(jid):
             fw.write("%40s \n" % (row[0]))
 
 
-@app.route('/job/<jobid>/<models>/<model_name>/model.pdb')#, defaults={"models": "models"})
+@app.route('/job/<jobid>/<models>/<model_name>/model.pdb')
 def send_unzipped(jobid, model_name, models):
 
     jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
@@ -635,7 +634,6 @@ def calc_first_cluster_composition(jid):
 @app.route('/_clust_sep/<jid>')
 def clustsep(jid):
     path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
-    #path = os.path.join(app.config['USERJOB_DIRECTORY'],  "klastry.txt")
     with open(path, "r") as rl:
         data = []
         data_tmp = {}
@@ -656,15 +654,21 @@ def clustsep(jid):
                     else:
                         clusts[e[1]] = 1
                 for k in clusts:
-                    pie_data.append({'name': 'Trajectory '+str(k), 'y': clusts[k]})
+                    pie_data.append({'name': 'Trajectory '+str(k),
+                                     'y': clusts[k]})
 
-                data_tmp[cluster] = {'visible': True, 'name': cluster, 'data': te}
+                data_tmp[cluster] = {'visible': True, 'name': cluster,
+                                     'data': te}
             else:
-                data_tmp[cluster] = {'visible': False, 'name': cluster, 'data': te}
+                data_tmp[cluster] = {'visible': False, 'name': cluster,
+                                     'data': te}
         # sort clusters by number
         for i in sorted(data_tmp, key=alphanum_key):
             data.append(data_tmp[i])
-        data.append({"type": 'pie', "name": 'Number of elements in selected cluster(s)', "data": pie_data, "center": [-160, 180], "size": 50, "showInLegend": False, "shadow": False, "ignoreHiddenPoint": True, "dataLabels": {"enabled": True}})
+        data.append({"type": 'pie', "name": 'Number of elements in selected cluster(s)',
+                     "data": pie_data, "center": [-160, 180], "size": 50,
+                     "showInLegend": False, "shadow": False,
+                     "ignoreHiddenPoint": True, "dataLabels": {"enabled": True}})
 
     return Response(json.dumps(data), mimetype='application/json')
 
