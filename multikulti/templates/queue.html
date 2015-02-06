@@ -6,10 +6,9 @@
     <script src="{{url_for('static', filename='js/jasny-bootstrap.min.js')}}"></script>
     <script>
     var global_page = 2;
-$(document).ready(function(){
     function lastAddedLiveFunc()
     {
-        $('div#lastPostsLoader').html('<center>loading...<br><i class="text-primary fa fa-4x fa-pulse fa-spinner"></i></center>');
+        $('div#lastPostsLoader').html('<center>loading...<br><i class="text-primary fa fa-1x fa-pulse fa-spinner"></i></center>');
         var url_status = "{{url_for('job_status', jid='REPLACE')}}";
         $.get("{{url_for('queue_page_json')}}/page/"+global_page, function(data){
             if (data.data.length>0) {
@@ -24,9 +23,11 @@ $(document).ready(function(){
             global_page = data.page + 1;
             $('div#lastPostsLoader').empty();
         });
-    };
+    }
+$(document).ready(function(){
  
     //lastAddedLiveFunc();
+    /*
     $(window).scroll(function(){
  
         var wintop = $(window).scrollTop(), docheight = $(document).height(), winheight = $(window).height();
@@ -39,6 +40,7 @@ $(document).ready(function(){
             }
         }
     });
+    */
 });
 
 
@@ -85,22 +87,31 @@ $(document).ready(function(){
                         {% endfor %}
                         </tbody>
                     </table>
+                    <div class=row>
+                        <div class="col-md-5"></div>
+                        <div class="col-md-2">
+                            <hr>
+                            <center>
                     <div id="lastPostsLoader"></div>
+                    <button class="btn btn-primary btn-sm" onClick="lastAddedLiveFunc()"><i class="fa fa-arrow-circle-o-down"></i> load more ...</button></center>
+                        </div>
+                        <div class="col-md-5"></div>
+                    </div>
 
                     <div class="panel panel-body">
 
-                        <ul class="pager">
-                            {% if page_p<1: %}
-                            <li class="previous disabled"><a href="#">&larr; Newer</a></li>
-                            {% else %}
-                                <li class="previous"><a href="{{url_for_other_page(page=page_p)}}">&larr; Newer</a></li>
-                            {% endif %}
-                            {% if (page_n-1)*config['PAGINATION']>total_rows: %}
-                            <li class="next disabled"><a href="#">Older &rarr;</a></li>
-                            {% else %}
-                                <li class="next"><a href="{{url_for_other_page(page=page_n)}}">Older &rarr;</a></li>
-                                {% endif %}
-                        </ul>
+                        <!--                       <ul class="pager"> -->
+ <!--                           {% if page_p<1: %}     <ul class="pager"> -->
+ <!--                           <li class="previous disabled"><a href="#">&larr; Newer</a></li>     <ul class="pager"> -->
+ <!--                           {% else %}     <ul class="pager"> -->
+ <!--                               <li class="previous"><a href="{{url_for_other_page(page=page_p)}}">&larr; Newer</a></li>     <ul class="pager"> -->
+ <!--                           {% endif %}     <ul class="pager"> -->
+ <!--                           {% if (page_n-1)*config['PAGINATION']>total_rows: %}     <ul class="pager"> -->
+ <!--                           <li class="next disabled"><a href="#">Older &rarr;</a></li>     <ul class="pager"> -->
+ <!--                           {% else %}     <ul class="pager"> -->
+ <!--                               <li class="next"><a href="{{url_for_other_page(page=page_n)}}">Older &rarr;</a></li>     <ul class="pager"> -->
+ <!--                               {% endif %}     <ul class="pager"> -->
+ <!--                       </ul>     <ul class="pager"> -->
                     </div>
             </div>
     </div>

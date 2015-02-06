@@ -413,21 +413,25 @@ def job_status(jid):
     # TODO usunac pozniej !!!!!
     if os.path.exists(os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")):
         pie = calc_first_cluster_composition(jid)
+        clust_details = cluster_stats(jid)
         clust = True
     else:
         clust = False
         pie = "{}"
+        clust_details = []
 
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
                             jid=jid, sys=system_info, results=models, pie=pie,
                             status_type=system_info['status'], ex=exclu, clust=clust,
-                            lig_txt=ligand_txt, rec_txt=receptor_txt)
+                            lig_txt=ligand_txt, rec_txt=receptor_txt,
+                            clu_det=clust_details)
 
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models, pie=pie,
-                           status_type=system_info['status'], ex = exclu, clust=clust,
-                           lig_txt=ligand_txt, rec_txt=receptor_txt)
+                           status_type=system_info['status'], ex = exclu, 
+                           clust=clust, lig_txt=ligand_txt, 
+                           clu_det=clust_details, rec_txt=receptor_txt)
 
 
 @app.route('/_add_excluded', methods=['POST', 'GET'])
@@ -512,7 +516,7 @@ def index_page():
 
 
 def simulation_parameters(jid):
-    with open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
+    with gzip.open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
                            "README.txt"), "w") as fw:
         q = query_db("SELECT ligand_sequence, ligand_ss, receptor_sequence, \
                       project_name, datetime(status_date,'unixepoch') \
@@ -609,25 +613,60 @@ def make_zip(jid):
     os.chdir(tu)
 
 
-def calc_first_cluster_composition(jid):
+def cluster_stats(jid):
+    cluster_details = []
     path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
     with open(path, "r") as rl:
         for line in rl.readlines():
-            d = line.split(" ")
-            cluster = d[0][:-1]
-            te = []
-            for e in d[1:]:
-                tt = e.split("_")
-                te.append([int(tt[0]), int(tt[1])])
-            if cluster == "cluster_1.pdb":
-                # calc pie chart
-                clusts = {}
-                for e in te:
-                    if e[1] in clusts:
-                        clusts[e[1]] += 1
-                    else:
-                        clusts[e[1]] = 1
-                break
+            d = line.split()
+            if "cluster" not in d[0]:
+                row = {'cluster': d[3][:-1], 'density': d[0], 'rmsd': d[1],
+                    'counts': d[2]}
+            else:
+                row = {'cluster': d[0][:-1], 'density': "0", 'rmsd': "0",
+                    'counts': "0"}
+
+            cluster_details.append(row)
+    return cluster_details
+
+
+def calc_first_cluster_composition(jid):
+    path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
+
+    with open(path, "r") as rl:
+        for line in rl.readlines():
+            d = line.split()
+            if "cluster" not in d[0]:
+                cluster = d[3][:-1]
+                te = []
+                for e in d[4:]:
+                    tt = e.split("_")
+                    te.append([int(tt[0]), int(tt[1])])
+                if cluster == "cluster_1.pdb":
+                    # calc pie chart
+                    clusts = {}
+                    for e in te:
+                        if e[1] in clusts:
+                            clusts[e[1]] += 1
+                        else:
+                            clusts[e[1]] = 1
+                    break
+            else:
+                cluster = d[0][:-1]
+                te = []
+                for e in d[1:]:
+                    tt = e.split("_")
+                    te.append([int(tt[0]), int(tt[1])])
+                if cluster == "cluster_1.pdb":
+                    # calc pie chart
+                    clusts = {}
+                    for e in te:
+                        if e[1] in clusts:
+                            clusts[e[1]] += 1
+                        else:
+                            clusts[e[1]] = 1
+                    break
+
         return json.dumps(clusts)
 
 
@@ -639,29 +678,53 @@ def clustsep(jid):
         data_tmp = {}
         pie_data = []
         for line in rl.readlines():
-            d = line.split(" ")
-            cluster = d[0][:-1]
-            te = []
-            for e in d[1:]:
-                tt = e.split("_")
-                te.append([int(tt[0]), int(tt[1])])
-            if cluster == "cluster_1.pdb":
-                # calc pie chart
-                clusts = {}
-                for e in te:
-                    if e[1] in clusts:
-                        clusts[e[1]] += 1
-                    else:
-                        clusts[e[1]] = 1
-                for k in clusts:
-                    pie_data.append({'name': 'Trajectory '+str(k),
-                                     'y': clusts[k]})
+            d = line.split()
+            if "cluster" not in d[0]:
+                cluster = d[3][:-1]
+                te = []
+                for e in d[4:]:
+                    tt = e.split("_")
+                    te.append([int(tt[0]), int(tt[1])])
+                if cluster == "cluster_1.pdb":
+                    # calc pie chart
+                    clusts = {}
+                    for e in te:
+                        if e[1] in clusts:
+                            clusts[e[1]] += 1
+                        else:
+                            clusts[e[1]] = 1
+                    for k in clusts:
+                        pie_data.append({'name': 'Trajectory '+str(k),
+                                        'y': clusts[k]})
 
-                data_tmp[cluster] = {'visible': True, 'name': cluster,
-                                     'data': te}
+                    data_tmp[cluster] = {'visible': True, 'name': cluster,
+                                         'data': te}
+                else:
+                    data_tmp[cluster] = {'visible': False, 'name': cluster,
+                                         'data': te}
             else:
-                data_tmp[cluster] = {'visible': False, 'name': cluster,
-                                     'data': te}
+                cluster = d[0][:-1]
+                te = []
+                for e in d[1:]:
+                    tt = e.split("_")
+                    te.append([int(tt[0]), int(tt[1])])
+                if cluster == "cluster_1.pdb":
+                    # calc pie chart
+                    clusts = {}
+                    for e in te:
+                        if e[1] in clusts:
+                            clusts[e[1]] += 1
+                        else:
+                            clusts[e[1]] = 1
+                    for k in clusts:
+                        pie_data.append({'name': 'Trajectory '+str(k),
+                                        'y': clusts[k]})
+
+                    data_tmp[cluster] = {'visible': True, 'name': cluster,
+                                         'data': te}
+                else:
+                    data_tmp[cluster] = {'visible': False, 'name': cluster,
+                                         'data': te}
         # sort clusters by number
         for i in sorted(data_tmp, key=alphanum_key):
             data.append(data_tmp[i])
