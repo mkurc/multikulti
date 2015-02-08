@@ -88,8 +88,8 @@ function styles(){
                         receptorModel.setStyle( {"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
                         receptorModel2.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
 
-                        glviewer.addStyle( {{lig_txt|safe}}, {cartoon:{}, "lines": {"hidden": false}});
-                        glviewer2.addStyle( {{lig_txt|safe}}, {cartoon:{}, "lines": {"hidden": false}});
+                        glviewer.addStyle( {{lig_txt|safe}}, {"stick": {"hidden": false}, cartoon:{}, "lines": {"hidden": false}});
+                        glviewer2.addStyle( {{lig_txt|safe}}, {"stick": {"hidden": false}, cartoon:{}, "lines": {"hidden": false}});
 
                         glviewer.addSurface( $3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
                         glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
