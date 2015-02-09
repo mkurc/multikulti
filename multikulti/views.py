@@ -170,6 +170,7 @@ class MyForm(Form):
                           validators=[NumberRange(5, 200)])
 
 
+
 @app.route('/exclude_regions/<jid>/<final>/', methods=['GET', 'POST'])
 def index_excluding(jid, final="True"):
     d = query_db("SELECT ligand_sequence,status \
@@ -359,6 +360,54 @@ def queue_page(page=1):
     return render_template('queue.html', queue=out, total_rows=len(qall),
                            page=page)
 
+class FormResubmit(MyForm):
+    receptor_file = None
+    pdb_receptor = None
+
+@app.route('/resubmit/<jid>/')
+def resubmit(jid):
+    form = FormResubmit()
+    jid = os.path.split(jid)[-1]
+    system_info = query_db("SELECT ligand_sequence, simulation_length, receptor_sequence, \
+            ligand_chain, project_name, \
+            ligand_ss, ss_psipred FROM user_queue WHERE jid=?", [jid], one=True)
+
+    form.name.data = system_info['project_name']
+    form.ligand_ss.data = system_info['ligand_ss']
+    form.length.data = system_info['simulation_length']
+
+
+
+    models = {'models': []}
+    udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
+    tm = [fil.split("/")[-1] for fil in glob(udir_path+"/models/*.gz")]
+    models['models'] = sorted(tm, key=alphanum_key)
+    # get indexes for RECEPTOR/LIGAND
+    path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid,
+                            "models", models['models'][0])
+    ligand_txt = ""
+    receptor_txt = ""
+    data = gzip.open(path_dir)
+    file_content = data.readlines()
+    atm = re.compile(r"^ATOM.{17}(?P<chain>.{1}).*$")
+    data.close()
+    chains_set = []
+    for line in file_content:
+        d = atm.match(line)
+        if d:
+            ch = d.groups()[0]
+            if ch not in chains_set:
+                chains_set.append(ch)
+    # format as javascript data
+    ligand_txt = "{'chain': '"+system_info['ligand_chain']+"'}"
+    if system_info['ligand_chain'] in chains_set:
+        chains_set.remove(system_info['ligand_chain'])
+    for e in range(len(chains_set)):
+        receptor_txt += "'"+chains_set[e]+"',"
+    receptor_txt = "[" + receptor_txt[:-1] + "]"
+
+    return render_template('resubmit.html', jid=jid, form=form, results=models, rec_txt=receptor_txt, lig_txt=ligand_txt, sys=system_info)
+
 
 @app.route('/job/<jid>/')
 def job_status(jid):
@@ -408,8 +457,6 @@ def job_status(jid):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
 
-
-
     # TODO usunac pozniej !!!!!
     if os.path.exists(os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")):
         pie = calc_first_cluster_composition(jid)
@@ -429,8 +476,8 @@ def job_status(jid):
 
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models, pie=pie,
-                           status_type=system_info['status'], ex = exclu, 
-                           clust=clust, lig_txt=ligand_txt, 
+                           status_type=system_info['status'], ex=exclu,
+                           clust=clust, lig_txt=ligand_txt,
                            clu_det=clust_details, rec_txt=receptor_txt)
 
 

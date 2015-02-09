@@ -1,0 +1,196 @@
+{% extends "index.html" %}
+
+        {% block indexuniq %}
+        {% endblock %}
+    {% block header %}
+    <title>CABSdock: {{sys['project_name']}}</title>
+
+
+
+    {% block job_scripts %}
+
+        <script src="{{url_for('static', filename='js/3Dmol-min.js')}}" type="text/javascript" charset="utf-8"></script>
+        <script src="{{url_for('static', filename='js/jsmol/JSmol.min.js')}}" type="text/javascript" charset="utf-8"></script>
+        <script>
+
+function styles(){
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+    glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+    glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+    glviewer.zoomTo();
+    glviewer.render();
+}
+	$(document).ready(function() {
+              $("[rel=tooltip]").tooltip({'html':'true'});
+
+		glviewer = $3Dmol.createViewer("gldiv", {
+			defaultcolors : $3Dmol.rasmolElementColors
+		});
+		glviewer.setBackgroundColor(0xffffff);
+                
+                
+
+                $.get("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
+                    $("#moldata_pdb_large").val(data);
+                        moldata = data = $("#moldata_pdb_large").val();
+                        receptorModel =  m = glviewer.addModel(data, "pdb");
+
+                        receptorModel.setStyle( {"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
+
+                        glviewer.addStyle( {{lig_txt|safe}}, {"stick": {"hidden": false}, cartoon:{}, "lines": {"hidden": false}});
+
+                        glviewer.addSurface( $3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+                        glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+                        glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+                        glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+
+                        
+                        glviewer.zoomTo();
+                        glviewer.render();
+
+                       // $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
+                }, "text");
+	});
+function loadMol(o) {
+    var file = o.dataset.filename;
+
+        $.get(file, null, function (data) {
+                glviewer.clear();
+		receptorModel = m = glviewer.addModel(data, "pdb");
+                receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+                glviewer.addStyle( {{lig_txt|safe}}, {cartoon:{}, "stick": {"hidden": false}, sphere:{"hidden": true}});
+                styles();
+
+    var oldidx = o.dataset.model;
+    $("span[name^=V]").html("");
+    $("tr[name^=R]").removeClass("info");
+    $("tr[name^=R"+oldidx.split(".")[0]+"]").addClass("info");
+    $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
+
+        }, "text");
+
+}
+</script>
+
+
+    {% endblock %}
+
+    {% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">Project settings</div>
+                <table class="table table-condensed">
+                <tr>
+                    <td>
+                                <strong>
+                                    Protein sequence(s)
+                                </strong> 
+                    </td>
+                    <td>
+                                <span class='sequence'>{{sys['receptor_sequence']}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                                <strong>
+                                    Peptide sequence
+                                </strong>
+                    </td>
+                    <td>
+                                <span class='sequence'>{{sys['ligand_sequence']}}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                                <strong>
+                                    Peptide secondary structure 
+                                </strong>
+                    </td>
+                    <td>
+                                    {% if sys['ss_psipred']==1 %}
+                                    <span class="label label-primary pull-right"><span class='capi'>psipred</span></span>
+                                    {% endif %} 
+                                    {% if sys['ligand_ss']|length != sys['ligand_sequence']|length %}
+                                    <small><i>waiting for PSIPRED prediction</i></small>
+                                    {% else %}
+                                <span class='sequence'>{{sys['ligand_ss']}}</span>
+                                    {% endif %}
+                    </td>
+                </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+                    <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
+      <div class="row">
+          <div class="col-md-5">
+              {% set fir=True %}
+              <div class="panel panel-primary">
+
+                  <div class="panel-heading"><i class="fa fa-remove"></i> Remove wrong poses</div>
+                  <div class="panel-body">
+                    <div class="behind"> <div id="gldiv" style="width: 100%; height: 30vh; margin: 0; padding: 0; border: 0;"> </div> </div>
+                  </div>
+              <table class="table-striped table">
+                {% for e in results['models'] %}
+                    {% if fir %}
+                        <tr name="R{{e}}" class="info">
+                    <td><span name="V{{e}}"><i class="fa fa-eye"></i></span></td>
+                    {% set fir=False %}
+
+                    {% else %}
+                        <tr name="R{{e}}">
+                    <td><span name="V{{e}}"></span></td>
+                    {% set fir=False %}
+                    {% endif %}
+                    <td>{{e.split(".")[0]}}</td>
+                    
+                    <td><a onClick="loadMol(this)" href="#" data-filename="{{url_for('send_unzipped', model_name=e, models='models', jobid=jid)}}" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</a></td>
+                    <td>
+                        <input class="form-inline" type="checkbox" value="{{e}}"> Remove
+                    </td>
+
+                </tr>
+                {% endfor %}
+              </table>
+              </div>
+              </div>
+
+
+
+        <div class="col-md-7">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Optional settings</div>
+                <div class="panel-body">
+                {{render_field(form.name, placeholder='Project name')}}
+                {{render_field(form.ligand_ss, placeholder='CCCCHHHHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                    <div class="row">
+                        <div class="col-md-8">
+                    {{render_field(form.email, placeholder='john@doe.com')}}
+                        </div>
+                        <div class="col-md-4">
+                    {{render_field(form.length)}}
+                        </div>
+                    </div>
+                {{render_checkbox_field(form.excluding)}}
+                {{render_checkbox_field(form.add_constraints)}}
+                {{render_checkbox_field(form.show)}}
+
+                {{form.jid}}
+                {{form.csrf_token()}}
+                </div>
+           </div>
+        </div>
+        </div>
+                    <input type="submit" class="btn btn-lg btn-block btn-success" value="Re-submit">
+            </form>
+</div>
+                <textarea  style="display:none" id="moldata_pdb_large"></textarea>
+{% endblock %}
+{% block below_js %}
+{% endblock %}
