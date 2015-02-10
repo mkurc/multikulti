@@ -174,7 +174,7 @@ interaction forces with the peptide will be switched off.
                         <tr><td></td><td></td></tr>
                         {% for c in constr %}
                            <!--sieczka-->
-                           <tr><td class='del'> <a href="#" onclick='rowDel(this)' data-jmol='{{c['constraint_jmol']}}' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}'><i class='text-danger fa fa-close'></i></a></td> <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' data-jmol='{{c['constraint_jmol']}}' name='consrange{{G}}'>{{c['constraint_definition']}}</span></td> {% set G = G + 1 %} {% set GG = GG + 1 %} {% if GG==9 %} {% set GG=0 %} {% endif %} </tr>
+                           <tr><td class='del'> <a href="#" onclick='rowDel(this)' data-jmol='{{c['excluded']}}' id='rowdel{{G}}' data-rowid='{{G}}' name='rowdel{{G}}'><i class='text-danger fa fa-close'></i></a></td> <td><span style='color:{{jinja_colors[GG]}}' data-rowid='{{G}}' data-jmol='{{c['excluded_jmol']}}' name='consrange{{G}}'>{{c['excluded_region']}}</span></td> {% set G = G + 1 %} {% set GG = GG + 1 %} {% if GG==9 %} {% set GG=0 %} {% endif %} </tr>
                             {% endfor %}
                     </tbody>
                 </table>

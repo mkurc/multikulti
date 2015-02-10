@@ -187,7 +187,6 @@ def index_excluding(jid, final="True"):
         jmol_l.append(jmol_string % (constraints[i]['excluded_jmol'], i))
     di = {'0.0': '<option value="0.0" selected>full</option><option \
           value="0.5">moderate</option>', '0.5': '<option value="0.5" selected>moderate</option>'}
-
     return render_template('exclude_regions.html', jid=jid, status=status,
                            constr=constraints, di=di, fin=final,
                            ligand_seq=ligand_sequence, jmol_color=jmol_l)
@@ -240,6 +239,8 @@ def add_init_data_to_db(form, final=False):
         with gzip.open(dest_file, "wb") as fw:
             with open(old_receptor, "r") as fr:
                 fw.write(fr.read())
+        query_db("insert into constraints(jid,constraint_definition,constraint_definition1, constraint_jmol, force) SELECT ?,constraint_definition,constraint_definition1, constraint_jmol, force FROM constraints WHERE jid=?", [jid, old_jid], insert=True)
+        query_db("insert into excluded(jid,excluded_region,excluded_region1,excluded_jmol) SELECT ?,excluded_region,excluded_region1,excluded_jmol FROM excluded WHERE jid=?", [jid, old_jid], insert=True)
 
     else:
         if form.receptor_file.data.filename:
