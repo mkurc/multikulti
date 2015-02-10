@@ -243,14 +243,12 @@ def add_init_data_to_db(form, final=False):
 
     else:
         if form.receptor_file.data.filename:
-            # print "plikkkkk" + form.receptor_file.data.filename
             p = PdbParser(form.receptor_file.data.stream)
             receptor_seq = p.getSequence()
             p.savePdbFile(dest_file)
             gunzip(dest_file)
 
         elif form.pdb_receptor.data:
-            # print "receptor "+form.pdb_receptor.data
             d = form.pdb_receptor.data.split(":")
             pdbcode = d[0]
             if len(d) > 1:
@@ -388,10 +386,14 @@ def resubmit(jid):
             ligand_chain, project_name, ligand_ss, ss_psipred FROM user_queue \
             WHERE jid=?", [jid], one=True)
 
-    form.name.data = system_info['project_name']
-    form.ligand_ss.data = system_info['ligand_ss']
-    form.ligand_seq.data = system_info['ligand_sequence']
-    form.length.data = system_info['simulation_length']
+    if not form.name.data:
+        form.name.data = system_info['project_name']
+    if not form.ligand_ss.data:
+        form.ligand_ss.data = system_info['ligand_ss']
+    if not form.ligand_seq.data:
+        form.ligand_seq.data = system_info['ligand_sequence']
+    if not form.length.data:
+        form.length.data = system_info['simulation_length']
     form.jid.data = jid
     form.receptor_seq.data = system_info['receptor_sequence']
 

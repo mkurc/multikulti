@@ -130,8 +130,9 @@ class TalkToServer:
                 row = j[i]
                 model_id = row['model_id'].strip()
                 model_body = row['model_body']
+                print model_id
                 old_jid = row['prev_jid'].strip()
-                with open("model_skip_"+str(i)+"_JUNK_oldjid_"+old_jid+"__oldid_"+model_id+".pdb") as fw:
+                with open("model_skip_"+str(i)+"_JUNK_oldjid_"+old_jid+"__oldid_"+model_id+".pdb", "w") as fw:
                     fw.write(model_body)
         except:
             print("ERROR: problem with fetch models to skip")
