@@ -41,7 +41,6 @@ class TalkToServer:
             print("Results sent!")
         else:
             print("Results NOT sent" + str(r.status_code))
-
     def getStructureFile(self, output_path="input.pdb"):
         try:
             with open(output_path, "wb") as out:
@@ -121,6 +120,22 @@ class TalkToServer:
         except:
             print("ERROR: problem with excluded fetch")
 
+    def getModelsToRemove(self):
+        try:
+            f = urllib2.urlopen(self.remoteuri+'/SKIPMODELS/')
+            data = f.read()
+            f.close()
+            j = json.loads(data)
+            for i in range(len(j)):
+                row = j[i]
+                model_id = row['model_id'].strip()
+                model_body = row['model_body']
+                old_jid = row['prev_jid'].strip()
+                with open("model_skip_"+str(i)+"_JUNK_oldjid_"+old_jid+"__oldid_"+model_id+".pdb") as fw:
+                    fw.write(model_body)
+        except:
+            print("ERROR: problem with fetch models to skip")
+
     def getRestraintsFile(self, output_file="restr.txt"):
         with open(output_file, "w") as fw:
             restr_s = self.getScalingFactor()
@@ -128,7 +143,8 @@ class TalkToServer:
             r = self.getRestraints()
             for row in r:
                 for spl in row['def'].split(","):
-                    fw.write("%50s WEIGHT %5.2f\n" % (spl.strip(), row['force']))
+                    fw.write("%50s WEIGHT %5.2f\n" % (spl.strip(),
+                                                      row['force']))
 
     def getExcludedFile(self, output_file="excluded.txt"):
         with open(output_file, "w") as fw:

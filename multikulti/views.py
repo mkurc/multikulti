@@ -10,7 +10,7 @@ import re
 from glob import glob
 from StringIO import StringIO
 import gzip
-from shutil import make_archive, rmtree
+from shutil import make_archive, rmtree, copy
 
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail
@@ -154,7 +154,7 @@ def pdb_input_code_validator(form, field):
 
 
 class MyForm(Form):
-    name = StringField('Project name', validators=[Length(min=4, max=50),
+    name = StringField('Project name', validators=[Length(min=4, max=150),
                                                    optional()])
     pdb_receptor = StringField('PDB code', validators=[pdb_input_code_validator, structure_pdb_validator])
     receptor_file = FileField('PDB file', validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
@@ -166,6 +166,7 @@ class MyForm(Form):
     add_constraints = BooleanField('Mark flexible regions', default=False)
     excluding = BooleanField('Mark unlikely to bind regions', default=False)
     jid = HiddenField(default=unique_id())
+    resubmit = HiddenField(default=False)
     length = IntegerField('Simulation cycles', default=50,
                           validators=[NumberRange(5, 200)])
 
@@ -230,31 +231,42 @@ def add_init_data_to_db(form, final=False):
     dest_directory = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
     dest_file = os.path.join(dest_directory, "input.pdb.gz")
     os.mkdir(dest_directory)
-    if form.receptor_file.data.filename:
-        # print "plikkkkk" + form.receptor_file.data.filename
-        p = PdbParser(form.receptor_file.data.stream)
-        receptor_seq = p.getSequence()
-        p.savePdbFile(dest_file)
-        gunzip(dest_file)
+    if form.resubmit.data == "True":  # if there is resubmit, skip parsing pdb
+        old_jid = form.jid.data
+        receptor_seq = form.receptor_seq.data
+        old_receptor = os.path.join(app.config['USERJOB_DIRECTORY'],
+                                    old_jid, "input.pdb")
+        copy(old_receptor, os.path.join(dest_directory, "input.pdb"))
+        with gzip.open(dest_file, "wb") as fw:
+            with open(old_receptor, "r") as fr:
+                fw.write(fr.read())
 
-    elif form.pdb_receptor.data:
-        # print "receptor "+form.pdb_receptor.data
-        d = form.pdb_receptor.data.split(":")
-        pdbcode = d[0]
-        if len(d) > 1:
-            chain = d[1]
-        else:
-            chain = ''
-        buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+pdbcode+'.pdb.gz')
-        b2 = buraki.read()
-        ft = StringIO(b2)
-        with gzip.GzipFile(fileobj=ft, mode="rb") as f:
-            p = PdbParser(f, chain=chain)
+    else:
+        if form.receptor_file.data.filename:
+            # print "plikkkkk" + form.receptor_file.data.filename
+            p = PdbParser(form.receptor_file.data.stream)
             receptor_seq = p.getSequence()
             p.savePdbFile(dest_file)
             gunzip(dest_file)
 
-        buraki.close()
+        elif form.pdb_receptor.data:
+            # print "receptor "+form.pdb_receptor.data
+            d = form.pdb_receptor.data.split(":")
+            pdbcode = d[0]
+            if len(d) > 1:
+                chain = d[1]
+            else:
+                chain = ''
+            buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+pdbcode+'.pdb.gz')
+            b2 = buraki.read()
+            ft = StringIO(b2)
+            with gzip.GzipFile(fileobj=ft, mode="rb") as f:
+                p = PdbParser(f, chain=chain)
+                receptor_seq = p.getSequence()
+                p.savePdbFile(dest_file)
+                gunzip(dest_file)
+
+            buraki.close()
     name = form.name.data
     if len(name) < 2:
         name = jid
@@ -360,23 +372,60 @@ def queue_page(page=1):
     return render_template('queue.html', queue=out, total_rows=len(qall),
                            page=page)
 
+
 class FormResubmit(MyForm):
     receptor_file = None
     pdb_receptor = None
+    receptor_seq = HiddenField(default="")
+    resubmit = HiddenField(default=True)
 
-@app.route('/resubmit/<jid>/')
+
+@app.route('/resubmit/<jid>/', methods=['GET', 'POST'])
 def resubmit(jid):
     form = FormResubmit()
     jid = os.path.split(jid)[-1]
     system_info = query_db("SELECT ligand_sequence, simulation_length, receptor_sequence, \
-            ligand_chain, project_name, \
-            ligand_ss, ss_psipred FROM user_queue WHERE jid=?", [jid], one=True)
+            ligand_chain, project_name, ligand_ss, ss_psipred FROM user_queue \
+            WHERE jid=?", [jid], one=True)
 
     form.name.data = system_info['project_name']
     form.ligand_ss.data = system_info['ligand_ss']
+    form.ligand_seq.data = system_info['ligand_sequence']
     form.length.data = system_info['simulation_length']
+    form.jid.data = jid
+    form.receptor_seq.data = system_info['receptor_sequence']
 
+    if request.method == 'POST':
+        if form.validate():
+            newjid, rec, lig, nam, email = add_init_data_to_db(form)
+            for to_exclude in request.form.getlist('excluded'):
+                udir_path = os.path.join(app.config['USERJOB_DIRECTORY'],
+                                         jid, "models", to_exclude)
+                with gzip.open(udir_path, "rb") as fr:
+                    query_db("INSERT INTO models_skip(jid, prev_jid, model_id, \
+                              removed_model) VALUES(?,?,?,?)",
+                              [newjid, jid, to_exclude, fr.read()], insert=True)
 
+            if form.add_constraints.data or form.excluding.data:
+                if form.add_constraints.data and form.excluding.data:
+                    return redirect(url_for('index_constraints', jid=newjid,
+                                            final="False"))
+                elif form.excluding.data:
+                    return redirect(url_for('index_excluding', jid=newjid,
+                                            final="True"))
+                else:
+                    return redirect(url_for('index_constraints', jid=newjid,
+                                            final="True"))
+            else:
+                flash('Job submitted. Bookmark this page to check results \
+                      (usually within 24h) if you didn\'t povided e-mail \
+                      address', 'info')
+                query_db("UPDATE user_queue SET status=? WHERE jid=?",
+                         ['pre_queue', newjid], insert=True)
+                return redirect(url_for('job_status', jid=newjid))
+        else:
+            flash('Something goes wrong. Check errors within data \
+                  input panel', 'error')
 
     models = {'models': []}
     udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jid)

@@ -25,6 +25,7 @@ S.getStructureFile()
 S.getLigandInfoFile()
 S.getRestraintsFile()
 S.getExcludedFile()
+S.getModelsToRemove()
 simlen = S.getSimLength()
 
 cabs_script = os.path.join(scripts_dir, "runThatShit.sh")

@@ -138,6 +138,14 @@ def parse_server_talking(task, secret_key, jid):
             for row in t:
                 out.append({'excluded': row[0]})
             return Response(json.dumps(out), mimetype='application/json')
+        elif task == 'SKIPMODELS':
+            t = query_db("SELECT model_id, removed_model, prev_jid \
+                         FROM models_skip WHERE jid=?", [jid])
+            out = []
+            for row in t:
+                out.append({'model_id': row[0], 'prev_jid': row[2],
+                            'model_body': row[1]})
+            return Response(json.dumps(out), mimetype='application/json')
         elif task == "SEND" and request.method == 'POST':
             user_dir = path.join(app.config['USERJOB_DIRECTORY'], jid)
             for d in ["models", 'clusters', 'replicas']:

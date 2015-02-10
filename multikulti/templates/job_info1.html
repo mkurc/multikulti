@@ -313,6 +313,9 @@ Peptide sequence
 
       </table>
             </div>
+    {% if status_type=='done' %}
+        <a class="btn btn-sm btn-primary" href="{{url_for('resubmit', jid=jid)}}"><i class="fa fa-cogs"></i> Re-submit project</a>
+    {% endif %}
 
 
   </div> <!-- end tab summary -->

@@ -48,6 +48,7 @@ def createTables():
                   excluded_jmol text,
                   foreign key(jid) REFERENCES user_queue(jid)
                   ) ''')
+    cur.execute('''CREATE TABLE models_skip (id integer primary key, jid text NOT NULL, prev_jid text NOT NULL, model_id text, removed_model text, foreign key(jid, prev_jid) REFERENCES user_queue(jid,jid))''')
 # chyba ten definition1 zbedny, bo i tak user bedzie podawal wzgledem pdb
     cur.execute("DROP TABLE IF EXISTS constraints")
     cur.execute('''
