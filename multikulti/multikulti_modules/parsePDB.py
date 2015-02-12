@@ -2,7 +2,7 @@
 
 import gzip
 import json
-from re import compile
+from re import compile, sub
 
 
 def arraytostring(ar):
@@ -45,6 +45,7 @@ class PdbParser:
         chains_order = []
 
         for line in lines:
+            line = sub(r'^HETATM(.{7})', r'ATOM  \1',line)
             data = atm.match(line)
             data_seq = seq.match(line)
             if seq_c.match(line):
