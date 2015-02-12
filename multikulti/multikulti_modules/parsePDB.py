@@ -45,7 +45,7 @@ class PdbParser:
         chains_order = []
 
         for line in lines:
-            line = sub(r'^HETATM(.{7})', r'ATOM  \1',line)
+            line = sub(r'^HETATM(.{7}CA  )MSE', r'ATOM  \1MET',line)
             data = atm.match(line)
             data_seq = seq.match(line)
             if seq_c.match(line):
