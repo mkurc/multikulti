@@ -479,7 +479,7 @@ Peptide sequence
               {% for row in clu_det %}
               <tr>
                   <td align=right>
-                      <a target=_blank href="{{url_for('send_unzipped', model_name=row['cluster']+".gz", models='clusters', jobid=jid)}}"><i class="fa fa-download"></i> {{row['cluster']}}</a> (medoid: <a target=_blank href="{{url_for('send_cluster_model', cluster_idx=row['cluster']+".gz", model_idx=row['medoid'], jobid=jid)}}">model nr {{row['medoid']}}</a>)
+                      <a target=_blank href="{{url_for('send_unzipped', model_name=row['cluster']+".gz", models='clusters', jobid=jid)}}"><i class="fa fa-download"></i> {{row['cluster']}}</a> (<a target=_blank href="{{url_for('send_unzipped', model_name=row['cluster']|replace('cluster','model')+".gz", models='models', jobid=jid)}}"><i class="fa fa-download"></i>  medoid</a>)
                   </td>
                   <td align=right>
                       {{row['density']}}
