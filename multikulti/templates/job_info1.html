@@ -473,19 +473,22 @@ Peptide sequence
 
             <table class="table table-striped table-hover table-condensed table-bordered">
                 <thead>
-                    <tr><td align=right><strong>cluster name</strong></td><td align=right><strong>cluster density</strong> <span data-original-title="cluster density is avg_rmsd/N, where: N - number of elements in cluster; avg_rmsd - average RMSD between cluster elements." data-toggle="tooltip" rel="tooltip" data-placement="right" title=""><i class="fa fa-info-circle"></i></span> </td><td align=right><strong>average <span class="capi">rmsd</span></strong></td><td align=right><strong>number of elements</strong></td></tr>
+                    <tr><td align=right><strong>cluster name</strong></td><td align=right><strong>cluster density</strong> <span data-original-title="cluster density is avg_rmsd/N, where: N - number of elements in cluster; avg_rmsd - average RMSD between cluster elements." data-toggle="tooltip" rel="tooltip" data-placement="right" title=""><i class="fa fa-info-circle"></i></span> </td><td align=right><strong>average <span class="capi">rmsd</span></strong></td><td align=right><strong>max <span class="capi">rmsd</span></strong></td><td align=right><strong>number of elements</strong></td></tr>
                 </thead>
                 <tbody>
               {% for row in clu_det %}
               <tr>
                   <td align=right>
-                      <a target=_blank href="{{url_for('send_unzipped', model_name=row['cluster']+".gz", models='clusters', jobid=jid)}}"><i class="fa fa-download"></i> {{row['cluster']}}</a>
+                      <a target=_blank href="{{url_for('send_unzipped', model_name=row['cluster']+".gz", models='clusters', jobid=jid)}}"><i class="fa fa-download"></i> {{row['cluster']}}</a> (medoid: <a target=_blank href="{{url_for('send_cluster_model', cluster_idx=row['cluster']+".gz", model_idx=row['medoid'], jobid=jid)}}">model nr {{row['medoid']}}</a>)
                   </td>
                   <td align=right>
                       {{row['density']}}
                   </td>
                   <td align=right>
                       {{row['rmsd']}}
+                  </td>
+                  <td align=right>
+                      {{row['maxrmsd']}}
                   </td>
                   <td align=right>
                       {{row['counts']}}
