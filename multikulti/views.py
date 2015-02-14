@@ -761,7 +761,7 @@ def calc_first_cluster_composition(jid):
     path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
 
     with open(path, "r") as rl:
-        for line in rl.readlines():
+        for line in rl: # viczan .readlines():
             d = line.split()
             if "cluster" not in d[0]:
                 if "cluster" in d[3]:
