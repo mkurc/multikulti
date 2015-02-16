@@ -510,9 +510,15 @@ def job_status(jid):
             receptor_txt += "'"+chains_set[e]+"',"
         receptor_txt = "[" + receptor_txt[:-1] + "]"
 
-    pie = calc_first_cluster_composition(jid)
-    clust_details = cluster_stats(jid)
-    clust = True
+    if system_info['status'] == 'done':
+        pie = calc_first_cluster_composition(jid)
+        clust_details = cluster_stats(jid)
+        clust = True
+    else:
+        pie = []
+        clust_details = []
+        clust = False
+        
 
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,

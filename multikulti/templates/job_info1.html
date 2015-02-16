@@ -79,7 +79,9 @@ function styles(){
 		glviewer2.setBackgroundColor(0xffffff);
                 
 
+    {% if status_type=='done' %}
                 $.get("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
+    {% endif %}
                     $("#moldata_pdb_large").val(data);
                         moldata = data = $("#moldata_pdb_large").val();
                         receptorModel =  m = glviewer.addModel(data, "pdb");
@@ -133,6 +135,7 @@ function loadTraf(o) {
     $("span[name^=TV"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
 }
 
+    {% if status_type=='done' %}
 function loadReplica(o) {
     var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
     fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
@@ -157,6 +160,7 @@ function loadReplicaGL(o) {
         }, "text");
 
 }
+    {% endif %}
 function loadMol(o) {
     var file = o.dataset.filename;
 
@@ -397,20 +401,19 @@ Peptide sequence
   </div>
 
   </div> <!-- end tab clustering -->
+{% if status_type=='done' %}
 <div class="tab-pane" id="traf">
           
                <div class="row">
                 <div class="behind col-md-8"> 
                         <div class="alert alert-success"> Select trajectory from the right panel to display animation in JSmol. Note that <strong>it may hangs browser window for few minutes or ever</strong>. </div>
                         <div id="tra_rep" style="height:40vh;width:100%;border:0px solid;border-color:#eee;">
-{% if status_type=='done' %}
 <!--                            <script> -->
 <!--                            Jmol._alertNoBinary = false; -->
 <!--                            jmol0 = Jmol.getApplet("jmolApplet0", JmolInfo0); -->
 <!--                            jme0 = Jmol.getJMEApplet(jme0, JMEInfo0, jmol0); -->
 <!--                            var lastPrompt=0; -->
 <!--                            </script> -->
-{% endif %}
                         </div>
 
                 </div>
@@ -501,6 +504,7 @@ Peptide sequence
     </div>
 
   </div> <!-- end tab costam -->
+{% endif %}
 </div>
 {% if status_type=='done' or status_type=='error' %}
 <br>&nbsp;
