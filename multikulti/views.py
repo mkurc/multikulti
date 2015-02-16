@@ -649,7 +649,11 @@ def send_unzipped(jobid, model_name, models):
     data = gzip.open(path_dir)
     file_content = data.read()
     data.close()
-    return Response(file_content, status=200, mimetype='chemical/x-pdb')
+
+    r = Response(file_content, status=200, mimetype='chemical/x-pdb')
+    out_name = jobid+"_"+model_name.split(".")[0]+".pdb"
+    r.headers.add('Content-Disposition', 'attachment', filename=out_name)
+    return r
 
 
 @app.route('/job/<jobid>/clusters/<model_idx>/<cluster_idx>/model.pdb')
@@ -694,8 +698,12 @@ def send_unzipped_cluster(jobid, model_idx, rep_idx):
             if te2.search(data[i]):
                 line_stop = i
                 break
-        return Response("".join(data[line_start:line_stop]), status=200,
+
+        r = Response("".join(data[line_start:line_stop]), status=200,
                         mimetype='chemical/x-pdb')
+        out_name = jobid+"_mod_"+str(model_idx)+"_tra_"+str(rep_idx)+".pdb"
+        r.headers.add('Content-Disposition', u'attachment; filename="%s"' % (out_name) )
+        return r
 
 
 def make_zip(jid):

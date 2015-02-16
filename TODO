@@ -1,7 +1,8 @@
 receptora fragmenty min 4aa
- gestosc maxrms srednirms medoid licznosc
 
+V content-disposition filenamesy
 V chyba gromacs zmienia indeksy lancuchow (zle si koloruje) <-- fix_chain. powinno byc
+V gestosc maxrms srednirms medoid licznosc
 V resubmitowanie
 V dynamiczne przewijanie bottoma
 V mozliwosc podawania lancuchow w stylu 2pcy:AB

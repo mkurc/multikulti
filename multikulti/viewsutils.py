@@ -3,9 +3,9 @@
 # Copyright Michal Jamroz, 2014, jamroz@chem.uw.edu.pl
 
 from multikulti import app
-from flask import render_template, g, url_for, request, jsonify, flash, \
-    session, Response, redirect, send_from_directory
+from flask import render_template, g, request, send_from_directory
 import os
+
 
 @app.teardown_appcontext
 def close_db(error):
