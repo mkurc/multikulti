@@ -7,8 +7,8 @@
         <div class="col-md-12">
 
             <button onClick='parsePdb("http://localhost:5000/job/b471da936a248ec/models/model_2.pdb.gz/model.pdb");'>load structure</button>
-            <button onClick='printContacts(5.0);'>dist</button>
-            <div id="container" style="margin: 0 auto;height: 1400px; width:1800px"></div>
+            <button onClick='printContacts(3.0);'>dist</button>
+            <div id="container" style="margin: 0 auto;height: 400px; width:800px"></div>
         </div>
     </div>
 </div>
@@ -54,7 +54,7 @@ function parsePdb(pdb_model) {
                 if (key in out)
                     out[key].data.push(pos);
                 else {
-                    out[key] = {data : [pos], idx: 1*residx};
+                    out[key] = {chain: resch, data : [pos], idx: 1*residx};
                 }
             }
         }
@@ -71,14 +71,14 @@ function printContacts(cutoff) {
             var resi = out[i].data;
             var resj = out[j].data;
 
-            if (out[i].idx>=out[j].idx)
+            if (out[i].chain==out[j].chain)
                 continue;
 loopover:
             for (var ei in resi) {
                 for (var ej in resj) {
                     var d = resi[ei].dist(resj[ej]);
                     if (d<=cutoff) {
-                        contacts.push({dist: d, atomi: resi[ei].atomName, atomj: resj[ej].atomName, 
+                        contacts.push({atomi: resi[ei].atomName, atomj: resj[ej].atomName, 
                                x: 1*resi[ei].index, y: 1*resj[ej].index,
                                namei: resi[ei].key, namej: resj[ej].key});
                         break loopover;
@@ -95,6 +95,9 @@ loopover:
 
 
     $('#container').highcharts({
+        tooltip: {
+            crosshairs: [true,true]
+        },
         chart: {
             type: 'scatter',
             zoomType: 'xy'
@@ -103,15 +106,18 @@ loopover:
             text: 'Contact map between receptor and peptide'
         },
         xAxis: {
+            tickInterval: 5,
+            gridLineWidth: 1,
             title: {
                 enabled: true,
                 text: 'Receptor sequence'
             },
-            startOnTick: true,
-            endOnTick: true,
-            showLastLabel: true
+            startOnTick: false,
+            endOnTick: false,
+            showLastLabel: false
         },
         yAxis: {
+            tickInterval: 5,
             title: {
                 text: 'Peptide sequence'
             }
@@ -122,7 +128,7 @@ loopover:
         plotOptions: {
             scatter: {
                 marker: {
-                //    radius: 5,
+                    radius: 5,
                     states: {
                         hover: {
                             enabled: true,
@@ -133,7 +139,7 @@ loopover:
                 states: {
                     hover: {
                         marker: {
-                            enabled: false
+                            enabled: true
                         }
                     }
                 },
@@ -146,8 +152,12 @@ loopover:
         series: [{
             name: 'Contacts',
             color: 'black',
-                               colsize:1,
-            marker: {symbol: 'square',lineWidth:1,lineColor:'yellow', radius:4},
+            marker: {
+                symbol: 'square',
+                lineWidth:2,
+                lineColor:'yellow', 
+                radius:6
+            },
             data: [],
             turboThreshold: 10000
                                
