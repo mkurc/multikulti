@@ -7,8 +7,14 @@
         <div class="col-md-12">
 
             <button onClick='parsePdb("http://localhost:5000/job/b471da936a248ec/models/model_2.pdb.gz/model.pdb");'>load structure</button>
-            <button onClick='printContacts(3.0);'>dist</button>
-            <div id="container" style="margin: 0 auto;height: 400px; width:800px"></div>
+            <button onClick='printContacts();'>dist</button>
+            <input class="form-control" id="cutoff" value="4.5">A
+            <table id="contactsTable" class="table table-condensed table-striped">
+                <thead><tr><td><strong>Peptide residue</strong></td><td><strong>Receptor residue</strong></td></tr></thead>
+                <tbody> <tr><td></td><td></td></tr> </tbody>
+            </table>
+
+            <div id="container_contacts" style="margin: 0 auto;height: 400px; width:800px"></div>
         </div>
     </div>
 </div>
@@ -25,7 +31,6 @@ var chart;
 var contacts = [];
 function parsePdb(pdb_model) {
     $.get(pdb_model, function(data) {
-    //ATOM   2897  O   LEU C 352    -922.681-999.559-940.609  1.00137.23           O
         var lines = data.split("\n");
         var reg = /^ATOM.{7}(....).(....).(.)(.{4}).{4}(.{8})(.{8})(.{8}).*$/
         out = {};
@@ -64,15 +69,20 @@ function parsePdb(pdb_model) {
 
 
 
-function printContacts(cutoff) {
+function printContacts() {
+    var cutoff = $("#cutoff").val();
+
     contacts = [];
+    $("#contactsTable > tbody").find("tr:gt(0)").remove();
     for (var i in out) {
         for (var j in out) {
             var resi = out[i].data;
             var resj = out[j].data;
 
-            if (out[i].chain==out[j].chain)
+            if (out[i].chain==out[j].chain) {
                 continue;
+            }
+            console.log(out[i].chain+" "+out[j].chain);
 loopover:
             for (var ei in resi) {
                 for (var ej in resj) {
@@ -81,6 +91,8 @@ loopover:
                         contacts.push({atomi: resi[ei].atomName, atomj: resj[ej].atomName, 
                                x: 1*resi[ei].index, y: 1*resj[ej].index,
                                namei: resi[ei].key, namej: resj[ej].key});
+                        var newRow="<tr><td>"+resi[ei].resName+" "+resi[ei].chain+" "+resi[ei].index+"</td>"+"<td>"+resj[ej].resName+" "+resj[ej].chain+" "+resj[ej].index+"</td></tr>";
+                        $('#contactsTable > tbody > tr:first').after(newRow);
                         break loopover;
                     }
                 }
@@ -94,7 +106,7 @@ loopover:
 
 
 
-    $('#container').highcharts({
+    $('#container_contacts').highcharts({
         tooltip: {
             crosshairs: [true,true]
         },
@@ -106,7 +118,7 @@ loopover:
             text: 'Contact map between receptor and peptide'
         },
         xAxis: {
-            tickInterval: 5,
+            //tickInterval: 5,
             gridLineWidth: 1,
             title: {
                 enabled: true,
@@ -117,7 +129,7 @@ loopover:
             showLastLabel: false
         },
         yAxis: {
-            tickInterval: 5,
+            //tickInterval: 5,
             title: {
                 text: 'Peptide sequence'
             }
@@ -165,9 +177,13 @@ loopover:
     });
 
 
-var chart = $('#container').highcharts();
+var chart = $('#container_contacts').highcharts();
 
 
+$(document).ready(function() {
+    parsePdb("http://localhost:5000/job/b471da936a248ec/models/model_2.pdb.gz/model.pdb");
+    printContacts(4.9);
+});
 
 </script>
 {% endblock %}

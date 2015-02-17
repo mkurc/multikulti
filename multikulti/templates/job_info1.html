@@ -124,15 +124,16 @@ function loadTraf(o) {
     var template = "{{url_for('sendfile', filetype='replicas', filename='TOREPLACE', jobid=jid)}}";
 
     var curr_model = template.replace("TOREPLACE", oldidx);
-    console.log(curr_model);
+    //console.log(curr_model);
     var scr = "set platformSpeed 1;set frank off;set hoverDelay 0.001;background white;load "+curr_model+";color chain; connect 3.2 4.4 (carbon) (carbon)  create;wireframe 0.6;anim mode loop;anim fps 8;anim on";
     scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load trajectory "+curr_model+";color chain; connect 3.2 4.2 (carbon) (carbon)  create;wireframe 0.4;anim mode loop;zoom -20; anim fps 6;anim on";
 
     Jmol.script(jmolApplet0,scr);
     $("span[name^=TV]").html("");
-    $("tr[name^=TR]").removeClass("info");
-    $("tr[name^=TR"+oldidx.split(".")[0]+"]").addClass("info");
-    $("span[name^=TV"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
+    $("tr[name^='TR']").removeClass("info");
+    $("tr[name=='TR"+oldidx+"']").addClass("info");
+    $("span[name=='TV"+oldidx+"']").html("<i class='fa fa-eye'></i>");
+    //$("tr[name='CR"+oldidx+"']").addClass("info");
 }
 
     {% if status_type=='done' %}
@@ -164,20 +165,20 @@ function loadReplicaGL(o) {
 function loadMol(o) {
     var file = o.dataset.filename;
 
-        $.get(file, null, function (data) {
-                glviewer.clear();
-		receptorModel = m = glviewer.addModel(data, "pdb");
-                receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
-                glviewer.addStyle( {{lig_txt|safe}}, {cartoon:{}, "stick": {"hidden": false}, sphere:{"hidden": true}});
-                styles();
+    $.get(file, null, function (data) {
+            glviewer.clear();
+            receptorModel = m = glviewer.addModel(data, "pdb");
+            receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+            glviewer.addStyle( {{lig_txt|safe}}, {cartoon:{}, "stick": {"hidden": false}, sphere:{"hidden": true}});
+            styles();
 
-    var oldidx = o.dataset.model;
-    $("span[name^=V]").html("");
-    $("tr[name^=R]").removeClass("info");
-    $("tr[name^=R"+oldidx.split(".")[0]+"]").addClass("info");
-    $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
+            var oldidx = o.dataset.model;
+            $("span[name^=V]").html("");
+            $("tr[name^=R]").removeClass("info");
+            $("tr[name='R"+oldidx+"']").addClass("info");
+            $("span[name='V"+oldidx+"']").html("<i class='fa fa-eye'></i>");
 
-        }, "text");
+    }, "text");
 
 }
 </script>
@@ -200,6 +201,7 @@ function loadMol(o) {
   <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
   {% if clust %}
     <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Trajectories separation</a></li>
+    <li><a onClick="ddT()" href="#contacts" role="tab" data-toggle="tab"><i class="fa fa-th-large"></i> Contact maps</a></li>
     {% endif %}
 
     <!-- <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li> -->
@@ -379,26 +381,47 @@ Peptide sequence
           </div>
       </div>
   </div> <!-- end tab models -->
-  <div class="tab-pane" id="clustering">
+  <div class="tab-pane" id="contacts">
       <div class="row">
         <div class="col-md-8">
-            tabelki eremesy mozeo
+            <div id="container_contacts" style="margin: 0 auto;height: 400px; width:100%"></div>
         </div>
 
         <div class="col-md-4">      
-            <div class="panel panel-primary">
-                <div class="panel-heading"><i class="fa fa-bar-chart"></i> Clusters</div>
-                <div class="panel-body">
-            {% for e in results['clusters'] %}
+        <div class="panel panel-primary">
+            <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
+            <div class="panel-body">
                 <div class="row">
-                    <div class="col-md-8"><h5><span name="R{{e}}"></span> {{e.split(".")[0]}}</h5></div>
-                    <div class="col-md-4"><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('sendfile', filetype='clusters', filename=e, jobid=jid)}}"><i class='fa fa-download'></i> Download</a></div>
-                </div>
-            {% endfor %}
+                        <div class="col-md-6">
+                            <label for="cutoff">Contact cutoff (Å)</label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" size=4 class="form-control" id="cutoff" value="4.5">
+                        </div>
                 </div>
             </div>
+                    {% set fir=True %}
+                        <table class="table-condensed table">
+                            {% for e in results['models'] %}
+                                {% if fir %}
+                                    <tr name="CR{{e}}" class="info">
+                                    <td><span name="CV{{e}}"><i class="fa fa-eye"></i></span></td>
+                                    {% set fir=False %}
+                                {% else %}
+                                    <tr name="CR{{e}}">
+                                    <td><span name="CV{{e}}"></span></td>
+                                    {% set fir=False %}
+                                {% endif %}
+                                <td>{{e.split(".")[0]}}</td>
+                                <td><button onClick='parsePdbAndLoad("{{url_for('send_unzipped', models='models', model_name=e, jobid=jid)}}", "{{e}}")' class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td> </tr>
+                            {% endfor %}
+                        </table>
+        </div>
         </div>
   </div>
+        <div class="row">
+                <div class="col-md-12" id="res_contacts"></div>
+        </div>
 
   </div> <!-- end tab clustering -->
 {% if status_type=='done' %}
@@ -614,5 +637,187 @@ setInterval(function() {
     if (j_status != "done" && j_status != "error")
             window.location.reload();
 }, 3000); 
+
+
+// contact maps
+var out = {};
+var chart;
+var contacts = [];
+function parsePdb(pdb_model) {
+    $.get(pdb_model, function(data) {
+        var lines = data.split("\n");
+        var reg = /^ATOM.{7}(....).(....).(.)(.{4}).{4}(.{8})(.{8})(.{8}).*$/
+        out = {};
+        for (var i=0; i<lines.length;i++) {
+            var par = lines[i].match(reg);
+            if (par) {
+                var atn = par[1].trim();
+                var resn = par[2].trim();
+                var resch = par[3].trim();
+                var residx = par[4].trim();
+                var atx = parseFloat(par[5]);
+                var aty = parseFloat(par[6]);
+                var atz = parseFloat(par[7]);
+
+                var key = resn+"_"+resch+"_"+residx;
+
+                var pos = {'key': key, 'atomName': atn, 'resName': resn, 'chain': resch, 
+                    'index': residx, 'x': atx, 'y': aty, 'z': atz, 
+                    'dist': function(to) { 
+                       var xd = to.x-this.x; 
+                       var yd = to.y-this.y; 
+                       var zd = to.z-this.z; 
+                       return Math.sqrt(xd*xd + yd*yd + zd*zd);
+                    } 
+                };
+                if (key in out)
+                    out[key].data.push(pos);
+                else {
+                    out[key] = {chain: resch, data : [pos], idx: 1*residx};
+                }
+            }
+        }
+    });
+}
+
+
+
+
+function printContacts() {
+    var cutoff = $("#cutoff").val();
+
+    contacts = [];
+    var ligand_chain =  {{lig_txt|safe}};
+    ligand_chain = ligand_chain.chain;
+    var text_cont = "<h4>Residues closer than "+cutoff+" Å</h4><h6>";
+    for (var i in out) {
+        for (var j in out) {
+            var resi = out[i].data;
+            var resj = out[j].data;
+            var chaini = out[i].chain;
+            var chainj = out[j].chain;
+            
+
+            if ((chaini==ligand_chain && chainj!=ligand_chain) || chaini==chainj)
+                continue;
+            //console.log(chaini+" "+chainj+" "+ligand_chain);
+            
+loopover:
+            for (var ei in resi) {
+                for (var ej in resj) {
+                    var d = resi[ei].dist(resj[ej]);
+                    if (d<=cutoff) {
+                        contacts.push({atomi: resi[ei].atomName, atomj: resj[ej].atomName, 
+                               x: 1*resi[ei].index, y: 1*resj[ej].index,
+                               namei: resi[ei].key, namej: resj[ej].key});
+                        var newRow=" "+resi[ei].resName+" "+resi[ei].chain+" "+resi[ei].index+" : "+resj[ej].resName+" "+resj[ej].chain+" "+resj[ej].index+";";
+                        text_cont += newRow;
+                        break loopover;
+                    }
+                }
+            }
+
+
+        }
+    }
+    $("#res_contacts").html(text_cont+"</h6>");
+    chart.series[0].setData(contacts);
+}
+
+
+
+    $('#container_contacts').highcharts({
+        tooltip: {
+            crosshairs: [true,true]
+        },
+        chart: {
+            type: 'scatter',
+            zoomType: 'xy'
+        },
+        title: {
+            text: 'Contact map between receptor and peptide'
+        },
+        xAxis: {
+            tickInterval: 10,
+            gridLineWidth: 1,
+            title: {
+                enabled: true,
+                text: 'Receptor sequence'
+            },
+            startOnTick: false,
+            endOnTick: false,
+            showLastLabel: false
+        },
+        yAxis: {
+            tickInterval: 10,
+            title: {
+                text: 'Peptide sequence'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 5,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: true
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>Contact between</b><br>',
+                    pointFormat: 'peptide residue: {point.namej} <br>receptor residue: {point.namei}'
+                }
+            }
+        },
+        series: [{
+            name: 'Contacts',
+            //color: 'black',
+                            color: '#428bca',//'#5bc0de',
+            marker: {
+                symbol: 'square',
+                lineWidth:0.5,
+                lineColor:'black',//f0ad4e', 
+                radius:6
+            },
+            data: [],
+            turboThreshold: 10000
+                               
+        }]
+    });
+var chart = $('#container_contacts').highcharts();
+
+
+
+function parsePdbAndLoad(model,oldidx) {
+    parsePdb(model);
+    printContacts();
+    
+    $("span[name^=CV]").html("");
+    $("tr[name^=CR]").removeClass("info");
+    $("tr[name='CR"+oldidx+"']").addClass("info");
+    $("span[name='CV"+oldidx+"']").html("<i class='fa fa-eye'></i>");
+}
+
+function ddT() {
+    {% if status_type=='done' %}
+        parsePdbAndLoad("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}","{{results['models'][0]}}");
+    setTimeout(function () { 
+        $(window).resize();
+    }, 200);
+    {% endif %}
+}
+//contact maps end
 </script>
 {% endblock %}
