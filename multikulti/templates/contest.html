@@ -1,0 +1,102 @@
+{% extends "index.html" %}
+
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            <button onClick='parsePdb("http://localhost:5000/job/b471da936a248ec/models/model_2.pdb.gz/model.pdb");'>load structure</button>
+            <button onClick='printContacts(4.0);'>dist</button>
+            <div id="container" style="margin: 0 auto;height: 400px; width:800px"></div>
+            <pre id="csv">
+1,2,3.580684431781165
+1,3,3.855312438700656
+2,3,3.4178304522020984
+3,45,3.958947082242954
+4,3,3.483361307702662
+4,16,3.3143605718147207
+4,50,3.729966353735647
+4,51,3.284200054807868
+            </pre>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{%block below_js%}
+<script src="{{url_for('static', filename='js/highcharts.js')}}"></script>
+<script src="http://code.highcharts.com/maps/modules/data.js"></script>
+<script src="http://code.highcharts.com/maps/modules/heatmap.js"></script>
+<script src="http://code.highcharts.com/maps/modules/map.js"></script>
+<script type="text/javascript" charset="utf-8">
+var out = {};
+var bleble;
+function printContacts(cutoff) {
+    var csv = "";
+    for (var i in out) {
+        for (var j in out) {
+            var resi = out[i];
+            var resj = out[j];
+
+            if (i==j)
+                continue;
+loopover:
+            for (var ei in resi) {
+                for (var ej in resj) {
+                    var d = resi[ei].dist(resj[ej]);
+                    if (d<=cutoff) {
+                        //csv += d+" "+resi[ei].key+" "+resj[ej].key+"\n";
+                        csv += resi[ei].index+","+resj[ej].index+","+d+"\n";
+                        break loopover;
+                    }
+                }
+            }
+
+
+        }
+    }
+    document.getElementById('csv').innerHTML = csv;
+
+    console.log(csv);
+}
+function parsePdb(pdb_model) {
+    $.get(pdb_model, function(data) {
+    //ATOM   2897  O   LEU C 352    -922.681-999.559-940.609  1.00137.23           O
+        var lines = data.split("\n");
+        var reg = /^ATOM.{7}(....).(....).(.)(.{4}).{4}(.{8})(.{8})(.{8}).*$/
+        for (var i=0; i<lines.length;i++) {
+            var par = lines[i].match(reg);
+            if (par) {
+                var atn = par[1].trim();
+                var resn = par[2].trim();
+                var resch = par[3].trim();
+                var residx = par[4].trim();
+                var atx = parseFloat(par[5]);
+                var aty = parseFloat(par[6]);
+                var atz = parseFloat(par[7]);
+
+                var key = resn+"_"+resch+"_"+residx;
+
+                var pos = {'key': key, 'atomName': atn, 'resName': resn, 'chain': resch, 
+                    'index': residx, 'x': atx, 'y': aty, 'z': atz, 
+                    'dist': function(to) { 
+                       var xd = to.x-this.x; 
+                       var yd = to.y-this.y; 
+                       var zd = to.z-this.z; 
+                       return Math.sqrt(xd*xd + yd*yd + zd*zd);
+                    } 
+                };
+                if (key in out)
+                    out[key].push(pos);
+                else
+                    out[key] = [pos];
+            }
+        }
+    });
+}
+
+</script>
+{% endblock %}
+

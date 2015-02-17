@@ -332,6 +332,14 @@ def queue_page_json(page=1):
     return jsonify({'data': out, 'page': page})
 
 
+@app.route('/queue_txt')
+def queue_txt():
+    q = query_db("SELECT jid,project_name FROM user_queue where status='done'",
+                 [])
+    a = [i[0]+"\t"+i[1] for i in q]
+    return Response("\n".join(a), mimetype='text/plain')
+
+
 @app.route('/queue', methods=['POST', 'GET'], defaults={'page': 1})
 @app.route('/queue/page/<int:page>/', methods=['POST', 'GET'])
 def queue_page(page=1):
@@ -829,3 +837,7 @@ def sendzippackage(jobid):
     return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
                                jobid), "CABSdock_"+jobid+".zip",
                                mimetype='application/x-zip')
+
+@app.route('/con')
+def contact_map():
+    return render_template('contest.html')
