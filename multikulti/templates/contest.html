@@ -7,19 +7,8 @@
         <div class="col-md-12">
 
             <button onClick='parsePdb("http://localhost:5000/job/b471da936a248ec/models/model_2.pdb.gz/model.pdb");'>load structure</button>
-            <button onClick='printContacts(4.0);'>dist</button>
-            <div id="container" style="margin: 0 auto;height: 400px; width:800px"></div>
-            <pre id="csv">
-1,2,3.580684431781165
-1,3,3.855312438700656
-2,3,3.4178304522020984
-3,45,3.958947082242954
-4,3,3.483361307702662
-4,16,3.3143605718147207
-4,50,3.729966353735647
-4,51,3.284200054807868
-            </pre>
-
+            <button onClick='printContacts(5.0);'>dist</button>
+            <div id="container" style="margin: 0 auto;height: 1400px; width:1800px"></div>
         </div>
     </div>
 </div>
@@ -32,40 +21,14 @@
 <script src="http://code.highcharts.com/maps/modules/map.js"></script>
 <script type="text/javascript" charset="utf-8">
 var out = {};
-var bleble;
-function printContacts(cutoff) {
-    var csv = "";
-    for (var i in out) {
-        for (var j in out) {
-            var resi = out[i];
-            var resj = out[j];
-
-            if (i==j)
-                continue;
-loopover:
-            for (var ei in resi) {
-                for (var ej in resj) {
-                    var d = resi[ei].dist(resj[ej]);
-                    if (d<=cutoff) {
-                        //csv += d+" "+resi[ei].key+" "+resj[ej].key+"\n";
-                        csv += resi[ei].index+","+resj[ej].index+","+d+"\n";
-                        break loopover;
-                    }
-                }
-            }
-
-
-        }
-    }
-    document.getElementById('csv').innerHTML = csv;
-
-    console.log(csv);
-}
+var chart;
+var contacts = [];
 function parsePdb(pdb_model) {
     $.get(pdb_model, function(data) {
     //ATOM   2897  O   LEU C 352    -922.681-999.559-940.609  1.00137.23           O
         var lines = data.split("\n");
         var reg = /^ATOM.{7}(....).(....).(.)(.{4}).{4}(.{8})(.{8})(.{8}).*$/
+        out = {};
         for (var i=0; i<lines.length;i++) {
             var par = lines[i].match(reg);
             if (par) {
@@ -89,13 +52,112 @@ function parsePdb(pdb_model) {
                     } 
                 };
                 if (key in out)
-                    out[key].push(pos);
-                else
-                    out[key] = [pos];
+                    out[key].data.push(pos);
+                else {
+                    out[key] = {data : [pos], idx: 1*residx};
+                }
             }
         }
     });
 }
+
+
+
+
+function printContacts(cutoff) {
+    contacts = [];
+    for (var i in out) {
+        for (var j in out) {
+            var resi = out[i].data;
+            var resj = out[j].data;
+
+            if (out[i].idx>=out[j].idx)
+                continue;
+loopover:
+            for (var ei in resi) {
+                for (var ej in resj) {
+                    var d = resi[ei].dist(resj[ej]);
+                    if (d<=cutoff) {
+                        contacts.push({dist: d, atomi: resi[ei].atomName, atomj: resj[ej].atomName, 
+                               x: 1*resi[ei].index, y: 1*resj[ej].index,
+                               namei: resi[ei].key, namej: resj[ej].key});
+                        break loopover;
+                    }
+                }
+            }
+
+
+        }
+    }
+    chart.series[0].setData(contacts);
+}
+
+
+
+    $('#container').highcharts({
+        chart: {
+            type: 'scatter',
+            zoomType: 'xy'
+        },
+        title: {
+            text: 'Contact map between receptor and peptide'
+        },
+        xAxis: {
+            title: {
+                enabled: true,
+                text: 'Receptor sequence'
+            },
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true
+        },
+        yAxis: {
+            title: {
+                text: 'Peptide sequence'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                //    radius: 5,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br>',
+                    pointFormat: '{point.namei} and {point.namej} {point.atomi}'
+                }
+            }
+        },
+        series: [{
+            name: 'Contacts',
+            color: 'black',
+                               colsize:1,
+            marker: {symbol: 'square',lineWidth:1,lineColor:'yellow', radius:4},
+            data: [],
+            turboThreshold: 10000
+                               
+        }]
+    });
+
+
+var chart = $('#container').highcharts();
+
+
 
 </script>
 {% endblock %}
