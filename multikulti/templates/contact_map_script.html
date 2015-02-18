@@ -1,0 +1,218 @@
+// contact maps
+var out = {};
+var chart;
+var contacts = [];
+var ligand_chain =  {{lig_txt|safe}};
+ligand_chain = ligand_chain.chain;
+var axeslabels = {x: [], y: []};
+function parsePdb(pdb_model) {
+    $.get(pdb_model, function(data) {
+        var lines = data.split("\n");
+        var reg = /^ATOM.{7}(.{4}).(.{4}).(.)(.{4}).{4}(.{8})(.{8})(.{8}).*$/
+        out = {};
+        var lps = {};
+        axeslabels = {x: [], y: []};
+        for (var i=0; i<lines.length;i++) {
+            var par = lines[i].match(reg);
+            if (par) {
+                var atn = par[1].trim();
+                var resn = par[2].trim();
+                var resch = par[3].trim();
+                var residx = par[4].trim();
+                var atx = parseFloat(par[5]);
+                var aty = parseFloat(par[6]);
+                var atz = parseFloat(par[7]);
+
+                var key = resn+"_"+resch+"_"+residx;
+
+                if (lps[key] === undefined) {
+                    if (resch==ligand_chain) {
+                        axeslabels.y.push(key.replace(/_/g," "));
+                        lp = axeslabels.y.length-1;
+                        lps[key]  = lp;
+                    } else {
+                        axeslabels.x.push(key.replace(/_/g," "));
+                        lp = axeslabels.x.length-1;
+                        lps[key]  = lp;
+                    }
+                }
+
+
+                var pos = {'lp': lps[key], 'key': key, 'atomName': atn, 'resName': resn, 'chain': resch, 
+                    'index': residx, 'x': atx, 'y': aty, 'z': atz, 
+                    'dist': function(to) { 
+                       var xd = to.x-this.x; 
+                       var yd = to.y-this.y; 
+                       var zd = to.z-this.z; 
+                       return xd*xd + yd*yd + zd*zd;
+                    } 
+                };
+                if (key in out)
+                    out[key].data.push(pos);
+                else {
+                    out[key] = {chain: resch, data : [pos]};
+                }
+            }
+        }
+        printContacts();
+    });
+}
+
+
+
+
+function printContacts() {
+    var cutoff = $("#cutoff").val();
+
+    $("#contactTable0 > tbody").find("tr:gt(0)").remove();
+    $("#contactTable1 > tbody").find("tr:gt(0)").remove();
+    $("#contactTable2 > tbody").find("tr:gt(0)").remove();
+
+
+    contacts = [];
+    var ligand_chain =  {{lig_txt|safe}};
+    ligand_chain = ligand_chain.chain;
+    var model = 'eeeeee';
+    var text_cont = "Pairs of peptide/receptor residues closer than "+cutoff+" Å in the selected complex";
+    $('#contact_head').html(text_cont);
+    var switch_table = 0;
+    for (var i in out) {
+        for (var j in out) {
+            var resi = out[i].data;
+            var resj = out[j].data;
+            var chaini = out[i].chain;
+            var chainj = out[j].chain;
+            
+            if ((chaini!=ligand_chain && chainj!=ligand_chain) || chaini==chainj || chainj!=ligand_chain)
+                continue;
+loopover:
+            for (var ei in resi) {
+                for (var ej in resj) {
+                    var d = resi[ei].dist(resj[ej]);
+                    if (d<=cutoff*cutoff) {
+
+
+                        var resx = resi[ei];
+                        var resy = resj[ej];
+
+                        contacts.push({atomi: resx.atomName, atomj: resy.atomName, 
+                               x: resx.lp, y: resy.lp,
+                               namei: resx.key, namej: resy.key});
+                        var newRow="<tr><td>"+resx.key.replace(/_/g," ")+"</td><td>"+resy.key.replace(/_/g," ")+"</td></tr>";
+
+                        $('#contactTable'+switch_table+' > tbody > tr:first').after(newRow);
+                        switch_table++;
+                        if (switch_table==3)
+                            switch_table=0;
+
+                        break loopover;
+                    }
+                }
+            }
+
+
+        }
+    }
+    chart.xAxis[0].setCategories(axeslabels.x);
+    chart.yAxis[0].update({categories: axeslabels.y}, true);
+    chart.series[0].setData(contacts);
+}
+
+
+
+    $('#container_contacts').highcharts({
+        tooltip: {
+            crosshairs: [true,true]
+        },
+        chart: {
+            type: 'scatter',
+            zoomType: 'xy'
+        },
+        title: {
+            text: 'Contact map of the interface between receptor and peptide'
+        },
+        xAxis: {
+            labels: {
+                            rotation: -45,
+                            },
+            tickInterval: 5,
+            gridLineWidth: 0,
+            title: {
+                enabled: true,
+                text: 'Receptor residue index'
+            },
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true
+        },
+        yAxis: {
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true,
+            tickInterval: 1,
+            title: {
+                text: 'Peptide residue index'
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        plotOptions: {
+            scatter: {
+                marker: {
+                    radius: 2,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                states: {
+                    hover: {
+                        marker: {
+                            enabled: true
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>Contact between</b><br>',
+                    pointFormat: 'peptide residue: {point.namej} <br>receptor residue: {point.namei}'
+                }
+            }
+        },
+        series: [{
+            name: 'Contacts',
+            color: '#428bca',
+            marker: {
+                symbol: 'square',
+                lineWidth:0.5,
+                lineColor:'black',
+                radius:4
+            },
+            data: [],
+            turboThreshold: 10000
+        }]
+    });
+var chart = $('#container_contacts').highcharts();
+
+
+
+function parsePdbAndLoad(model,oldidx) {
+    parsePdb(model);
+    //printContacts(oldidx);
+    $("span[name^=CV]").html("");
+    $("tr[name^=CR]").removeClass("info");
+    $("tr[name='CR"+oldidx+"']").addClass("info");
+    $("span[name='CV"+oldidx+"']").html("<i class='fa fa-eye'></i>");
+}
+
+function ddT() {
+    {% if status_type=='done' %}
+        parsePdbAndLoad("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}","{{results['models'][0]}}");
+    setTimeout(function () { 
+        $(window).resize();
+    }, 200);
+    {% endif %}
+}
+//contact maps end

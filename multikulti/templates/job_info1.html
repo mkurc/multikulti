@@ -197,10 +197,10 @@ function loadMol(o) {
 <ul class="nav nav-tabs" role="tablist">
     <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
 {% if status_type=='done' %}
-  <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
+  <li><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
   {% if clust %}
     <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Trajectories separation</a></li>
-    <li><a onClick="ddT()" href="#contacts" role="tab" data-toggle="tab"><i class="fa fa-th-large"></i> Contact maps</a></li>
+    <li class="active"><a onClick="ddT()" href="#contacts" role="tab" data-toggle="tab"><i class="fa fa-th-large"></i> Contact maps</a></li>
     {% endif %}
 
     <!-- <li><a href="#clustering" role="tab" data-toggle="tab"><i class="fa fa-bar-chart"></i> Clustering details</a></li> -->
@@ -210,8 +210,7 @@ function loadMol(o) {
 
 <!-- Tab panes -->
 <div class="tab-content">
-  <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
-              
+    <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
             <div class="row">
                 <div class="col-md-6">
             <h3>
@@ -324,7 +323,8 @@ Peptide sequence
 
 
   </div> <!-- end tab summary -->
-  <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
+  <div class="tab-pane " id="models">
+      <!-- <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models"> -->
 {% block job_viewwindow %}
       <div class="row">
           <div class="col-md-8">
@@ -380,7 +380,8 @@ Peptide sequence
           </div>
       </div>
   </div> <!-- end tab models -->
-  <div class="tab-pane" id="contacts">
+  <!--<div class="tab-pane" id="contacts"> -->
+  <div class="tab-pane active" id="contacts">
       <div class="row">
         <div class="col-md-8">
             <div id="container_contacts" style="margin: 0 auto;height: 500px; width:100%"></div>
@@ -420,15 +421,22 @@ Peptide sequence
   </div>
   <h4 id="contact_head"></h4>
         <div class="row">
-                <div class="col-md-6">
-                    <table id="contactTable" class="table table-striped  table-condensed">
+                <div class="col-md-4">
+                    <table id="contactTable0" class="table table-striped  table-condensed">
                         <tbody>
                             <tr><td><strong>Receptor residue</strong></td><td><strong>Peptide residue</strong></td></tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <table id="contactTable1" class="table table-striped table-condensed">
+                        <tbody>
+                            <tr><td><strong>Receptor residue</strong></td><td><strong>Peptide residue</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4">
+                    <table id="contactTable2" class="table table-striped table-condensed">
                         <tbody>
                             <tr><td><strong>Receptor residue</strong></td><td><strong>Peptide residue</strong></td></tr>
                         </tbody>
@@ -651,203 +659,6 @@ setInterval(function() {
             window.location.reload();
 }, 3000); 
 
-
-// contact maps
-var out = {};
-var chart;
-var contacts = [];
-function parsePdb(pdb_model) {
-    $.get(pdb_model, function(data) {
-        var lines = data.split("\n");
-        var reg = /^ATOM.{7}(....).(....).(.)(.{4}).{4}(.{8})(.{8})(.{8}).*$/
-        out = {};
-        for (var i=0; i<lines.length;i++) {
-            var par = lines[i].match(reg);
-            if (par) {
-                var atn = par[1].trim();
-                var resn = par[2].trim();
-                var resch = par[3].trim();
-                var residx = par[4].trim();
-                var atx = parseFloat(par[5]);
-                var aty = parseFloat(par[6]);
-                var atz = parseFloat(par[7]);
-
-                var key = resn+"_"+resch+"_"+residx;
-
-                var pos = {'key': key, 'atomName': atn, 'resName': resn, 'chain': resch, 
-                    'index': residx, 'x': atx, 'y': aty, 'z': atz, 
-                    'dist': function(to) { 
-                       var xd = to.x-this.x; 
-                       var yd = to.y-this.y; 
-                       var zd = to.z-this.z; 
-                       return xd*xd + yd*yd + zd*zd;
-                    } 
-                };
-                if (key in out)
-                    out[key].data.push(pos);
-                else {
-                    out[key] = {chain: resch, data : [pos], idx: 1*residx};
-                }
-            }
-        }
-        printContacts();
-    });
-}
-
-
-
-
-function printContacts() {
-    var cutoff = $("#cutoff").val();
-
-    $("#contactTable > tbody").find("tr:gt(0)").remove();
-    $("#contactTable1 > tbody").find("tr:gt(0)").remove();
-
-
-    contacts = [];
-    var ligand_chain =  {{lig_txt|safe}};
-    ligand_chain = ligand_chain.chain;
-    var model = 'eeeeee';
-    var text_cont = "Pairs of peptide/receptor residues closer than "+cutoff+" Å in the selected complex";
-    $('#contact_head').html(text_cont);
-    var switch_table = true;
-    for (var i in out) {
-        for (var j in out) {
-            var resi = out[i].data;
-            var resj = out[j].data;
-            var chaini = out[i].chain;
-            var chainj = out[j].chain;
-            
-
-            if ((chaini==ligand_chain && chainj!=ligand_chain) || chaini==chainj)
-                continue;
-            //console.log(chaini+" "+chainj+" "+ligand_chain);
-            
-loopover:
-            for (var ei in resi) {
-                for (var ej in resj) {
-                    var d = resi[ei].dist(resj[ej]);
-                    if (d<=cutoff*cutoff) {
-                        contacts.push({atomi: resi[ei].atomName, atomj: resj[ej].atomName, 
-                               x: 1*resi[ei].index, y: 1*resj[ej].index,
-                               namei: resi[ei].key, namej: resj[ej].key});
-                        //var newRow=" "+resi[ei].resName+" "+resi[ei].chain+" "+resi[ei].index+" : "+resj[ej].resName+" "+resj[ej].chain+" "+resj[ej].index+";";
-                        var newRow="<tr><td>"+resi[ei].resName+" "+resi[ei].chain+" "+resi[ei].index+"</td><td>"+resj[ej].resName+" "+resj[ej].chain+" "+resj[ej].index+"</td></tr>";
-                        if (switch_table) {
-                        $('#contactTable > tbody > tr:first').after(newRow);
-                        switch_table = false;
-                        }
-                        else {
-                            $('#contactTable1 > tbody > tr:first').after(newRow);
-                            switch_table = true;
-                        }
-
-                        //text_cont += newRow;
-                        break loopover;
-                    }
-                }
-            }
-
-
-        }
-    }
-    chart.series[0].setData(contacts);
-    //$("#res_contacts").html(text_cont+"</h6>");
-}
-
-
-
-    $('#container_contacts').highcharts({
-        tooltip: {
-            crosshairs: [true,true]
-        },
-        chart: {
-            type: 'scatter',
-            zoomType: 'xy'
-        },
-        title: {
-            text: 'Contact map of interface between receptor and peptide'
-        },
-        xAxis: {
-            tickInterval: 10,
-            gridLineWidth: 1,
-            title: {
-                enabled: true,
-                text: 'Receptor residue index'
-            },
-            startOnTick: false,
-            endOnTick: false,
-            showLastLabel: false
-        },
-        yAxis: {
-            tickInterval: 10,
-            title: {
-                text: 'Peptide residue index'
-            }
-        },
-        legend: {
-            enabled: false
-        },
-        plotOptions: {
-            scatter: {
-                marker: {
-                    radius: 5,
-                    states: {
-                        hover: {
-                            enabled: true,
-                            lineColor: 'rgb(100,100,100)'
-                        }
-                    }
-                },
-                states: {
-                    hover: {
-                        marker: {
-                            enabled: true
-                        }
-                    }
-                },
-                tooltip: {
-                    headerFormat: '<b>Contact between</b><br>',
-                    pointFormat: 'peptide residue: {point.namej} <br>receptor residue: {point.namei}'
-                }
-            }
-        },
-        series: [{
-            name: 'Contacts',
-            //color: 'black',
-                            color: '#428bca',//'#5bc0de',
-            marker: {
-                symbol: 'square',
-                lineWidth:0.5,
-                lineColor:'black',//f0ad4e', 
-                radius:6
-            },
-            data: [],
-            turboThreshold: 10000
-                               
-        }]
-    });
-var chart = $('#container_contacts').highcharts();
-
-
-
-function parsePdbAndLoad(model,oldidx) {
-    parsePdb(model);
-    //printContacts(oldidx);
-    $("span[name^=CV]").html("");
-    $("tr[name^=CR]").removeClass("info");
-    $("tr[name='CR"+oldidx+"']").addClass("info");
-    $("span[name='CV"+oldidx+"']").html("<i class='fa fa-eye'></i>");
-}
-
-function ddT() {
-    {% if status_type=='done' %}
-        parsePdbAndLoad("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}","{{results['models'][0]}}");
-    setTimeout(function () { 
-        $(window).resize();
-    }, 200);
-    {% endif %}
-}
-//contact maps end
+{% include "contact_map_script.html" %}
 </script>
 {% endblock %}
