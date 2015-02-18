@@ -521,24 +521,22 @@ def job_status(jid):
     if system_info['status'] == 'done':
         pie = calc_first_cluster_composition(jid)
         clust_details = cluster_stats(jid)
-        clust = True
     else:
         pie = []
         clust_details = []
-        clust = False
         
 
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
                             jid=jid, sys=system_info, results=models, pie=pie,
-                            status_type=system_info['status'], ex=exclu, clust=clust,
+                            status_type=system_info['status'], ex=exclu,
                             lig_txt=ligand_txt, rec_txt=receptor_txt,
                             clu_det=clust_details)
 
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models, pie=pie,
                            status_type=system_info['status'], ex=exclu,
-                           clust=clust, lig_txt=ligand_txt,
+                           lig_txt=ligand_txt,
                            clu_det=clust_details, rec_txt=receptor_txt)
 
 

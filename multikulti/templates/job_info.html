@@ -40,6 +40,28 @@ function loadMol(o) {
     $("tr[name^=R"+oldidx.split(".")[0]+"]").addClass("info");
     $("span[name^=V"+oldidx.split(".")[0]+"]").html("<i class='fa fa-eye'></i>");
 }
+function loadReplica(o) {
+    var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
+    fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
+    var scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load "+fetch_url+";color chain; connect 3.2 4.3 (carbon) (carbon) create;wireframe 0.4";
+    Jmol.script(jmolApplet1,scr);
+    $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+") <a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download the model</a>");
+
+}
+function loadTraf(o) {
+    var oldidx = o.dataset.model;
+    var template = "{{url_for('sendfile', filetype='replicas', filename='TOREPLACE', jobid=jid)}}";
+    var curr_model = template.replace("TOREPLACE", oldidx);
+    //console.log(curr_model);
+    var scr = "set platformSpeed 1;set frank off;set hoverDelay 0.001;background white;load "+curr_model+";color chain; connect 3.2 4.4 (carbon) (carbon)  create;wireframe 0.6;anim mode loop;anim fps 8;anim on";
+    scr = "set platformSpeed 8;set frank off;set hoverDelay 0.001;background white;load trajectory "+curr_model+";color chain; connect 3.2 4.2 (carbon) (carbon)  create;wireframe 0.4;anim mode loop;zoom -20; anim fps 6;anim on";
+
+    Jmol.script(jmolApplet0,scr);
+    $("span[name^=TV]").html("");
+    $("tr[name^='TR']").removeClass("info");
+    $("tr[name=='TR"+oldidx+"']").addClass("info");
+    $("span[name=='TV"+oldidx+"']").html("<i class='fa fa-eye'></i>");
+}
         </script>
 {% endblock %}
 

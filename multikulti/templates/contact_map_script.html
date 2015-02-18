@@ -2,8 +2,11 @@
 var out = {};
 var chart;
 var contacts = [];
+
+{% if status_type=='done' %}
 var ligand_chain =  {{lig_txt|safe}};
 ligand_chain = ligand_chain.chain;
+{% endif %}
 var axeslabels = {x: [], y: []};
 function parsePdb(pdb_model) {
     $.get(pdb_model, function(data) {
@@ -47,9 +50,9 @@ function parsePdb(pdb_model) {
                        return xd*xd + yd*yd + zd*zd;
                     } 
                 };
-                if (key in out)
+                if (key in out){
                     out[key].data.push(pos);
-                else {
+                } else {
                     out[key] = {chain: resch, data : [pos]};
                 }
             }
@@ -57,8 +60,6 @@ function parsePdb(pdb_model) {
         printContacts();
     });
 }
-
-
 
 
 function printContacts() {
@@ -70,8 +71,10 @@ function printContacts() {
 
 
     contacts = [];
+    {% if status_type=='done' %}
     var ligand_chain =  {{lig_txt|safe}};
     ligand_chain = ligand_chain.chain;
+    {% endif %}
     var model = 'eeeeee';
     var text_cont = "Pairs of peptide/receptor residues closer than "+cutoff+" Å in the selected complex";
     $('#contact_head').html(text_cont);
@@ -90,14 +93,10 @@ loopover:
                 for (var ej in resj) {
                     var d = resi[ei].dist(resj[ej]);
                     if (d<=cutoff*cutoff) {
-
-
                         var resx = resi[ei];
                         var resy = resj[ej];
-
                         contacts.push({atomi: resx.atomName, atomj: resy.atomName, 
-                               x: resx.lp, y: resy.lp,
-                               namei: resx.key, namej: resy.key});
+                               x: resx.lp, y: resy.lp, namei: resx.key, namej: resy.key});
                         var newRow="<tr><td>"+resx.key.replace(/_/g," ")+"</td><td>"+resy.key.replace(/_/g," ")+"</td></tr>";
 
                         $('#contactTable'+switch_table+' > tbody > tr:first').after(newRow);
@@ -125,31 +124,24 @@ loopover:
             crosshairs: [true,true]
         },
         chart: {
-            type: 'scatter',
-            zoomType: 'xy'
+            type: 'scatter', zoomType: 'xy'
         },
         title: {
             text: 'Contact map of the interface between receptor and peptide'
         },
         xAxis: {
             labels: {
-                            rotation: -45,
-                            },
-            tickInterval: 5,
-            gridLineWidth: 0,
+                rotation: -45,
+            },
+            tickInterval: 5, gridLineWidth: 0, 
             title: {
                 enabled: true,
                 text: 'Receptor residue index'
             },
-            startOnTick: true,
-            endOnTick: true,
-            showLastLabel: true
+            startOnTick: true, endOnTick: true, showLastLabel: true
         },
         yAxis: {
-            startOnTick: true,
-            endOnTick: true,
-            showLastLabel: true,
-            tickInterval: 1,
+            startOnTick: true, endOnTick: true, showLastLabel: true, tickInterval: 1, 
             title: {
                 text: 'Peptide residue index'
             }
@@ -163,8 +155,7 @@ loopover:
                     radius: 2,
                     states: {
                         hover: {
-                            enabled: true,
-                            lineColor: 'rgb(100,100,100)'
+                            enabled: true, lineColor: 'rgb(100,100,100)'
                         }
                     }
                 },
@@ -182,16 +173,11 @@ loopover:
             }
         },
         series: [{
-            name: 'Contacts',
-            color: '#428bca',
+            name: 'Contacts', color: '#428bca',
             marker: {
-                symbol: 'square',
-                lineWidth:0.5,
-                lineColor:'black',
-                radius:4
+                symbol: 'square', lineWidth:0.5, lineColor:'black', radius:4
             },
-            data: [],
-            turboThreshold: 10000
+            data: [], turboThreshold: 10000
         }]
     });
 var chart = $('#container_contacts').highcharts();
@@ -200,19 +186,16 @@ var chart = $('#container_contacts').highcharts();
 
 function parsePdbAndLoad(model,oldidx) {
     parsePdb(model);
-    //printContacts(oldidx);
     $("span[name^=CV]").html("");
     $("tr[name^=CR]").removeClass("info");
     $("tr[name='CR"+oldidx+"']").addClass("info");
     $("span[name='CV"+oldidx+"']").html("<i class='fa fa-eye'></i>");
 }
-
 function ddT() {
-    {% if status_type=='done' %}
-        parsePdbAndLoad("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}","{{results['models'][0]}}");
+    parsePdbAndLoad("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}","{{results['models'][0]}}");
     setTimeout(function () { 
-        $(window).resize();
-    }, 200);
-    {% endif %}
+       $(window).resize();
+    }, 100);
 }
+
 //contact maps end
