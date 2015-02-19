@@ -671,9 +671,12 @@ class PdbParser:
     nonstandard = modres.keys()
 
 if __name__ == "__main__":
-    f = open("/home/mjamroz/3hau.pdb")
-    a = PdbParser(f, chain="AB")
-    
+    from urllib2 import urlopen
+    from StringIO import StringIO
+    from sys import argv
+
+    f = urlopen("http://www.pdb.org/pdb/files/"+argv[1]+".pdb")
+    fh = StringIO(f.read())
+    a = PdbParser(fh, chain=argv[2])
     print a.getBody()
-    #t= a.getMissing()
-    #print t
+    fh.close()
