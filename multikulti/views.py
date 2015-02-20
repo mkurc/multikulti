@@ -773,7 +773,7 @@ def calc_first_cluster_composition(jid):
             te = []
             for e in d[6:]:
                 tt = e.split("_")
-                te.append([int(tt[0]), int(tt[1])])
+                te.append([int(tt[1]), int(tt[0])])
             if cluster == "cluster_1.pdb":
                 # calc pie chart
                 clusts = {}
@@ -800,7 +800,7 @@ def clustsep(jid):
             te = []
             for e in d[6:]:
                 tt = e.split("_")
-                te.append([int(tt[0]), int(tt[1])])
+                te.append([int(tt[1]), int(tt[0])])
             if cluster == "cluster_1.pdb":
                 # calc pie chart
                 clusts = {}
