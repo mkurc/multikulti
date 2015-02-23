@@ -139,13 +139,13 @@ function loadMol(o) {
 <div class="tab-content">
     <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-7">
             <h3>
                 Project name: {{sys['project_name']}}
             </h3>
 
         </div>
-        <div class="col-md-6">
+        <div class="col-md-5">
             <h4>Status:                    {{status|safe}}</h4>
             <h6>submitted: {{sys['status_date']}}, status changed: {{sys['status_change']}}</h6>
             </div>
@@ -158,11 +158,11 @@ function loadMol(o) {
 
       <table class="table">
         <tr>
-            <td><strong>
+            <td class="col-md-3"><strong>
 Protein sequence(s)
                 </strong>
             </td>
-            <td>
+            <td class="col-md-9">
                 <span class='sequence'>{{sys['receptor_sequence']}}</span>
             </td>
         </tr>
