@@ -6,8 +6,6 @@ import urllib2
 from config_remote import config_remote
 from TalkToServer import TalkToServer
 from sys import exit
-from subprocess import check_output, call
-
 
 runs = os.path.join(config_remote['currdir'],"runJob.sh")
 server = config_remote['webserver_url']+"_queue"
@@ -23,6 +21,5 @@ for line in response:
     check_if_exists="qstat -j Cdock_%s" %(i)
     ret = call(check_if_exists, shell=True)
     if ret==1:
-        print command
-        qsub = call(command,shell=True) #TODO
+        qsub = call(command,shell=True)
 response.close()
