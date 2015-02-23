@@ -68,14 +68,16 @@ function loadTraf(o) {
 {% block job_viewwindow %}
       <div class="row">
           <div class="col-md-8">
-                <div class="alert alert-success">
-                    Here you can zoom/rotate predicted model of the complex. Click the "View"
+                <div class="alert alert-dismissible alert-info">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    Zoom/rotate predicted model of the complex using mouse. Click the "View"
                     button on the right panel to load the appropriate model.
-                        <br><small><a href="{{url_for('job_status', jid=jid)}}">View in 3Dmol <small>(WebGL)</small></a></small>
+                        <small><a href="{{url_for('job_status', jid=jid)}}">View in 3Dmol <small>(WebGL)</small></a></small>
           </div>
           </div>
           <div class="col-md-4">
-              <div class="alert alert-success">
+              <div class="alert alert-dismissible alert-info">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
              Models are ranked and numbered according to their occurrence in docking trajectory (1 = most probable result).
               </div>
           </div>
