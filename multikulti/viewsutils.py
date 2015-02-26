@@ -3,7 +3,7 @@
 # Copyright Michal Jamroz, 2014, jamroz@chem.uw.edu.pl
 
 from multikulti import app
-from flask import render_template, g, request, send_from_directory
+from flask import render_template, g, request, send_from_directory, Response
 import os
 
 
@@ -46,8 +46,7 @@ def compute_static_pdb(jobid):
 
 @app.route('/robots.txt')
 def robots():
-    return render_template('robots.txt')
-
+    return Response("User-agent: *\nDisallow: /job/", mimetype='text/plain')
 
 @app.route('/favicon.ico')
 def favicon():
