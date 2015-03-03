@@ -48,11 +48,6 @@ def compute_static_pdb(jobid):
 def robots():
     return Response("User-agent: *\nDisallow: /job/", mimetype='text/plain')
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static', 'img'),
-                               'favicon.png', mimetype='image/png')
-
 
 @app.route('/citation')
 def index_cite():
