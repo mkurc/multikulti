@@ -41,6 +41,7 @@ class TalkToServer:
             print("Results sent!")
         else:
             print("Results NOT sent" + str(r.status_code))
+
     def getStructureFile(self, output_path="input.pdb"):
         try:
             with open(output_path, "wb") as out:
@@ -51,91 +52,50 @@ class TalkToServer:
         except:
             print("ERROR: Nothing found!")
 
-    def getScalingFactor(self):
+    def _getJson(self, url):
         try:
-            f = urllib2.urlopen(self.remoteuri+'/SCALFACTOR/')
+            f = urllib2.urlopen(self.remoteuri+url)
             data = f.read()
             f.close()
-            j = json.loads(data)
-            return j['constraints_scaling_factor']
+            return json.loads(data)
         except:
-            print("ERROR: problem with scaling factor fetch")
+            print("ERROR: problem with "+url)
+
+    def getScalingFactor(self):
+        return self._getJson('/SCALFACTOR/')['constraints_scaling_factor']
 
     def getJobName(self):
-        try:
-            f = urllib2.urlopen(self.remoteuri+'/JOBNAME/')
-            data = f.read()
-            f.close()
-            j = json.loads(data)
-            return j['jobname']
-        except:
-            print("ERROR: problem with scaling factor fetch")
+        return self._getJson('/JOBNAME/')['jobname']
 
     def getSimLength(self):
-        try:
-            f = urllib2.urlopen(self.remoteuri+'/LENGTH/')
-            data = f.read()
-            f.close()
-            j = json.loads(data)
-            return j['sim_length']
-        except:
-            print("ERROR: problem with scaling factor fetch")
+        return self._getJson('/LENGTH/')['sim_length']
 
     def getLigandInfo(self):
-        '''
-            get ligand sequence/ss
-        '''
-        try:
-            f = urllib2.urlopen(self.remoteuri+'/LIGANDSEQ/')
-            data = f.read()
-            f.close()
-            j = json.loads(data)
-            if j['secstr'] == '':
-                psipred = Psipred(j['sequence'])
-                ss = psipred.getSS()
-                # ss = "HHHHHH"
-                j['secstr'] = ss
-                self.putSecondaryStructureString(ss)
-            return j
-        except:
-            print("ERROR: problem with ligand seq fetch")
+        j = self._getJson('/LIGANDSEQ/')
+
+        if j['secstr'] == '':
+            psipred = Psipred(j['sequence'])
+            ss = psipred.getSS()
+            # ss = "HHHHHH"
+            j['secstr'] = ss
+            self.putSecondaryStructureString(ss)
+        return j
 
     def getRestraints(self):
-        try:
-            f = urllib2.urlopen(self.remoteuri+'/RESTRAINTS/')
-            data = f.read()
-            f.close()
-            j = json.loads(data)
-            return j
-        except:
-            print("ERROR: problem with restraints fetch")
+        return self._getJson('/RESTRAINTS/')
 
     def getExcluded(self):
-        try:
-            f = urllib2.urlopen(self.remoteuri+'/EXCLUDED/')
-            data = f.read()
-            f.close()
-            j = json.loads(data)
-            return j
-        except:
-            print("ERROR: problem with excluded fetch")
+        return self._getJson('/EXCLUDED/')
 
     def getModelsToRemove(self):
-        try:
-            f = urllib2.urlopen(self.remoteuri+'/SKIPMODELS/')
-            data = f.read()
-            f.close()
-            j = json.loads(data)
-            for i in range(len(j)):
-                row = j[i]
-                model_id = row['model_id'].strip()
-                model_body = row['model_body']
-                print model_id
-                old_jid = row['prev_jid'].strip()
-                with open("model_skip_"+str(i)+"_JUNK_oldjid_"+old_jid+"__oldid_"+model_id+".pdb", "w") as fw:
-                    fw.write(model_body)
-        except:
-            print("ERROR: problem with fetch models to skip")
+        j = self._getJson('/SKIPMODELS/')
+        for i in range(len(j)):
+            row = j[i]
+            model_id = row['model_id'].strip()
+            model_body = row['model_body']
+            old_jid = row['prev_jid'].strip()
+            with open("model_skip_"+str(i)+"_JUNK_oldjid_"+old_jid+"__oldid_"+model_id+".pdb", "w") as fw:
+                fw.write(model_body)
 
     def getRestraintsFile(self, output_file="restr.txt"):
         with open(output_file, "w") as fw:
@@ -167,7 +127,6 @@ class TalkToServer:
             ll = seq.readlines()[-1].split()
             # 5   GLY A  1  1.00
             d = {'chain': ll[2]}
-            print(d)
             r = requests.post(self.remoteuri+"/LIGCHAIN/", data=d)
 
             if r.status_code == requests.codes.ok:
@@ -216,45 +175,27 @@ class TalkToServer:
         except:
             print("error with iamlive")
 
-    def tellJobRunning(self):
+    def _tell(self, url):
         try:
-            r = requests.get(self.remoteuri+"/S_R/")
+            r = requests.get(self.remoteuri+url)
             if r.status_code == requests.codes.ok:
-                print("set job running %d" % (r.status_code))
+                print("set "+url+" %d" % (r.status_code))
             else:
-                print("Not set >>job running<<, status: %d" % (r.status_code))
+                print("Not set >>"+url+"<<, status: %d" % (r.status_code))
         except:
-            print("error telljobrunning")
+            print("error conn: "+url)
+
+    def tellJobRunning(self):
+        self._tell('/S_R/')
 
     def tellJobDone(self):
-        try:
-            r = requests.get(self.remoteuri+"/S_D/")
-            if r.status_code == requests.codes.ok:
-                print("set job DONE %d" % (r.status_code))
-            else:
-                print("Not set >>job done<<, status: %d" % (r.status_code))
-        except:
-            print("error telljobdone")
+        self._tell('/S_D/')
 
     def tellJobError(self):
-        try:
-            r = requests.get(self.remoteuri+"/S_E/")
-            if r.status_code == requests.codes.ok:
-                print("set job ERROR " % (r.status_code))
-            else:
-                print("Not set >>job error<<, status: %d" % (r.status_code))
-        except:
-            print("error telljoberror")
+        self._tell('/S_E/')
 
     def tellJobWaiting(self):
-        try:
-            r = requests.get(self.remoteuri+"/S_Q/")
-            if r.status_code == requests.codes.ok:
-                print("set job in queue %d" % (r.status_code))
-            else:
-                print("Not set >>job in queue<< status: %d" % (r.status_code))
-        except:
-            print("error telljobwaiting")
+        self._tell('/S_Q/')
 
 if __name__ == "__main__":
     a = TalkToServer("1360dac99d8d322")

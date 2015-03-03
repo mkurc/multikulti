@@ -663,6 +663,22 @@ def send_unzipped(jobid, model_name, models):
     r.headers.add('Content-Disposition', 'attachment', filename=out_name)
     return r
 
+def get_model(fo, model_idx):
+    te = re.compile(r"^MODEL\s+"+str(model_idx)+"$")
+    te2 = re.compile(r"^ENDMDL")
+    line_start = -1
+    line_stop = -1
+    data = fo.readlines()
+    for i in xrange(len(data)):
+        if te.search(data[i]):
+            line_start = i
+            break
+    for i in xrange(i, len(data)):
+        if te2.search(data[i]):
+            line_stop = i
+            return Response("".join(data[line_start:line_stop]), status=200,
+                            mimetype='chemical/x-pdb')
+
 
 @app.route('/job/<jobid>/clusters/<model_idx>/<cluster_idx>/model.pdb')
 def send_cluster_model(jobid, model_idx, cluster_idx):
@@ -670,21 +686,7 @@ def send_cluster_model(jobid, model_idx, cluster_idx):
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, "clusters",
                             cluster_idx)
     with gzip.open(path_dir) as fo:
-        te = re.compile(r"^MODEL\s+"+str(model_idx)+"$")
-        te2 = re.compile(r"^ENDMDL")
-        line_start = -1
-        line_stop = -1
-        data = fo.readlines()
-        for i in xrange(len(data)):
-            if te.search(data[i]):
-                line_start = i
-                break
-        for i in xrange(i, len(data)):
-            if te2.search(data[i]):
-                line_stop = i
-                break
-        return Response("".join(data[line_start:line_stop]), status=200,
-                        mimetype='chemical/x-pdb')
+        return get_model(fo, model_idx)
 
 
 @app.route('/job/<jobid>/models/<model_idx>/<rep_idx>/model.pdb')
@@ -693,22 +695,7 @@ def send_unzipped_cluster(jobid, model_idx, rep_idx):
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, "replicas",
                             "replica_"+str(rep_idx)+".pdb.gz")
     with gzip.open(path_dir) as fo:
-        te = re.compile(r"^MODEL\s+"+str(model_idx)+"$")
-        te2 = re.compile(r"^ENDMDL")
-        line_start = -1
-        line_stop = -1
-        data = fo.readlines()
-        for i in xrange(len(data)):
-            if te.search(data[i]):
-                line_start = i
-                break
-        for i in xrange(i, len(data)):
-            if te2.search(data[i]):
-                line_stop = i
-                break
-
-        r = Response("".join(data[line_start:line_stop]), status=200,
-                        mimetype='chemical/x-pdb')
+        r = get_model(fo, model_idx)
         out_name = jobid+"_mod_"+str(model_idx)+"_tra_"+str(rep_idx)+".pdb"
         r.headers.add('Content-Disposition', u'attachment; filename="%s"' % (out_name) )
         return r

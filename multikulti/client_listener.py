@@ -13,9 +13,7 @@ from shutil import rmtree
 @app.route('/_queue')
 def index_queue():
     q = query_db("SELECT jid FROM user_queue WHERE status='pre_queue'")
-    d = ""
-    for i in q:
-        d += str(i[0]) + "\n"
+    d = "\n".join([str(i[0]) for i in q])
     return Response(d, mimetype='text/plain')
 
 
@@ -25,7 +23,7 @@ def delete_old():
     to_delete = []
     for keyid in query_db("SELECT jid FROM user_queue WHERE \
             status_init<=strftime('%s',date('now',?))", [days]):
-        if keyid[0] != app.config['EXAMPLE_JOB']:
+        if keyid[0] not in app.config['EXAMPLE_JOB']:
             to_delete.append(keyid[0])
             pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid[0])
             rmtree(pat_k)
@@ -57,7 +55,8 @@ def parse_server_talking(task, secret_key, jid):
                               [jid], one=True)[0]
             send_mail(subject="error "+jid)
             if len(tomail) > 1:
-                send_mail(to=tomail, subject="error with job", body='Your job ('+jid+') got error status. Robot will inform admin.')
+                send_mail(to=tomail, subject="error with job",
+                          body='Your job ('+jid+') got error status. Robot will inform admin.')
 
         elif task == 'S_R':
             # job running
