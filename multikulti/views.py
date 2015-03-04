@@ -334,8 +334,8 @@ def queue_page_json(page=1):
 
 @app.route('/queue_txt')
 def queue_txt():
-    q = query_db("SELECT jid,project_name FROM user_queue where status='done'",
-                 [])
+    q = query_db("SELECT jid,project_name FROM user_queue where status='done' \
+            ORDER BY id DESC", [])
     a = [i[0]+"\t"+i[1] for i in q]
     return Response("\n".join(a), mimetype='text/plain')
 
@@ -349,9 +349,10 @@ def queue_page(page=1):
         search = request.args.get('q', '')
         if search != '':
             flash("Searching results for %s ..." % (search), 'warning')
-            q = query_db("SELECT project_name, jid,status, datetime(status_date, 'unixepoch') datet \
-                    FROM user_queue WHERE project_name LIKE ? OR jid=? ORDER BY \
-                    status_date DESC LIMIT ?,?",
+            q = query_db("SELECT project_name, jid,status, \
+                    datetime(status_date, 'unixepoch') datet \
+                    FROM user_queue WHERE project_name LIKE ? OR jid=? \
+                    ORDER BY status_date DESC LIMIT ?,?",
                     ["%"+search+"%", search, before, app.config['PAGINATION']])
             q_all = query_db("SELECT status FROM user_queue WHERE project_name \
                     LIKE ? OR jid=? ORDER BY  status_date DESC", ["%"+search+"%", search])
