@@ -29,6 +29,7 @@ def delete_old():
             rmtree(pat_k)
     for k in to_delete:
         query_db("DELETE FROM user_queue WHERE jid=?", [k])
+        query_db("DELETE FROM models_skip WHERE jid=?", [k])
         query_db("DELETE FROM constraints WHERE jid=?", [k], insert=True)
 
     return Response("HEIL ERIS!", mimetype='text/plain')
