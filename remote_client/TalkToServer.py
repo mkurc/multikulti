@@ -89,12 +89,14 @@ class TalkToServer:
 
     def getModelsToRemove(self):
         j = self._getJson('/SKIPMODELS/')
+        if len(j)>0:
+            os.mkdir("junk")
         for i in range(len(j)):
             row = j[i]
             model_id = row['model_id'].strip()
             model_body = row['model_body']
             old_jid = row['prev_jid'].strip()
-            with open("model_skip_"+str(i)+"_JUNK_oldjid_"+old_jid+"__oldid_"+model_id+".pdb", "w") as fw:
+            with open("junk/cluster_skip_oldjid_"+old_jid+"__oldid_"+model_id+".pdb", "w") as fw:
                 fw.write(model_body)
 
     def getRestraintsFile(self, output_file="restr.txt"):

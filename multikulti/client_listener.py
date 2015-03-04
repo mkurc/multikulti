@@ -54,7 +54,7 @@ def parse_server_talking(task, secret_key, jid):
             tomail = query_db("SELECT email FROM user_queue WHERE jid=?",
                               [jid], one=True)[0]
             send_mail(subject="error "+jid)
-            if len(tomail) > 1:
+            if tomail and len(tomail) > 1:
                 send_mail(to=tomail, subject="error with job",
                           body='Your job ('+jid+') got error status. Robot will inform admin.')
 
@@ -65,7 +65,7 @@ def parse_server_talking(task, secret_key, jid):
                      [jid], insert=True)
             tomail = query_db("SELECT email FROM user_queue WHERE jid=?",
                               [jid], one=True)[0]
-            if len(tomail) > 1:
+            if tomail and len(tomail) > 1:
                 send_mail(to=tomail, subject="Job is running: "+jid,
                           body="Wait for second mail about job done (or job error).")
 
@@ -78,7 +78,7 @@ def parse_server_talking(task, secret_key, jid):
             q = query_db("SELECT email,project_name FROM user_queue \
                     WHERE jid=?", [jid], one=True)
             tomail, name = q[0], q[1]
-            if len(tomail) > 1:
+            if tomail and len(tomail) > 1:
                 send_mail(to=tomail, subject="Job "+name+" completed",
                           body="Get results: "+url_for('job_status', jid=jid, _external=True) +
                           " . Thanks for using our server")

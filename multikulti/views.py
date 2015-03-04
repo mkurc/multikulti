@@ -410,7 +410,7 @@ def resubmit(jid):
             newjid, rec, lig, nam, email = add_init_data_to_db(form)
             for to_exclude in request.form.getlist('excluded'):
                 udir_path = os.path.join(app.config['USERJOB_DIRECTORY'],
-                                         jid, "models", to_exclude)
+                                         jid, "clusters", to_exclude.replace("model","cluster"))
                 with gzip.open(udir_path, "rb") as fr:
                     query_db("INSERT INTO models_skip(jid, prev_jid, model_id, \
                               removed_model) VALUES(?,?,?,?)",
