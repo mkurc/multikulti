@@ -1,4 +1,4 @@
-<!-- ------------------------------------------początek działań Maćka -->
+<!-- ------------------------------------------ poczatek działań Macka  -->
 <div class="row">
     <div class="col-md-12">
 <h2>CABSdock tutorial</h2>
@@ -9,8 +9,11 @@
 <a href="#r2">2. Interpreting job status </a><br>
 <a href="#r3">3. Interpreting results data </a><br>
  <a href="#r31">3.1 Docking predictions results tab </a><br>
-<!-- <a href="#r32">3.2 Clustering details tab</a><br> -->
-<a href="#r4">4. Example results page</a><hr>
+ <a href="#r32">3.2 Clustering details tab</a><br>
+ <a href="#r33">3.3 Clustering details tab<br>
+ <a href="#r34">3.4 Viewing structures and simulation trajectory in Pymol</a><br>
+<a href="#r4">4. Resubmiting job – excluding binding modes from previous runs</a><br>
+<a href="#r5">5. Example results page</a><hr>
 
 <a id="r1"></a><h3>1. Submitting  new job </h3>
 
@@ -24,11 +27,19 @@
 
 <p align="justify">
 The only required data is protein structure and peptide sequence. <br><br>
-<strong>Protein</strong> structure can be provided as four letter <span class='capi'>pdb</span> code (the structure will be automatically obtained from 
-<a target="_blank" href="http://www.rcsb.org/pdb/"><i class="fa fa-external-link"></i> Protein Data Bank</a> database) or uploaded in <span class='capi'>pdb</span> file. </p>
+
+<strong>Protein</strong> receptor structure can be provided as file in the <span class='capi'>pdb</span> format or protein <span class='capi'>pdb</span> code along with the chain identifier(s), for example: <span class='capi'>1RJK:A</span> or <span class='capi'>1CE1:HL</span> (the structure is automatically obtained from <a target="_blank" href="http://www.rcsb.org/pdb/"><i class="fa fa-external-link"></i> Protein Data Bank</a> database).
+
+ 
+
     
     <div class="alert alert-info">
-     Note that maximum size of protein is 500 residues. 
+     The following requirements apply to the input <span class='capi'>pdb</span> files:
+     <ul> <li>single or multi-chain proteins are accepted (chains must be up to 500 amino acids in length); 
+     <li>each residue in the provided <span class='capi'>pdb</span> file should have a complete set of backbone atoms (i.e.: N, Cα, C and&nbsp;O); 
+     <li>side chain atoms may be missing. 
+     <li>non-standard amino acids are automatically changed to their standard counterparts.
+</ul>    
     </div>
     
     <p align="justify"><strong>Peptide</strong> sequence should be entered  in single-letter amino acid code. Allowed size of the peptide is 3-30 amino acids. 
@@ -51,17 +62,31 @@ After providing protein structure and peptide sequence, you can simply run simul
 <div class="row">
     <div class="col-md-8">
 <p align="justify">
-In this tab you can:
+In “optional” settings tab you can:
 </p>
 
 <ul>
-    <li>specify project name, which can be helpful for easy finding you job in queue list</li>
+    <li>specify project name, for better organization of your work: project names appear in the queue page.</li>
     <li>provide your e-mail address, so we can inform you about your job status</li>
-    <li>define peptide secondary structure  (if not, the <span class='capi'>psipred</span> method is automatically used). The secondary structure should be defined for each residue in a three letter code: H, a helix; E, an extended state (beta sheet); and C, a coil (less regular structures).</li>
+    <li>mark "unlikely to bind regions" option to allow for the higher flexibility of selected receptor fragments (see --- subsection form more details)</li>
+    <li>mark "flexible regions" option to select receptor residues that are unlikely to interact with the peptide (see --- subsection form more details)</li>
+    <li>increase simulation length. You may increase the default (50) number of Monte Carlo macrocycles to be performed (the maximum number is 200). Increasing this number
+		may be beneficial in more difficult modeling cases (e.g. for large receptor structures or for
+		long peptides of more than 20 residues). 
+		<div class="alert alert-info">
+		An alternative way for dealing with such more demanding cases is to run independent simulation runs, and to analyze the results jointly.
+		</div>
+		
+		
+		</li>
+    <li>define peptide secondary structure  (if not, the <span class='capi'>psipred</span> method is automatically used). The secondary structure should be defined for each residue in a three letter code: H, a helix; E, an extended state (beta sheet); and C, a coil (less regular structures).
+		<div class="alert alert-info">
+		Note that overpredictions of the regular secondary structure (H or E) are more dangerous for the quality of the results than underpredictions (i.e. for residues with 			ambiguous secondary structure prediction assignment it is better to assign coil (C) than the regular (H or E) structure). 
+		</div>    
+    </li>
+    
 </ul>
-<div class="alert alert-info">
-Note that overpredictions of the regular secondary structure (H or E) are more dangerous for the quality of the results than underpredictions (i.e. for residues with ambiguous secondary structure prediction assignment it is better to assign coil (C) than the regular (H or E) structure). 
-</div>
+
     </div>
     <div class="col-md-4">
         <img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit2.png')}}">
@@ -71,6 +96,51 @@ Note that overpredictions of the regular secondary structure (H or E) are more d
 
 <div class="row">
     <div class="col-md-12">
+<hr>
+<a id="r121"></a><h4>1.2.1 Selecting flexible regions</h4>
+If “Mark flexible regions” is checked, after clicking “submit button” you will be redirected to the panel shown below:
+<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit_flex.png')}}"></center><br>
+
+<p align="justify">
+The panel enables removing distance restraints that keep the receptor structure in a near native
+conformation For each selected residue, the user may choose from two preset settings: moderate or full flexibility.
+</p>
+<div class="panel panel-default ">
+		<strong>Step by step instruction:</strong>
+		<ul>
+<li>Select fragments by clicking amino acid symbols in the sequence</li> 
+<li>Use <kbd>Ctrl</kbd> with mouse to select second region of chain (on the sequence) to increase flexibility</li>
+<li>After selecting proper regions, click <u>Add region button</u></li>
+<li>Select flexibility level (default is <i>none</i>, i.e. fully flexible, unconstrained fragment).</li>
+<li>You can bookmark this page to postpone flexible regions selection. Do not forget to press save <u>regions definition</u> if you made some changes</li>
+<li>When finish, just click <u>Go to the next step!</u> to send job to computational server.</li>
+</ul>
+</div>
+
+
+
+
+<hr>
+<a id="r121"></a><h4>1.2.2 Selecting unlikely to bind regions</h4>
+
+If “Mark unlikely to bind regions” is checked you will be redirected to the panel which is similar to one described in the previous subsection:
+<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit_excl.png')}}"></center><br>
+<p align="justify">
+Here you can  select receptor residues that are unlikely to interact with the peptide to exclude some binding modes from the results. 
+</p>
+<div class="panel panel-default ">
+		<strong>Step by step instruction:</strong>
+		<ul>
+<li>Select fragments by clicking amino acid symbols in the sequence</li> 
+<li>Use <kbd>Ctrl</kbd>mouse to select second region of chain (on the sequence) to use multiple selection</li>
+<li>After selecting proper regions, click <u>Add region button</u></li>
+<li>You can bookmark this page to postpone flexible regions selection. Do not forget to press save <u>regions definition</u> if you made some changes</li>
+<li>When finish, just click <u>Go to the next step!</u> to send job to computational server.</li>
+</ul>
+</div>
+<div class="alert alert-info">
+Note that the information about selected “Unlikely to bind regions” will be available from the Project information tab.
+</div>
 <hr>
 <a id="r2"></a><h3>2. Interpreting job status</h3>
 
@@ -104,17 +174,81 @@ If the model is not displayed, please check if  Web Graphics Library (webGL) is 
 
 <hr>
 
-<!-- <a id="r32"></a><h4>3.2 Clustering details tab</h4>  -->
-<!-- <strong>[będzie ta zakładka?]</strong> -->
-<!-- <hr> -->
+<a id="r32"></a><h4>3.2 Clustering details tab</h4>  
+<p align="justify">
+Under the “Clustering details” tab (see the screenshot below) you are provided with
+thorough insight into structural clustering data.
+<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/results2.png')}}"></center><br>
+An interactive chart shows the composition of clusters of models vs. their trajectory affiliation. By clicking on the points representing models in the chart, you may view in 3D and download particular models in the <span class='capi'>pdb</span> format. 
+<br><br>The tab also contains a table summarizing basic information on clusters:
+</p>
+<ul>
+<li><u>Cluster</u> id and its <u>medoid</u> - the model which average dissimilarity to all models in a cluster is minimal). Files can be downloaded in  <span class='capi'>pdb</span> format.</li> 
+<li><u>Cluster density</u> values (number of elements divided by average cluster <span class='capi'>rmsd</span>>)</li>
+<li><u>Average <span class='capi'>rmsd</span></u> (average pairwise Cα <span class='capi'>rmsd</span> value between models grouped in a cluster)</li> 
+<li><u>Max <span class='capi'>rmsd</span></u> (maximum pairwise Cα <span class='capi'>rmsd</span> value between models grouped in a cluster) </li>
+<li><u>Number of elements</u> (number of models grouped in a cluster)</li>
+<li><u>Average cluster <span class='capi'>rmsd</span></u> (average pairwise Cα <span class='capi'>rmsd</span> value between models grouped in a cluster)</li>
+</ul>
 
-<a id="r4"></a><h4>4. Example results page</h4>
-An example result page can be accessed <a href="{{url_for('job_status', jid=config['EXAMPLE_JOB'][0])}}"><i class="fa fa-external-link"></i> here</a>.
+
+
+<hr> 
+<a id="r33"></a><h4>3.3 Contact maps tab</h4>
+
+
+<p align="justify">
+The “Contact maps” tab allows to investigate the interaction interface between the peptide
+and the receptor. An interactive chart shows a contact map between the peptide and the receptor residues. You may define the value of the contact cutoff distance i.e. distance between the closest heavy atoms of the residues (default value is 4.5 Å). At the bottom of the page a text list of the contacts shown on the maps.
+</p>
+<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/results3.png')}}"></center><br>
+  
+<hr> 
+
+<a id="r34"></a><h4>3.4 Viewing structures and simulation trajectory in Pymol </h4>
+
+<p align="justify">
+All downloadable <span class='capi'>pdb</span> files (models, clusters, and trajectories available from the ‘Docking predictions results’ tab) can be easily viewed using molecular visualization software, like Pymol. <br><br>
+
+Clusters and trajectories contains only Cα atoms.
+In order to view Cα trace load the pdb file into Pymol and type:<pre>
+show ribbon
+set ribbon_trace_atoms, 1
+</pre>
+<br>
+You may also view multi-model files such as the simulation trajectories and cluster files. To do so load the pdb file into Pymol and type:
+
+<pre>
+show ribbon
+set ribbon_trace_atoms, 1
+mplay
+</pre>
+
+If you want to view all models at ones type:
+
+<pre>
+set all_states, 1
+</pre>
+<br>
+See an example movie prepared in Pymol:
+</p>
+<center>
+<iframe width="640" height="480" src="https://www.youtube.com/embed/EOqRF-JOTFg?rel=0" frameborder="0" allowfullscreen></iframe>
+</center>
+<hr>
+<a id="r5"></a><h4>5. Resubmiting job – excluding binding modes from previous runs</h4>
+<p align="justify">
+You may resubmit your job with  changed job parameters. To do so go to the “Project information” tab and press <u>Re-submit project</u>.
+<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit1.png')}}"></center><br>
+
+You will be redirected in resubmission panel where you may define “optional settings” (see <a href="#r12">section 1.2</a>). You may also select models (binding modes) to be excluded from future results. Technically, receptor residues making the most persistent contacts in the selected binding mode will be excluded from making favorite interactions with the peptide. In order to start computations click <u>re-submit</u> button. 
+<br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit2.png')}}"></center><br>
+</p>
+<hr>
+<a id="r4"></a><h4>5. Example results page</h4>
+An example result page can be accessed <a href="{{url_for('job_status', jid=config['EXAMPLE_JOB'])}}"><i class="fa fa-external-link"></i> here</a>.
     </div>
 </div>
 
 
 <!----------------------------------------------------------koniec działań Maćka -->            
-
-
-
