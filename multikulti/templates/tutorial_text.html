@@ -1,4 +1,5 @@
-<!-- ------------------------------------------ poczatek działań Macka  -->
+
+<!-- ------------------------------------------początek działań Maćka -->
 <div class="row">
     <div class="col-md-12">
 <h2>CABSdock tutorial</h2>
@@ -10,12 +11,10 @@
 <a href="#r3">3. Interpreting results data </a><br>
  <a href="#r31">3.1 Docking predictions results tab </a><br>
  <a href="#r32">3.2 Clustering details tab</a><br>
- <a href="#r33">3.3 Clustering details tab<br>
+ <a href="#r33">3.3 Contact maps tab</a><br>
  <a href="#r34">3.4 Viewing structures and simulation trajectory in Pymol</a><br>
 <a href="#r4">4. Resubmiting job – excluding binding modes from previous runs</a><br>
 <a href="#r5">5. Example results page</a><hr>
-
-<a id="r1"></a><h3>1. Submitting  new job </h3>
 
 <a id="r11"></a><h4>1.1 Required input</h4>
     </div>
@@ -241,7 +240,7 @@ See an example movie prepared in Pymol:
 You may resubmit your job with  changed job parameters. To do so go to the “Project information” tab and press <u>Re-submit project</u>.
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit1.png')}}"></center><br>
 
-You will be redirected in resubmission panel where you may define “optional settings” (see <a href="#r12">section 1.2</a>). You may also select models (binding modes) to be excluded from future results. Technically, receptor residues making the most persistent contacts in the selected binding mode will be excluded from making favorite interactions with the peptide. In order to start computations click <u>re-submit</u> button. 
+You will be redirected to resubmission panel where you may define “optional settings” (see <a href="#r12">section 1.2</a>). You may also select models (binding modes) to be excluded from future results. Technically, receptor residues making the most persistent contacts in the selected binding mode will be excluded from making favorite interactions with the peptide. In order to start computations click <u>re-submit</u> button. 
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit2.png')}}"></center><br>
 </p>
 <hr>
