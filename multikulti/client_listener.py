@@ -35,8 +35,7 @@ def delete_old():
     return Response("HEIL ERIS!", mimetype='text/plain')
 
 
-@app.route('/_server_talking/<secret_key>/<jid>/<task>/',
-           methods=['POST', 'GET'])
+@app.route('/_server_talking/<secret_key>/<jid>/<task>/',methods=['POST', 'GET'])
 def parse_server_talking(task, secret_key, jid):
     k = config['REMOTE_SERVER_SECRET_KEY']
     if k == secret_key and request.remote_addr in config['REMOTE_SERVER_IP']:
@@ -127,16 +126,12 @@ def parse_server_talking(task, secret_key, jid):
         elif task == "RESTRAINTS":
             t = query_db("SELECT constraint_definition,force FROM constraints \
                          WHERE jid=?", [jid])
-            out = []
-            for row in t:
-                out.append({'def': row[0], 'force': row[1]})
+            out = [{'def': row[0], 'force': row[1]} for row in t]
             return Response(json.dumps(out), mimetype='application/json')
         elif task == "EXCLUDED":
             t = query_db("SELECT excluded_region FROM excluded \
                          WHERE jid=?", [jid])
-            out = []
-            for row in t:
-                out.append({'excluded': row[0]})
+            out = [{'excluded': row[0]} for row in t]
             return Response(json.dumps(out), mimetype='application/json')
         elif task == 'SKIPMODELS':
             t = query_db("SELECT model_id, removed_model, prev_jid \

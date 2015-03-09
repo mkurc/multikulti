@@ -6,9 +6,7 @@ from re import compile, sub
 
 
 def arraytostring(ar):
-    i = []
-    for e in ar:
-        i.append("%d-%d" % (e))
+    i = ["%d-%d" % (e) for e in ar]
     return ", ".join(i)
 
 
@@ -95,10 +93,8 @@ class PdbParser:
         if line.startswith("HETATM") and len(line)>21:
             res = line[17:20]
             if res in self.nonstandard:
-                fro = res
-                to = self.modres[res]
-                sf = r'^HETATM(.{10}(A| ))'+fro
-                st = r'ATOM  \1'+to
+                sf = r'^HETATM(.{10}(A| ))'+res
+                st = r'ATOM  \1'+self.modres[res]
                 line = sub(sf, st, line)
         return line
 
@@ -129,8 +125,7 @@ class PdbParser:
         return len(brk)
 
     def getResIndexes(self):
-        t = [str(i) for i in self.numb[self.chain]]
-        return ",".join(t)
+        return ",".join([str(i) for i in self.numb[self.chain]])
 
     def getBody(self):
         return self.onlycalfa

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright Michal Jamroz 2014/09
+# Copyright Michal Jamroz 2014/09-2015/03 :-(
 
 import os
 import urllib2
@@ -28,7 +28,6 @@ from wtforms.validators import DataRequired, Length, Email, optional, \
 
 
 from multikulti_modules.parsePDB import PdbParser
-# from multikulti_modules.restrRanges import restrRanges
 ###############################################################################
 
 app.config.update(config)
@@ -69,8 +68,7 @@ def status_color(status, shorter=True):
 def sequence_validator(form, field):
     allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N',
                    'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
-    d = ''.join(field.data.replace(' ', '').split()).upper()  # TODO poprawic
-    for letter in d:
+    for letter in re.sub("\s", "", field.data):
         if letter not in allowed_seq:
             raise ValidationError('Sequence contains non-standard aminoacid \
                                   symbol: %s' % (letter))
@@ -84,8 +82,7 @@ def eqlen_validator(form, field):
 
 def ss_validator(form, field):
     allowed_seq = ['C', 'H', 'E']
-    d = ''.join(field.data.replace(' ', '').split()).upper()
-    for letter in d:
+    for letter in re.sub("\s", "", field.data):
         if letter not in allowed_seq:
             raise ValidationError('Secondary structure contains non-standard \
                     symbol: %s. <br><small>Allowed H - helix, \
@@ -239,8 +236,13 @@ def add_init_data_to_db(form, final=False):
         with gzip.open(dest_file, "wb") as fw:
             with open(old_receptor, "r") as fr:
                 fw.write(fr.read())
-        query_db("insert into constraints(jid,constraint_definition,constraint_definition1, constraint_jmol, force) SELECT ?,constraint_definition,constraint_definition1, constraint_jmol, force FROM constraints WHERE jid=?", [jid, old_jid], insert=True)
-        query_db("insert into excluded(jid,excluded_region,excluded_region1,excluded_jmol) SELECT ?,excluded_region,excluded_region1,excluded_jmol FROM excluded WHERE jid=?", [jid, old_jid], insert=True)
+        query_db("insert into constraints(jid,constraint_definition,\
+                constraint_definition1, constraint_jmol, force) SELECT \
+                ?,constraint_definition,constraint_definition1, constraint_jmol, \
+                force FROM constraints WHERE jid=?", [jid, old_jid], insert=True)
+        query_db("insert into excluded(jid,excluded_region,excluded_region1,\
+                excluded_jmol) SELECT ?,excluded_region,excluded_region1,\
+                excluded_jmol FROM excluded WHERE jid=?", [jid, old_jid], insert=True)
 
     else:
         if form.receptor_file.data.filename:
@@ -274,16 +276,6 @@ def add_init_data_to_db(form, final=False):
              VALUES(?,?,?,?,?,?,?,?)", [jid, form.email.data, receptor_seq,
                                         ligand_seq, ligand_ss, hide, name,
                                         sim_length], insert=True)
-#    # generate constraints
-#    unzpinp = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "input.pdb")
-#    r = restrRanges(unzpinp)
-#    r.parseRanges()
-#    for e, e1, e2 in zip(r.getLabelFormat(), r.getLabelFormatChains1(),
-#                         r.getJmolFormat()):
-#        query_db("INSERT INTO constraints(jid,constraint_definition, \
-#                 constraint_definition1,constraint_jmol) VALUES(?,?,?,?)",
-#                 [jid, e, e1, e2], insert=True)
-
     return (jid, receptor_seq, ligand_seq, form.name.data, form.email.data)
 
 
@@ -724,7 +716,6 @@ def make_zip(jid):
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(".")
              for f in filenames if f != "klastry.txt" and dp != "CABSdock_"+jid and f != "input.pdb"]
     for file in files:
-        file2 = "/".join(file.split("/")[1:])
         file2 = os.path.basename(file)
 
         with gzip.GzipFile(file) as gz:
@@ -827,7 +818,3 @@ def sendzippackage(jobid):
     return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
                                jobid), "CABSdock_"+jobid+".zip",
                                mimetype='application/x-zip')
-
-@app.route('/con')
-def contact_map():
-    return render_template('contest.html')
