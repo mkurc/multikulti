@@ -13,10 +13,11 @@ import gzip
 from shutil import rmtree, copy
 
 from multikulti import app
-from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail
+from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail, connect_db
+
 
 from flask import render_template, url_for, request, flash, Response, \
-    redirect, send_from_directory, jsonify
+    redirect, send_from_directory, jsonify,g
 from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
@@ -35,6 +36,14 @@ app.secret_key = 'multikultitosmierdzcywilizacjieurpejzkij'
 input_pdb = UploadSet('inputpdbs', extensions=app.config['ALLOWED_EXTENSIONS'],
                       default_dest=app.config['UPLOAD_FOLDER'])
 
+@app.before_request
+def before_request():
+    g.sqlite_db = connect_db()
+
+@app.teardown_appcontext
+def close_connection(exception):
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
 
 def url_for_other_page(**kwargs):
     args = request.view_args.copy()
@@ -172,14 +181,14 @@ class MyForm(Form):
 @app.route('/exclude_regions/<jid>/<final>/', methods=['GET', 'POST'])
 def index_excluding(jid, final="True"):
     d = query_db("SELECT ligand_sequence,status \
-            FROM user_queue WHERE jid=? AND status='pending'", [jid], one=True)
-    ligand_sequence = d[0]
-    status = d[1]
+            FROM user_queue WHERE jid=%s AND status='pending'", [jid], one=True)
+    ligand_sequence = d['ligand_sequence']
+    status = d['status']
     jmol_string = 'Jmol.script(jmolApplet0,"select %s; color "+colors_jmol[%d]+"");'
     jmol_l = []
 
     constraints = query_db("SELECT excluded_region,excluded_jmol FROM \
-            excluded WHERE jid=?", [jid])
+            excluded WHERE jid=%s", [jid])
     for i in range(len(constraints)):
         jmol_l.append(jmol_string % (constraints[i]['excluded_jmol'], i))
     di = {'0.0': '<option value="0.0" selected>full</option><option \
@@ -192,15 +201,15 @@ def index_excluding(jid, final="True"):
 @app.route('/add_constraints/<jid>/<final>/', methods=['GET', 'POST'])
 def index_constraints(jid, final="True"):
     d = query_db("SELECT ligand_sequence,status, constraints_scaling_factor \
-            FROM user_queue WHERE jid=? AND status='pending'", [jid], one=True)
-    ligand_sequence = d[0]
-    status = d[1]
-    scaling = d[2]
+            FROM user_queue WHERE jid=%s AND status='pending'", [jid], one=True)
+    ligand_sequence = d['ligand_sequence']
+    status = d['status']
+    scaling = d['constraints_scaling_factor']
     jmol_string = 'Jmol.script(jmolApplet0,"select %s; color "+colors_jmol[%d]+"");'
     jmol_l = []
 
-    constraints = query_db("SELECT constraint_definition,force,constraint_jmol FROM \
-            constraints WHERE jid=?", [jid])
+    constraints = query_db("SELECT `constraint_definition`,`force`,`constraint_jmol` FROM \
+            constraints WHERE jid=%s", [jid])
     for i in range(len(constraints)):
         jmol_l.append(jmol_string % (constraints[i]['constraint_jmol'], i))
     di = {'0.0': '<option value="0.0" selected>full</option><option \
@@ -236,13 +245,6 @@ def add_init_data_to_db(form, final=False):
         with gzip.open(dest_file, "wb") as fw:
             with open(old_receptor, "r") as fr:
                 fw.write(fr.read())
-        query_db("insert into constraints(jid,constraint_definition,\
-                constraint_definition1, constraint_jmol, force) SELECT \
-                ?,constraint_definition,constraint_definition1, constraint_jmol, \
-                force FROM constraints WHERE jid=?", [jid, old_jid], insert=True)
-        query_db("insert into excluded(jid,excluded_region,excluded_region1,\
-                excluded_jmol) SELECT ?,excluded_region,excluded_region1,\
-                excluded_jmol FROM excluded WHERE jid=?", [jid, old_jid], insert=True)
 
     else:
         if form.receptor_file.data.filename:
@@ -273,9 +275,13 @@ def add_init_data_to_db(form, final=False):
         name = jid
     query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
              ligand_sequence, ligand_ss, hide, project_name,simulation_length) \
-             VALUES(?,?,?,?,?,?,?,?)", [jid, form.email.data, receptor_seq,
+             VALUES(%s,%s,%s,%s,%s,%s,%s,%s)", [jid, form.email.data, receptor_seq,
                                         ligand_seq, ligand_ss, hide, name,
                                         sim_length], insert=True)
+    if form.resubmit.data == "True":  # if there is resubmit, skip parsing pdb
+        old_jid = form.jid.data
+        query_db("insert into constraints(`jid`,`constraint_definition`,`constraint_definition1`, `constraint_jmol`, `force`) SELECT %s,`constraint_definition`,`constraint_definition1`, `constraint_jmol`, `force` FROM constraints WHERE jid=%s", [jid, old_jid], insert=True)
+        query_db("insert into excluded(jid,excluded_region,excluded_region1,excluded_jmol) SELECT %s,excluded_region,excluded_region1,excluded_jmol FROM excluded WHERE jid=%s", [jid, old_jid], insert=True)
     return (jid, receptor_seq, ligand_seq, form.name.data, form.email.data)
 
 
@@ -289,7 +295,7 @@ def final_submit():
 
         flash('Job submitted. Bookmark this page to check results (usually within \
                 24h) if you didn\'t povided e-mail address', 'info')
-        query_db("UPDATE user_queue SET status=? WHERE jid=?",
+        query_db("UPDATE user_queue SET status=%s WHERE jid=%s",
                  ['pre_queue', jid], insert=True)
         return redirect(url_for('job_status', jid=jid))
     return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
@@ -316,9 +322,9 @@ def parse_out(q):
 def queue_page_json(page=1):
     before = (page - 1) * app.config['PAGINATION']
     # TODO przy searchu to nie bedzie dzialac, z lenistwa
-    q = query_db("SELECT project_name, jid,status, datetime(status_date, \
-            'unixepoch') datet FROM user_queue WHERE hide=0 \
-            AND status!='pending' ORDER BY status_date DESC LIMIT ?,?",
+    q = query_db("SELECT project_name, jid,status, status_date \
+            datet FROM user_queue WHERE hide=0 \
+            AND status!='pending' ORDER BY status_date DESC LIMIT %s,%s",
                  [before, app.config['PAGINATION']])
     out = parse_out(q)
     return jsonify({'data': out, 'page': page})
@@ -328,7 +334,7 @@ def queue_page_json(page=1):
 def queue_txt():
     q = query_db("SELECT jid,project_name FROM user_queue where status='done' \
             ORDER BY id DESC", [])
-    a = [i[0]+"\t"+i[1] for i in q]
+    a = [i['jid']+"\t"+i['project_name'] for i in q]
     return Response("\n".join(a), mimetype='text/plain')
 
 
@@ -342,12 +348,12 @@ def queue_page(page=1):
         if search != '':
             flash("Searching results for %s ..." % (search), 'warning')
             q = query_db("SELECT project_name, jid,status, \
-                    datetime(status_date, 'unixepoch') datet \
-                    FROM user_queue WHERE project_name LIKE ? OR jid=? \
-                    ORDER BY status_date DESC LIMIT ?,?",
+                    status_date datet \
+                    FROM user_queue WHERE project_name LIKE %s OR jid=%s \
+                    ORDER BY status_date DESC LIMIT %s,%s",
                     ["%"+search+"%", search, before, app.config['PAGINATION']])
             q_all = query_db("SELECT status FROM user_queue WHERE project_name \
-                    LIKE ? OR jid=? ORDER BY  status_date DESC", ["%"+search+"%", search])
+                    LIKE %s OR jid=%s ORDER BY  status_date DESC", ["%"+search+"%", search])
             # jesli jest szukanie po nazwie projektu to ukrywanie zadan przestaje miec sens TODO
             out = parse_out(q)
             if len(out) == 0:
@@ -362,10 +368,9 @@ def queue_page(page=1):
 
     qall = query_db("SELECT status FROM  user_queue WHERE hide=0 AND \
                     status!='pending' ORDER BY status_date DESC", [])
-    q = query_db("SELECT project_name, jid,status, datetime(status_date, \
-            'unixepoch') datet FROM user_queue WHERE hide=0 \
-            AND status!='pending' ORDER BY status_date DESC LIMIT ?,?",
-                 [before, app.config['PAGINATION']])
+    q = query_db("SELECT project_name, jid,status, status_date datet FROM \
+                 user_queue WHERE hide=0 AND status!='pending' ORDER BY \
+                 status_date DESC LIMIT %s,%s", [before, app.config['PAGINATION']])
     out = parse_out(q)
 
     return render_template('queue.html', queue=out, total_rows=len(qall),
@@ -385,7 +390,7 @@ def resubmit(jid):
     jid = os.path.split(jid)[-1]
     system_info = query_db("SELECT ligand_sequence, simulation_length, receptor_sequence, \
             ligand_chain, project_name, ligand_ss, ss_psipred FROM user_queue \
-            WHERE jid=?", [jid], one=True)
+            WHERE jid=%s", [jid], one=True)
 
     if not form.name.data:
         form.name.data = system_info['project_name']
@@ -402,15 +407,15 @@ def resubmit(jid):
         if form.validate():
             newjid, rec, lig, nam, email = add_init_data_to_db(form)
             query_db("INSERT INTO models_skip(jid, prev_jid, model_id, \
-                    removed_model) SELECT ?,prev_jid,model_id,removed_model FROM \
-                    models_skip WHERE jid=?", [newjid, jid], insert=True)
+                    removed_model) SELECT %s,prev_jid,model_id,removed_model FROM \
+                    models_skip WHERE jid=%s", [newjid, jid], insert=True)
 
             for to_exclude in request.form.getlist('excluded'):
                 udir_path = os.path.join(app.config['USERJOB_DIRECTORY'],
                                          jid, "clusters", to_exclude.replace("model","cluster"))
                 with gzip.open(udir_path, "rb") as fr:
-                    query_db("INSERT INTO models_skip(jid, prev_jid, model_id, \
-                              removed_model) VALUES(?,?,?,?)",
+                    query_db("INSERT INTO models_skip(`jid`, `prev_jid`, `model_id`, \
+                              `removed_model`) VALUES(%s,%s,%s,%s)",
                               [newjid, jid, to_exclude, fr.read()], insert=True)
 
             if form.add_constraints.data or form.excluding.data:
@@ -427,7 +432,7 @@ def resubmit(jid):
                 flash('Job submitted. Bookmark this page to check results \
                       (usually within 24h) if you didn\'t povided e-mail \
                       address', 'info')
-                query_db("UPDATE user_queue SET status=? WHERE jid=?",
+                query_db("UPDATE user_queue SET status=%s WHERE jid=%s",
                          ['pre_queue', newjid], insert=True)
                 return redirect(url_for('job_status', jid=newjid))
         else:
@@ -470,17 +475,16 @@ def resubmit(jid):
 @app.route('/job/<jid>/')
 def job_status(jid):
     jid = os.path.split(jid)[-1]
-    todel = "+"+str(app.config['DELETE_USER_JOBS_AFTER'])+" days"
+    todel = str(app.config['DELETE_USER_JOBS_AFTER'])
 
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
-            datetime(status_date,'unixepoch') status_date, \
-            date(status_init, 'unixepoch', ?) del, ligand_chain, \
-            datetime(status_init,'unixepoch') status_change, project_name, \
-            status,constraints_scaling_factor, ligand_ss, ss_psipred FROM \
-            user_queue WHERE jid=?", [todel, jid], one=True)
-    constraints = query_db("SELECT constraint_definition,force FROM \
-            constraints WHERE jid=?", [jid])
-    exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=?", [jid])
+            status_date, date_add(status_init, interval  %s day) del, \
+            ligand_chain, status_init status_change, project_name, status, \
+            constraints_scaling_factor, ligand_ss, ss_psipred FROM user_queue \
+            WHERE jid=%s", [todel, jid], one=True)
+    constraints = query_db("SELECT `constraint_definition`,`force` FROM \
+            constraints WHERE jid=%s", [jid])
+    exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
     status = status_color(system_info['status'])
     # wylistuj wyniki jesli done
     models = {'models': [], 'clusters': [], 'replicas': []}
@@ -547,11 +551,11 @@ def user_add_excluded():
 
         constraints = request.form.getlist('constr[]')
         constraints_jmol = request.form.getlist('constr_jmol[]')
-        query_db("DELETE FROM excluded WHERE jid=?", [jid], insert=True)
+        query_db("DELETE FROM excluded WHERE jid=%s", [jid], insert=True)
 
         for r in zip(constraints, constraints_jmol):
             query_db("INSERT INTO excluded(jid,excluded_region, excluded_jmol) \
-                    VALUES(?,?,?)", [jid, r[0], r[1]], insert=True)
+                    VALUES(%s,%s,%s)", [jid, r[0], r[1]], insert=True)
     return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
 
 
@@ -567,13 +571,13 @@ def user_add_constraints():
         constraints_jmol = request.form.getlist('constr_jmol[]')
         weights = request.form.getlist('constr_w[]')
         scaling_factor = request.form.get('overall_weight', '1.0')
-        query_db("DELETE FROM constraints WHERE jid=?", [jid], insert=True)
-        query_db("UPDATE user_queue SET constraints_scaling_factor=? \
-                WHERE jid=?", [scaling_factor, jid], insert=True)
+        query_db("DELETE FROM constraints WHERE jid=%s", [jid], insert=True)
+        query_db("UPDATE user_queue SET constraints_scaling_factor=%s \
+                WHERE jid=%s", [scaling_factor, jid], insert=True)
 
         for r in zip(constraints, weights, constraints_jmol):
-            query_db("INSERT INTO constraints(jid,constraint_definition,force,\
-                     constraint_jmol) VALUES(?,?,?,?)", [jid, r[0], r[1], r[2]],
+            query_db("INSERT INTO constraints(`jid`,`constraint_definition`,`force`,\
+                     `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid, r[0], r[1], r[2]],
                      insert=True)
 
     return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
@@ -582,13 +586,11 @@ def user_add_constraints():
 @app.route('/', methods=['GET', 'POST'])
 def index_page():
     # get remote server load. If delay 50 minut - OFLAJN
-    q = query_db("SELECT load FROM server_load where id=0 AND \
-                 datetime(status_date, 'unixepoch', '+50 minutes')> \
-                 datetime('now')", one=True)
+    q = query_db("SELECT `load` FROM server_load where id=0 AND status_date + interval 50 minute > now()", one=True)
     if not q:
         comp_status = '<span class="label label-danger">offline</span>'
         # TODO send_mail(subject="cabsdock comp server offline?")
-    elif int(q[0]) > 85:
+    elif int(q['load']) > 85:
         comp_status = '<span class="label label-warning">high load</span>'
     else:
         comp_status = '<span class="label label-success">online</span>'
@@ -609,7 +611,7 @@ def index_page():
                 flash('Job submitted. Bookmark this page to check results \
                       (usually within 24h) if you didn\'t povided e-mail \
                       address', 'info')
-                query_db("UPDATE user_queue SET status=? WHERE jid=?",
+                query_db("UPDATE user_queue SET status=%s WHERE jid=%s",
                          ['pre_queue', jid], insert=True)
                 return redirect(url_for('job_status', jid=jid))
         else:
@@ -622,25 +624,24 @@ def simulation_parameters(jid):
     with gzip.open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
                            "README.txt"), "w") as fw:
         q = query_db("SELECT ligand_sequence, ligand_ss, receptor_sequence, \
-                      project_name, datetime(status_date,'unixepoch') \
-                      submitted, datetime(status_init, 'unixepoch') finished, \
-                      constraints_scaling_factor FROM user_queue where jid=?",
+                      project_name, status_date \
+                      submitted, status_init finished, \
+                      constraints_scaling_factor FROM user_queue where jid=%s",
                      [jid], one=True)
         fw.write("CABSdock simulation results. Kolinski's lab homepage: http://biocomp.chem.uw.edu.pl\n")
         fw.write("======================================================================================\n")
         fw.write("%28s : %s\n" % ("job_identifier", jid))
         for k in q.keys():
             fw.write("%28s : %s\n" % (k, q[k]))
-        q = query_db("SELECT constraint_definition, force FROM constraints \
-                      WHERE jid=?", [jid])
+        q = query_db("SELECT `constraint_definition`, `force` FROM constraints \
+                      WHERE jid=%s", [jid])
         fw.write("\nFLEXIBLE:\n")
         for row in q:
-            fw.write("%40s force: %5.2f\n" % (row[0], float(row[1])))
-        q = query_db("SELECT excluded_region FROM excluded \
-                      WHERE jid=?", [jid])
+            fw.write("%40s force: %5.2f\n" % (row['constraint_definition'], float(row['force'])))
+        q = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
         fw.write("\nEXCLUDED:\n")
         for row in q:
-            fw.write("%40s \n" % (row[0]))
+            fw.write("%40s \n" % (row['excluded_region']))
 
 
 @app.route('/job/<jobid>/<models>/<model_name>/model.pdb')

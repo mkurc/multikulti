@@ -8,7 +8,8 @@ import gzip
 import uuid
 import re
 from sys import maxint
-import sqlite3
+import MySQLdb
+import MySQLdb.cursors
 import smtplib
 from email.MIMEText import MIMEText
 
@@ -17,14 +18,16 @@ prefix = path.dirname(path.realpath(__file__))+"/"
 
 
 config = \
-    dict(DATABASE=prefix+'database-full.db',
-         CACHE=prefix+'cache/',
+    dict(CACHE=prefix+'cache/',
          STATIC=prefix+'static/',
          ALLOWED_EXTENSIONS=['pdb', 'PDB'],
          UPLOAD_FOLDER=prefix+'upload/',
          USERJOB_DIRECTORY=prefix+'computations/',
          DELETE_USER_JOBS_AFTER="14",
          EXAMPLE_JOB = ['7f0f35bca08af5d'],
+         MYSQL_USER='cabsdock',
+         MYSQL_PASS='cabsdock123',
+         MYSQL_DATA='cabsdock',
          REMOTE_SERVER_SECRET_KEY="23",
 	 REMOTE_SERVER_IP = ["127.0.0.1", "212.87.3.12", "212.87.3.11"],
          DEBUG=True,
@@ -82,11 +85,11 @@ def regexp(expr, item):
 
 def connect_db():
     """Connects to the specific database."""
-# test branczu
-
-    rv = sqlite3.connect(config['DATABASE'])
-    rv.create_function('regexp', 2, regexp)
-    rv.row_factory = sqlite3.Row
+    rv = MySQLdb.connect(host="localhost", user=config['MYSQL_USER'], 
+                         cursorclass=MySQLdb.cursors.DictCursor,
+                         passwd=config['MYSQL_PASS'], 
+                         db=config['MYSQL_DATA'], 
+                         charset='utf8')
     return rv
 
 
@@ -102,9 +105,10 @@ def get_db():
 
 def query_db(query, args=(), one=False, insert=False):
     mydb = get_db()
-    cur = mydb.execute(query, args)
+    cur = mydb.cursor()
+    cur.execute(query, args)
     if insert:
-        g.sqlite_db.commit()
+        mydb.commit()
         cur.close()
         return cur.lastrowid
     else:

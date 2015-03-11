@@ -1,0 +1,4 @@
+create user 'cabsdock'@'localhost' identified by 'cabsdock123';
+create database cabsdock character set utf8;
+grant all privileges on cabsdock.* to 'cabsdock'@'localhost';
+FLUSH PRIVILEGES;
