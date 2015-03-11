@@ -82,6 +82,7 @@ def regexp(expr, item):
 
 def connect_db():
     """Connects to the specific database."""
+# test branczu
 
     rv = sqlite3.connect(config['DATABASE'])
     rv.create_function('regexp', 2, regexp)
