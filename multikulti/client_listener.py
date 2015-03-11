@@ -22,7 +22,7 @@ def delete_old():
     days = "-"+str(app.config['DELETE_USER_JOBS_AFTER'])+" days"
     to_delete = []
     for keyid in query_db("SELECT jid FROM user_queue WHERE \
-            status_init<=strftime('%s',date('now',?))", [days]):
+            status_init<=strftime('%s',date('now',?)) and status_init>1426074116", [days]):
         if keyid[0] not in app.config['EXAMPLE_JOB']:
             to_delete.append(keyid[0])
             pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid[0])
@@ -82,6 +82,9 @@ def parse_server_talking(task, secret_key, jid):
                 send_mail(to=tomail, subject="Job "+name+" completed",
                           body="Get results: "+url_for('job_status', jid=jid, _external=True) +
                           " . Thanks for using our server")
+        elif task == "MSG":
+            msg = request.form['msg']
+            send_mail(subject="DEBUG/ERROR: "+msg)
 
         elif task == "LOAD" and request.method == 'POST':
             load = request.form['load']

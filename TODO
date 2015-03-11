@@ -1,6 +1,8 @@
 receptora fragmenty min 4aa
+chyba przeniesc na mysql
 
 V content-disposition filenamesy
+V przesylac mesaza ze code 500
 V chyba gromacs zmienia indeksy lancuchow (zle si koloruje) <-- fix_chain. powinno byc
 V gestosc maxrms srednirms medoid licznosc
 V resubmitowanie

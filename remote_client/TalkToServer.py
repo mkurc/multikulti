@@ -183,6 +183,7 @@ class TalkToServer:
             if r.status_code == requests.codes.ok:
                 print("set "+url+" %d" % (r.status_code))
             else:
+                self.saySomething("error, check logs "+r.status_code)
                 print("Not set >>"+url+"<<, status: %d" % (r.status_code))
         except:
             print("error conn: "+url)
@@ -198,6 +199,16 @@ class TalkToServer:
 
     def tellJobWaiting(self):
         self._tell('/S_Q/')
+    def saySomething(self, msg):
+        try:
+            d = {'msg': msg+" "+self.remoteuri}
+            r = requests.post(self.remoteuri+"/MSG/", data=d)
+            if r.status_code == requests.codes.ok:
+                print("set "+msg+" %d" % (r.status_code))
+            else:
+                print("Not set >>"+msg+"<<, status: %d" % (r.status_code))
+        except:
+            print("error conn: "+msg)
 
 if __name__ == "__main__":
     a = TalkToServer("1360dac99d8d322")
