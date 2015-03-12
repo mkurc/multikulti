@@ -587,7 +587,7 @@ def user_add_constraints():
 def index_page():
     # get remote server load. If delay 50 minut - OFLAJN
     q = query_db("SELECT `load` FROM server_load where id=0 AND status_date + interval 50 minute > now()", one=True)
-    if not q:
+    if 'load' not in q:
         comp_status = '<span class="label label-danger">offline</span>'
         # TODO send_mail(subject="cabsdock comp server offline?")
     elif int(q['load']) > 85:
