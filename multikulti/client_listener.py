@@ -3,7 +3,7 @@
 # Copyright Michal Jamroz, 2014, jamroz@chem.uw.edu.pl
 
 from multikulti import app
-from config import config, query_db#, send_mail
+from config import config, query_db #, send_mail
 from flask import request, Response, url_for
 import json
 from os import path, makedirs
@@ -90,6 +90,10 @@ def parse_server_talking(task, secret_key, jid):
             query_db("UPDATE  server_load SET `load`=%s, `name`=%s,\
                      `status_date`=now() WHERE id=0",
                      [load, hostname], insert=True)
+
+        elif task == "MSG":
+            msg = request.form['msg']
+            send_mail(subject="DEBUG/ERROR: "+msg)
 
         elif task == "SENDSS" and request.method == 'POST':
             ss = request.form['ss']
