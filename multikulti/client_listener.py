@@ -27,7 +27,7 @@ def delete_old():
             status_init<= now() - interval %s day", [days]):
         if keyid['jid'] not in app.config['EXAMPLE_JOB']:
             to_delete.append(keyid['jid'])
-            pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid[0])
+            pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid['jid'])
             rmtree(pat_k)
     for k in to_delete:
         query_db("DELETE FROM models_skip WHERE jid=%s", [k])
