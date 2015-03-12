@@ -14,9 +14,6 @@ def close_db(error):
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
 
-    if hasattr(g, 'sqlite_user_db'):
-        g.sqlite_user_db.close()
-
 
 @app.errorhandler(404)
 def page_not_found(error):
