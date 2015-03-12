@@ -89,7 +89,7 @@ class TalkToServer:
 
     def getModelsToRemove(self):
         j = self._getJson('/SKIPMODELS/')
-        if len(j)>0:
+        if len(j) > 0:
             os.mkdir("junk")
         for i in range(len(j)):
             row = j[i]
@@ -199,6 +199,17 @@ class TalkToServer:
 
     def tellJobWaiting(self):
         self._tell('/S_Q/')
+    def saySomething(self, msg):
+        try:
+            d = {'msg': msg+" "+self.remoteuri}
+            r = requests.post(self.remoteuri+"/MSG/", data=d)
+            if r.status_code == requests.codes.ok:
+                print("set "+msg+" %d" % (r.status_code))
+            else:
+                print("Not set >>"+msg+"<<, status: %d" % (r.status_code))
+        except:
+            print("error conn: "+msg)
+
     def saySomething(self, msg):
         try:
             d = {'msg': msg+" "+self.remoteuri}
