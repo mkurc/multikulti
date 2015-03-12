@@ -3,13 +3,11 @@
 # Copyright Michal Jamroz, 2014, jamroz@chem.uw.edu.pl
 
 from multikulti import app
-from config import config, query_db #, send_mail
+from config import config, query_db, send_mail
 from flask import request, Response, url_for
 import json
 from os import path, makedirs
 from shutil import rmtree
-def send_mail(to='', subject="Test", body="Body"):
-    pass
 
 
 @app.route('/_queue')
@@ -24,17 +22,10 @@ def delete_old():
     days = str(app.config['DELETE_USER_JOBS_AFTER'])
     to_delete = []
     for keyid in query_db("SELECT jid FROM user_queue WHERE \
-<<<<<<< HEAD
-            status_init<=strftime('%s',date('now',?)) and status_init>1426074116", [days]):
-        if keyid[0] not in app.config['EXAMPLE_JOB']:
-            to_delete.append(keyid[0])
-            pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid[0])
-=======
-            status_init<= now() - interval %s day", [days]):
+                          status_init<= now() - interval %s day", [days]):
         if keyid['jid'] not in app.config['EXAMPLE_JOB']:
             to_delete.append(keyid['jid'])
             pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid['jid'])
->>>>>>> cabsdock_mysql
             rmtree(pat_k)
     for k in to_delete:
         query_db("DELETE FROM models_skip WHERE jid=%s", [k])
