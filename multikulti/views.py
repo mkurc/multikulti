@@ -391,6 +391,9 @@ def resubmit(jid):
     system_info = query_db("SELECT ligand_sequence, simulation_length, receptor_sequence, \
             ligand_chain, project_name, ligand_ss, ss_psipred FROM user_queue \
             WHERE jid=%s", [jid], one=True)
+    constraints = query_db("SELECT `constraint_definition`,`force` FROM \
+            constraints WHERE jid=%s", [jid])
+    exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
 
     if not form.name.data:
         form.name.data = system_info['project_name']

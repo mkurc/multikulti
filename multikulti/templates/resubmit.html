@@ -122,6 +122,52 @@ function loadMol(o) {
                                     {% endif %}
                     </td>
                 </tr>
+      <tr>
+          <td>
+              <h5><strong>Flexible regions</strong></h5>
+      </td>
+      <td>
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in constr %}
+          <td><small>{{row['constraint_definition']}}</small> <!-- <span class="badge">{{row['force']}}</span> -->
+          </td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
+
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
+      <tr>
+          <td>
+              <h5><strong>Unlikely to bind regions</strong></h5>
+      </td>
+      <td>
+          
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in ex %}
+          <td><small>{{row['excluded_region']}}</small></td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
+
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
                 </table>
             </div>
         </div>
