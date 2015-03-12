@@ -40,10 +40,10 @@ input_pdb = UploadSet('inputpdbs', extensions=app.config['ALLOWED_EXTENSIONS'],
 def before_request():
     g.sqlite_db = connect_db()
 
-@app.teardown_appcontext
-def close_connection(exception):
-    if hasattr(g, 'sqlite_db'):
-        g.sqlite_db.close()
+#@app.teardown_appcontext
+#def close_connection(exception):
+#    if hasattr(g, 'sqlite_db'):
+#        g.sqlite_db.close()
 
 def url_for_other_page(**kwargs):
     args = request.view_args.copy()
