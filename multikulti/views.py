@@ -322,7 +322,7 @@ def parse_out(q):
 def queue_page_json(page=1):
     before = (page - 1) * app.config['PAGINATION']
     # TODO przy searchu to nie bedzie dzialac, z lenistwa
-    q = query_db("SELECT project_name, jid,status, status_date \
+    q = query_db("SELECT project_name, jid,status, date_format(status_date, \"%%Y-%%m-%%d %%H:%%i:%%s\") \
             datet FROM user_queue WHERE hide=0 \
             AND status!='pending' ORDER BY status_date DESC LIMIT %s,%s",
                  [before, app.config['PAGINATION']])
