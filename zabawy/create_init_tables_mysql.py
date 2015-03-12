@@ -20,7 +20,7 @@ def createTables():
     cur.execute('''
                 CREATE TABLE user_queue ( 
                `id` integer primary key auto_increment not null,   
-               `jid` varchar(150) NOT NULL unique, 
+               `jid` varchar(150) NOT NULL, 
                `email` varchar(150),
                `ligand_sequence` tinytext NOT NULL, 
                `ligand_ss` tinytext, 
@@ -41,18 +41,16 @@ def createTables():
                   `jid` varchar(150) NOT NULL,
                   `excluded_region` text,
                   `excluded_region1` text,
-                  `excluded_jmol` text,
-                  constraint foreign key (jid) REFERENCES user_queue(jid)
+                  `excluded_jmol` text
                   ) ''')
-    cur.execute('''CREATE TABLE models_skip (`id` integer primary key not null auto_increment, `jid` varchar(150) NOT NULL, prev_jid varchar(150) NOT NULL, model_id varchar(200), removed_model longtext, constraint foreign key(jid) REFERENCES user_queue(jid))''')
+    cur.execute('''CREATE TABLE models_skip (`id` integer primary key not null auto_increment, `jid` varchar(150) NOT NULL, prev_jid varchar(150) NOT NULL, model_id varchar(200), removed_model longtext)''')
     cur.execute('''
                 CREATE TABLE constraints
                 ( `id` integer primary key auto_increment not null,
                   `jid` varchar(150) NOT NULL,
                   `constraint_definition` text,
                   `constraint_definition1` text,
-                  `constraint_jmol` tinytext,
-                  `force` float not null default 1.0,
-                  constraint foreign key(jid) REFERENCES user_queue(jid)
+                  `constraint_jmol` text,
+                  `force` float not null default 1.0
                   ) ''')
 createTables()
