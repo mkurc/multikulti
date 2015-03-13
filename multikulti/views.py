@@ -370,7 +370,7 @@ def queue_page(page=1):
                  status_date DESC LIMIT %s,%s", [before, app.config['PAGINATION']])
     out = parse_out(q)
 
-    return render_template('queue.html', queue=out, total_rows=qall['l'],
+    return render_template('queue.html', queue=out, total_rows=qall[0],
                            page=page)
 
 
@@ -485,7 +485,7 @@ def job_status(jid):
     constraints = query_db("SELECT `constraint_definition`,`force` FROM \
             constraints WHERE jid=%s", [jid])
     exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
-    if status in system_info: # google bot
+    if 'status' in system_info: # google bot
         status = status_color(system_info['status'])
     else:
         status = 'undefined'
@@ -650,6 +650,11 @@ def send_unzipped(jobid, model_name, models):
         return r
 
 def get_model(fo, model_idx):
+    te = re.compile(r'MODEL.{6}'+str(model_idx)+'.*?ENDMDL',flags=re.DOTALL)
+    out = te.search(fo.read()).group(0)
+    return Response(out, status=200, mimetype='chemical/x-pdb')
+
+def get_model_old(fo, model_idx):
     te = re.compile(r"^MODEL\s+"+str(model_idx)+"$")
     te2 = re.compile(r"^ENDMDL")
     line_start = -1
