@@ -38,9 +38,9 @@ class TalkToServer:
 
         r = requests.post(self.remoteuri+"/SEND/", files=to_send)
         if r.status_code == requests.codes.ok:
-            print("Results sent!")
+            print("Results sent! %s" % (self.jid))
         else:
-            print("Results NOT sent" + str(r.status_code))
+            print("Results NOT sent %s" + str(r.status_code, self.jid))
 
     def getStructureFile(self, output_path="input.pdb"):
         try:
@@ -131,9 +131,7 @@ class TalkToServer:
             d = {'chain': ll[2]}
             r = requests.post(self.remoteuri+"/LIGCHAIN/", data=d)
 
-            if r.status_code == requests.codes.ok:
-                print("Ligand chain id sent")
-            else:
+            if r.status_code != requests.codes.ok:
                 print("Ligand chain id not sent, %d" % (r.status_code))
 
     def putSecondaryStructureString(self, ss_string):
@@ -181,10 +179,10 @@ class TalkToServer:
         try:
             r = requests.get(self.remoteuri+url)
             if r.status_code == requests.codes.ok:
-                print("set "+url+" %d" % (r.status_code))
+                print("set "+url+" %d %s" % (r.status_code, self.jid))
             else:
                 self.saySomething("error, check logs "+r.status_code)
-                print("Not set >>"+url+"<<, status: %d" % (r.status_code))
+                print("Not set >>"+url+"<<, status: %d %s" % (r.status_code, self.jid))
         except:
             print("error conn: "+url)
 
@@ -199,16 +197,6 @@ class TalkToServer:
 
     def tellJobWaiting(self):
         self._tell('/S_Q/')
-    def saySomething(self, msg):
-        try:
-            d = {'msg': msg+" "+self.remoteuri}
-            r = requests.post(self.remoteuri+"/MSG/", data=d)
-            if r.status_code == requests.codes.ok:
-                print("set "+msg+" %d" % (r.status_code))
-            else:
-                print("Not set >>"+msg+"<<, status: %d" % (r.status_code))
-        except:
-            print("error conn: "+msg)
 
     def saySomething(self, msg):
         try:
