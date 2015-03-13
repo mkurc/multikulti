@@ -349,8 +349,8 @@ def queue_page(page=1):
                     FROM user_queue WHERE project_name LIKE %s OR jid=%s \
                     ORDER BY status_date DESC LIMIT %s,%s",
                     ["%"+search+"%", search, before, app.config['PAGINATION']])
-            q_all = query_db("SELECT status FROM user_queue WHERE project_name \
-                    LIKE %s OR jid=%s ORDER BY  status_date DESC", ["%"+search+"%", search])
+            q_all = query_db("SELECT count(*) l FROM user_queue WHERE project_name \
+                    LIKE %s OR jid=%s", ["%"+search+"%", search])
             # jesli jest szukanie po nazwie projektu to ukrywanie zadan przestaje miec sens TODO
             out = parse_out(q)
             if len(out) == 0:
@@ -363,14 +363,14 @@ def queue_page(page=1):
             return render_template('queue.html', queue=out, page=page,
                                    total_rows=len(q_all))
 
-    qall = query_db("SELECT status FROM  user_queue WHERE hide=0 AND \
-                    status!='pending' ORDER BY status_date DESC", [])
+    qall = query_db("SELECT count(*) l FROM  user_queue WHERE hide=0 AND \
+                    status!='pending'", [])
     q = query_db("SELECT project_name, jid,status, status_date datet FROM \
                  user_queue WHERE hide=0 AND status!='pending' ORDER BY \
                  status_date DESC LIMIT %s,%s", [before, app.config['PAGINATION']])
     out = parse_out(q)
 
-    return render_template('queue.html', queue=out, total_rows=len(qall),
+    return render_template('queue.html', queue=out, total_rows=qall['l'],
                            page=page)
 
 
@@ -485,7 +485,10 @@ def job_status(jid):
     constraints = query_db("SELECT `constraint_definition`,`force` FROM \
             constraints WHERE jid=%s", [jid])
     exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
-    status = status_color(system_info['status'])
+    if status in system_info: # google bot
+        status = status_color(system_info['status'])
+    else:
+        status = 'undefined'
     # wylistuj wyniki jesli done
     models = {'models': [], 'clusters': [], 'replicas': []}
     udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
@@ -545,42 +548,33 @@ def job_status(jid):
 def user_add_excluded():
     if request.method == 'POST':
         jid = request.form.get('jid', '')
-        if jid == '':
-            return Response("OJ OJ, nieladnie", status=404,
-                            mimetype='text/plain')
+        if jid != '':
+            constraints = request.form.getlist('constr[]')
+            constraints_jmol = request.form.getlist('constr_jmol[]')
+            query_db("DELETE FROM excluded WHERE jid=%s", [jid], insert=True)
 
-        constraints = request.form.getlist('constr[]')
-        constraints_jmol = request.form.getlist('constr_jmol[]')
-        query_db("DELETE FROM excluded WHERE jid=%s", [jid], insert=True)
-
-        for r in zip(constraints, constraints_jmol):
-            query_db("INSERT INTO excluded(jid,excluded_region, excluded_jmol) \
-                    VALUES(%s,%s,%s)", [jid, r[0], r[1]], insert=True)
-    return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
+            for r in zip(constraints, constraints_jmol):
+                query_db("INSERT INTO excluded(jid,excluded_region, excluded_jmol) \
+                        VALUES(%s,%s,%s)", [jid, r[0], r[1]], insert=True)
 
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
 def user_add_constraints():
     if request.method == 'POST':
         jid = request.form.get('jid', '')
-        if jid == '':
-            return Response("OJ OJ, nieladnie", status=404,
-                            mimetype='text/plain')
+        if jid != '':
+            constraints = request.form.getlist('constr[]')
+            constraints_jmol = request.form.getlist('constr_jmol[]')
+            weights = request.form.getlist('constr_w[]')
+            scaling_factor = request.form.get('overall_weight', '1.0')
+            query_db("DELETE FROM constraints WHERE jid=%s", [jid], insert=True)
+            query_db("UPDATE user_queue SET constraints_scaling_factor=%s \
+                    WHERE jid=%s", [scaling_factor, jid], insert=True)
 
-        constraints = request.form.getlist('constr[]')
-        constraints_jmol = request.form.getlist('constr_jmol[]')
-        weights = request.form.getlist('constr_w[]')
-        scaling_factor = request.form.get('overall_weight', '1.0')
-        query_db("DELETE FROM constraints WHERE jid=%s", [jid], insert=True)
-        query_db("UPDATE user_queue SET constraints_scaling_factor=%s \
-                WHERE jid=%s", [scaling_factor, jid], insert=True)
-
-        for r in zip(constraints, weights, constraints_jmol):
-            query_db("INSERT INTO constraints(`jid`,`constraint_definition`,`force`,\
-                     `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid, r[0], r[1], r[2]],
-                     insert=True)
-
-    return Response("HAHAHAahahahakier", status=200, mimetype='text/plain')
+            for r in zip(constraints, weights, constraints_jmol):
+                query_db("INSERT INTO constraints(`jid`,`constraint_definition`,`force`,\
+                        `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid, r[0], r[1], r[2]],
+                        insert=True)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -589,7 +583,7 @@ def index_page():
     q = query_db("SELECT `load` FROM server_load where id=0 AND status_date + interval 50 minute > now()", one=True)
     if 'load' not in q:
         comp_status = '<span class="label label-danger">offline</span>'
-        # TODO send_mail(subject="cabsdock comp server offline?")
+        send_mail(subject="cabsdock comp server offline?")
     elif int(q['load']) > 85:
         comp_status = '<span class="label label-warning">high load</span>'
     else:
@@ -633,14 +627,11 @@ def simulation_parameters(jid):
         fw.write("%28s : %s\n" % ("job_identifier", jid))
         for k in q.keys():
             fw.write("%28s : %s\n" % (k, q[k]))
-        q = query_db("SELECT `constraint_definition`, `force` FROM constraints \
-                      WHERE jid=%s", [jid])
         fw.write("\nFLEXIBLE:\n")
-        for row in q:
+        for row in query_db("SELECT `constraint_definition`, `force` FROM constraints WHERE jid=%s", [jid]):
             fw.write("%40s force: %5.2f\n" % (row['constraint_definition'], float(row['force'])))
-        q = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
         fw.write("\nEXCLUDED:\n")
-        for row in q:
+        for row in query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid]):
             fw.write("%40s \n" % (row['excluded_region']))
 
 
@@ -652,14 +643,11 @@ def send_unzipped(jobid, model_name, models):
 
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, models,
                             model_name)
-    data = gzip.open(path_dir)
-    file_content = data.read()
-    data.close()
-
-    r = Response(file_content, status=200, mimetype='chemical/x-pdb')
-    out_name = jobid+"_"+model_name.split(".")[0]+".pdb"
-    r.headers.add('Content-Disposition', 'attachment', filename=out_name)
-    return r
+    with gzip.open(path_dir) as data:
+        r = Response(data.read(), status=200, mimetype='chemical/x-pdb')
+        out_name = jobid+"_"+model_name.split(".")[0]+".pdb"
+        r.headers.add('Content-Disposition', 'attachment', filename=out_name)
+        return r
 
 def get_model(fo, model_idx):
     te = re.compile(r"^MODEL\s+"+str(model_idx)+"$")
@@ -689,6 +677,9 @@ def send_cluster_model(jobid, model_idx, cluster_idx):
 
 @app.route('/job/<jobid>/models/<model_idx>/<rep_idx>/model.pdb')
 def send_unzipped_cluster(jobid, model_idx, rep_idx):
+    if rep_idx == 'REPIDX' or model_idx == 'IDX': # google bot
+        return Response("null model", status=200, mimetype='text/plain')
+
     jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jobid, "replicas",
                             "replica_"+str(rep_idx)+".pdb.gz")
