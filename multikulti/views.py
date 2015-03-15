@@ -716,6 +716,7 @@ def make_zip(jid):
         file2 = os.path.basename(file)
 
         with gzip.GzipFile(file) as gz:
+            # TODO zmienic replica -> trajectory
             with open(os.path.join("CABSdock_"+jid,
                       os.path.splitext(file2)[0]), "w") as un:
                 un.write(gz.read())
