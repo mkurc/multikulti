@@ -474,6 +474,9 @@ def resubmit(jid):
 
 @app.route('/job/<jid>/')
 def job_status(jid):
+    if jid=='REPLACE': # to skip 500 if robots use javascript links
+        return Response("null model", status=200, mimetype='text/plain')
+
     jid = os.path.split(jid)[-1]
     todel = str(app.config['DELETE_USER_JOBS_AFTER'])
 
@@ -716,9 +719,10 @@ def make_zip(jid):
         file2 = os.path.basename(file)
 
         with gzip.GzipFile(file) as gz:
-            # TODO zmienic replica -> trajectory
-            with open(os.path.join("CABSdock_"+jid,
-                      os.path.splitext(file2)[0]), "w") as un:
+            fnams = os.path.splitext(file2)[0]
+            if 'replica' in fnams:
+                fnams = fnams.replace("replica", "trajectory")
+            with open(os.path.join("CABSdock_"+jid, fnams), "w") as un:
                 un.write(gz.read())
 
     zf = zipfile.ZipFile("CABSdock_"+jid+".zip", "w", zipfile.ZIP_DEFLATED)
