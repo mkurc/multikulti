@@ -479,9 +479,17 @@ def job_status(jid):
 
     jid = os.path.split(jid)[-1]
     todel = str(app.config['DELETE_USER_JOBS_AFTER'])
+    # check if job is from benchmark
+    bench = query_db("select id from user_queue where status_date > \
+            (select status_date from user_queue where jid=%s) \
+            and jid=%s", [app.config['EXAMPLE_JOB'], jid], one=True)
+    if bench is not None:
+        botlab=True
+    else:
+        botlab=False
 
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
-            status_date, date_add(status_init, interval  %s day) del, \
+            status_date, date_add(status_date, interval  %s day) del, \
             ligand_chain, status_init status_change, project_name, status, \
             constraints_scaling_factor, ligand_ss, ss_psipred FROM user_queue \
             WHERE jid=%s", [todel, jid], one=True)
@@ -538,12 +546,12 @@ def job_status(jid):
                             jid=jid, sys=system_info, results=models, pie=pie,
                             status_type=system_info['status'], ex=exclu,
                             lig_txt=ligand_txt, rec_txt=receptor_txt,
-                            clu_det=clust_details)
+                            clu_det=clust_details, botlab=botlab)
 
     return render_template('job_info1.html', status=status, constr=constraints,
                            jid=jid, sys=system_info, results=models, pie=pie,
                            status_type=system_info['status'], ex=exclu,
-                           lig_txt=ligand_txt,
+                           lig_txt=ligand_txt, botlab=botlab,
                            clu_det=clust_details, rec_txt=receptor_txt)
 
 
@@ -584,10 +592,10 @@ def user_add_constraints():
 def index_page():
     # get remote server load. If delay 50 minut - OFLAJN
     q = query_db("SELECT `load` FROM server_load where id=0 AND status_date + interval 50 minute > now()", one=True)
-    if 'load' not in q:
+    if q and 'load' not in q:
         comp_status = '<span class="label label-danger">offline</span>'
         send_mail(subject="cabsdock comp server offline?")
-    elif int(q['load']) > 85:
+    elif q and int(q['load']) > 85:
         comp_status = '<span class="label label-warning">high load</span>'
     else:
         comp_status = '<span class="label label-success">online</span>'

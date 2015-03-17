@@ -21,12 +21,12 @@ def index_queue():
 def delete_old():
     days = str(app.config['DELETE_USER_JOBS_AFTER'])
     to_delete = []
-    for keyid in query_db("SELECT jid FROM user_queue WHERE \
-                          status_init<= now() - interval %s day", [days]):
-        if keyid['jid'] not in app.config['EXAMPLE_JOB']:
-            to_delete.append(keyid['jid'])
-            pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid['jid'])
-            rmtree(pat_k)
+    for keyid in query_db("select jid from user_queue where status_date > \
+            (select status_date from user_queue where jid=%s) and \
+            status_date <= now() - interval %s day", [app.config['EXAMPLE_JOB'], days]):
+        to_delete.append(keyid['jid'])
+        pat_k = path.join(app.config['USERJOB_DIRECTORY'], keyid['jid'])
+        rmtree(pat_k)
     for k in to_delete:
         query_db("DELETE FROM models_skip WHERE jid=%s", [k])
         query_db("DELETE FROM constraints WHERE jid=%s", [k])

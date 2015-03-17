@@ -482,7 +482,7 @@ Peptide sequence
   </div> <!-- end tab costam -->
 {% endif %}
 </div>
-{% if status_type=='done' or status_type=='error' %}
+{% if (status_type=='done' or status_type=='error') and botlab %}
 <br>&nbsp;
 <div class="alert alert-warning alert-dismissible" role="alert">
   <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
