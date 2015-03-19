@@ -45,14 +45,14 @@ color:white;
     word-break:break-all;
         width: auto;
         display:block;
-        font-family: courier;
+        font-family: "Lucida Console", Monaco, monospace;
     }
 
 
 .sequence2 {
     white-space: pre-wrap;
     word-break:break-all;
-    font-family: courier;
+    font-family: "Lucida Console", Monaco, monospace;
     }
 .btn-file {
     position: relative;
