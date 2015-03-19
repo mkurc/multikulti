@@ -83,10 +83,3 @@ def sendfile(jobid, filetype, filename):
                                    filename, mimetype='application/x-gzip')
     else:
         return (render_template('page_not_found.html', code="404"), 404)
-
-
-@app.before_request
-def before():
-    if request.view_args and 'lang_code' in request.view_args:
-        g.current_lang = request.view_args['lang_code']
-        request.view_args.pop('lang_code')
