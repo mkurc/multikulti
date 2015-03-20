@@ -650,6 +650,7 @@ def simulation_parameters(jid):
         for row in query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid]):
             fw.write("%40s \n" % (row['excluded_region']))
         legend = '''
+        LEGEND:
         input.pdb        - input structure of the receptor
         trajectory_*.pdb - trajectories in CA-only representation
         cluster_*.pdb    - models grouped into clusters in CA-only representation
