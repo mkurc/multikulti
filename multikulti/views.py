@@ -740,7 +740,7 @@ def make_zip(jid):
         if not os.path.exists(os.path.join(dir_o, d)):
                 os.makedirs(os.path.join(dir_o, d))
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(".")
-             for f in filenames if f != "klastry.txt" and dp != "CABSdock_"+jid and f != "input.pdb" and f != 'top1000.pdb' and f != 'energy.txt']
+             for f in filenames if f != "klastry.txt" and dp != "CABSdock_"+jid and f != "input.pdb" and f != 'energy.txt']
     for file in files:
         file2 = os.path.basename(file)
 
@@ -750,7 +750,7 @@ def make_zip(jid):
                 fnams = fnams.replace("replica", "trajectory")
             with open(os.path.join("CABSdock_"+jid, fnams), "w") as un:
                 un.write(gz.read())
-    for k in ['top1000.pdb', 'energy.txt']:
+    for k in ['energy.txt']:
         out = os.path.join(dir_o, k)
         if os.path.isfile(out):
             copy(k,out)
