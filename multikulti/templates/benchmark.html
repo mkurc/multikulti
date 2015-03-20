@@ -11,9 +11,18 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
-            <h4>Table below presents benchmark set 
-            (download as a <a href="{{url_for('static', filename='tabelka.txt')}}"><i class='fa fa-external-link'></i> text data</a>)
-            </h4>
+            <h3>Table below presents benchmark set 
+            (download as a <a href="{{url_for('static', filename='tabelka.txt')}}"><i class='fa fa-download'></i> text data</a>)
+            </h3>
+            <p>Legend:
+            <div style='font-weight:bold'>High-quality prediction: RMSD &lt; 3 Å</div>
+            <div style='color:#333'>Medium-quality prediction: 3 Å ≤  RMSD ≤  5.5 Å </div>
+            <div style='color:#777'>Low-quality prediction: RMSD &gt; 5.5 Å</div>
+            <div><i class="fa fa-flask"></i> - link to the project</div>
+            <div><i class="fa fa-external-link"></i> - link to the input structure (<span class='capi'>pdb</span>)</div>
+            <div><i class="fa fa-close text-danger"></i> - bounded structure not found in the <span class='capi'>pdb</span></div>
+            <h6>The RMSD is calculated on the peptide only, after superimposition of the receptor structures.  We’ve decided to set up an arbitrary cut-off of 5.5 Å (between low and medium accuracy models) on the basis of the work benchmarking the Rosetta FlexPepDock protocol for the refinement of coarse models of protein-peptide complexes (<a href="onlinelibrary.wiley.com/doi/10.1002/prot.22716/abstract">Raveh, B., London, N. and Schueler-Furman, O. (2010), Sub-angstrom modeling of complexes between flexible peptides and globular proteins. Proteins, 78: 2029–2040. doi: 10.1002/prot.22716</a>) . In that work, the authors defined an effective “basin of attraction” of 5.5 Å resolution, from which the FlexPepDock protocol is able to reliably recover near-native protein - peptide models (in 91% o f bound docking cases). Importantly, low-quality prediction (as defined by the 5.5 Å cut-off) doesn’t mean that the obtained models are useless for further refinement. In the FlexPepDock benchmark, starting the refinement from structures of 6.5 – 7.5 Å resolution resulted in near-native models in 48% of cases of bound docking (op. cit.).</h6>
+
             <table id="benchmarks" class="table hover compact order-column row-border dt-body-right dt-head-center" width="100%" cellspacing="0">
                 <thead>
                     <tr>
@@ -93,6 +102,9 @@
 <script src="{{url_for('static', filename='js/dataTables.colVis.min.js')}}"></script> 
 <script src="{{url_for('static', filename='js/dataTables.fixedHeader.min.js')}}"></script> 
 <script>
+function isFloat(n) {
+        return n === +n && n !== (n|0);
+}
 $(document).ready(function() {
     $("[rel=tooltip]").tooltip();
 
@@ -101,9 +113,23 @@ $(document).ready(function() {
         paging: false,
         searching: false,
         "order": [[17,'asc']],
-        "dom": 'C<"clear">lfrtip'
+        "dom": 'C<"clear">lfrtip',
+        "columnDefs": [ {
+                "targets": "_all",
+                    "createdCell": function (td, cellData, rowData, row, col) {
+                        if ( cellData < 3 ) {
+                            $(td).css('font-weight', 'bold')
+                        } else if (cellData <=5.5) 
+                        {
+                            $(td).css('color', '#333')
+                        } else {
+                            $(td).css('color', '#777')
+                        }
+                    }
+                  } ]
     });
     new $.fn.dataTable.FixedHeader(b);
+
 } );
 </script>
 {% endblock %}

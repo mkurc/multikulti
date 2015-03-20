@@ -554,6 +554,11 @@ def job_status(jid):
                            lig_txt=ligand_txt, botlab=botlab,
                            clu_det=clust_details, rec_txt=receptor_txt)
 
+@app.route('/examples')
+def examples():
+    clu_det1 = cluster_stats("7f0bda72050182")
+    clu_det2 = cluster_stats("ccec04fc40c4c2e")
+    return render_template('_examples.html', clu_det1=clu_det1, clu_det2=clu_det2)
 
 @app.route('/_add_excluded', methods=['POST', 'GET'])
 def user_add_excluded():

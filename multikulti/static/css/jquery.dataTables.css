@@ -108,7 +108,7 @@ table.dataTable.order-column tbody tr > .sorting_2,
 table.dataTable.order-column tbody tr > .sorting_3, table.dataTable.display tbody tr > .sorting_1,
 table.dataTable.display tbody tr > .sorting_2,
 table.dataTable.display tbody tr > .sorting_3 {
-  background-color: #f0ad4e;//#eee;// #5bc0de;//red;//#f9f9f9;
+  background-color: #F5F6CE;
 }
 table.dataTable.order-column tbody tr.selected > .sorting_1,
 table.dataTable.order-column tbody tr.selected > .sorting_2,

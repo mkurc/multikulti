@@ -74,7 +74,6 @@ def benchmark():
         for line in jids:
             d = line.split()
             jid[d[0]+d[1]] = d[2:5] + [''] + d[5:]
-            #print jid[d[0]+d[1]]
 
 
     rows = ""
