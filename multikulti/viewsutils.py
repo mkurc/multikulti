@@ -99,13 +99,14 @@ def benchmark():
                     j+=1
 
                 if i < 2 and e !="|":
+                    e = e.replace("2qbh","1qbh")
                     if e != "-":
                         rows += "<td class=dt-justify><nobr><a href='http://www.pdb.org/pdb/explore/explore.do?structureId=%s' target='_blank'><i class='fa fa-external-link'></i> %s</a></nobr></td>" % (e,e.upper())
                     else:
                         rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>"
                 elif e != "|":
                     if e == '-':
-                        rows += "<td class=dt-right><i class='fa fa-close text-danger'></i></td>"
+                        rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>"
                     else:
                         rows += "<td class=dt-right>%s</td>" % e
 
