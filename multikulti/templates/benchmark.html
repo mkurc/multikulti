@@ -1,0 +1,110 @@
+{% extends "index.html" %}
+{% block header %}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/jquery.dataTables.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/dataTables.colVis.min.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/dataTables.fixedHeader.min.css')}}">
+
+{% endblock %}
+
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Table below presents benchmark set 
+            (download as a <a href="{{url_for('static', filename='tabelka.txt')}}"><i class='fa fa-external-link'></i> text data</a>)
+            </h4>
+            <table id="benchmarks" class="table hover compact order-column row-border dt-body-right dt-head-center" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th colspan="2" class="dt-center">Input structures <span data-toggle="tooltip" rel='tooltip' data-placement="right" style="font-weight:normal" title="Links to the PDB Database"><i class="fa fa-info-circle"></i></span>
+                        
+                        </th>
+                        <th rowspan="2">
+                            <span data-toggle="tooltip" rel='tooltip' data-placement="right" style="font-weight:normal" title="Link to the project"><i class="fa fa-info-circle"></i></span>
+                        </th>
+                        <th colspan="4" class="dt-center">Bound, run 1</th>
+                        <th rowspan="2"><span data-toggle="tooltip" rel='tooltip' data-placement="right" style="font-weight:normal" title="Link to the project"><i class="fa fa-info-circle"></i></span></th>
+                        <th colspan="4" class="dt-center">Bound, run 2</th>
+                        <th rowspan="2"><span data-toggle="tooltip" rel='tooltip' data-placement="right" style="font-weight:normal" title="Link to the project"><i class="fa fa-info-circle"></i></span></th>
+                        <th colspan="4" class="dt-center">Bound, run 3</th>
+                        <th colspan="4" class="dt-center">Bound, best results</th>
+                        <th rowspan="2"><span data-toggle="tooltip" rel='tooltip' data-placement="right" style="font-weight:normal" title="Link to the project"><i class="fa fa-info-circle"></i></span></th>
+                        <th colspan="4" class="dt-center">Unbound, run 1</th>
+                        <th rowspan="2"><span data-toggle="tooltip" rel='tooltip' data-placement="right" style="font-weight:normal" title="Link to the project"><i class="fa fa-info-circle"></i></span></th>
+                        <th colspan="4" class="dt-center">Unbound, run 2</th>
+                        <th rowspan="2"><span data-toggle="tooltip" rel='tooltip' data-placement="right" style="font-weight:normal" title="Link to the project"><i class="fa fa-info-circle"></i></span></th>
+                        <th colspan="4" class="dt-center">Unbound, run 3</th>
+                        <th colspan="4" class="dt-center">Unbound, best results</th>
+                        <th colspan="3" class="dt-center">Length</th>
+                    </tr>
+                    <tr>
+                        <th>bound</th>
+                        <th>unbound</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>10k</th>
+                        <th>1k</th>
+                        <th>100</th>
+                        <th>10</th>
+                        <th>bound</th>
+                        <th>ligand</th>
+                        <th>unbound</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{table|safe}}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+{%block below_js%}
+<script src="{{url_for('static', filename='js/jquery.dataTables.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/dataTables.bootstrap.js')}}"></script>
+<script src="{{url_for('static', filename='js/dataTables.colVis.min.js')}}"></script> 
+<script src="{{url_for('static', filename='js/dataTables.fixedHeader.min.js')}}"></script> 
+<script>
+$(document).ready(function() {
+    $("[rel=tooltip]").tooltip();
+
+    var b = $('#benchmarks').dataTable({
+        responsive: true,
+        paging: false,
+        searching: false,
+        "order": [[17,'asc']],
+        "dom": 'C<"clear">lfrtip'
+    });
+    new $.fn.dataTable.FixedHeader(b);
+} );
+</script>
+{% endblock %}
+
