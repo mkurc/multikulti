@@ -649,6 +649,18 @@ def simulation_parameters(jid):
         fw.write("\nEXCLUDED:\n")
         for row in query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid]):
             fw.write("%40s \n" % (row['excluded_region']))
+        legend = '''
+        input.pdb        - input structure of the receptor
+        trajectory_*.pdb - trajectories in CA-only representation
+        cluster_*.pdb    - models grouped into clusters in CA-only representation
+        model_*.pdb      - final models in all-atom representation
+        top1000.pdb      - top 1000 models
+        energy.txt       - log file from the simulation with energy and its distribution; 
+                           following columns contain:
+                           replica frame temperature Energy(receptor) Energy(ligand) 
+                           Energy(interaction) Energy(total)
+        '''
+        fw.write(legend)
 
 
 @app.route('/job/<jobid>/<models>/<model_name>/model.pdb')
@@ -727,7 +739,7 @@ def make_zip(jid):
         if not os.path.exists(os.path.join(dir_o, d)):
                 os.makedirs(os.path.join(dir_o, d))
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(".")
-             for f in filenames if f != "klastry.txt" and dp != "CABSdock_"+jid and f != "input.pdb"]
+             for f in filenames if f != "klastry.txt" and dp != "CABSdock_"+jid and f != "input.pdb" and f != 'top1000.pdb' and f != 'energy.txt']
     for file in files:
         file2 = os.path.basename(file)
 
@@ -737,6 +749,10 @@ def make_zip(jid):
                 fnams = fnams.replace("replica", "trajectory")
             with open(os.path.join("CABSdock_"+jid, fnams), "w") as un:
                 un.write(gz.read())
+    for k in ['top1000.pdb', 'energy.txt']:
+        out = os.path.join(dir_o, k)
+        if os.path.isfile(out):
+            copy(k,out)
 
     zf = zipfile.ZipFile("CABSdock_"+jid+".zip", "w", zipfile.ZIP_DEFLATED)
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(dir_o)
