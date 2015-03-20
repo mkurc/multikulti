@@ -751,9 +751,10 @@ def make_zip(jid):
             with open(os.path.join("CABSdock_"+jid, fnams), "w") as un:
                 un.write(gz.read())
     for k in ['energy.txt']:
-        out = os.path.join(dir_o, k)
-        if os.path.isfile(out):
-            copy(k,out)
+        inp = os.path.join(app.config['USERJOB_DIRECTORY'], jid,  k)
+        out = os.path.join(app.config['USERJOB_DIRECTORY'], jid, dir_o, k)
+        if os.path.isfile(inp):
+            copy(inp,out)
 
     zf = zipfile.ZipFile("CABSdock_"+jid+".zip", "w", zipfile.ZIP_DEFLATED)
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(dir_o)
