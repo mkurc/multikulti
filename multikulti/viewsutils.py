@@ -70,17 +70,15 @@ def tutorial():
 @app.route('/benchmark')
 def benchmark():
     jid = {}
-    with open(os.path.join(config['STATIC'],"listaJobow.txt"), "r") as jids:
+    with open(os.path.join(config['STATIC'], "listaJobow.txt"), "r") as jids:
         for line in jids:
             d = line.split()
             jid[d[0]+d[1]] = d[2:5] + [''] + d[5:]
 
-
     rows = ""
-    with open(os.path.join(config['STATIC'],"tabelka.txt"), "r") as tab_txt:
-        data = tab_txt.readlines()
-        for line in data:
-            rows += "<tr>" 
+    with open(os.path.join(config['STATIC'], "tabelka.txt"), "r") as tab_txt:
+        for line in tab_txt:
+            rows += "<tr>"
             d = line.split()
             bound = d[0]
             unbound = d[1]
@@ -91,26 +89,26 @@ def benchmark():
                     k = bound+unbound
                     if k in jid:
                         jd = jid[k]
-                        if len(jd)>j and j!=3:
-                            rows += "<td class=dt-center><a href='%s' target=_blank><i class='fa fa-flask'></i></a></td>" % (url_for('job_status',jid=jd[j]))
-                        elif j>3 and j<7:
-                            rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>"
-                    j+=1
+                        if len(jd) > j and j != 3:
+                            rows += "<td class=dt-center><a href='%s' target=_blank><i class='fa fa-flask'></i></a></td>\n" % (url_for('job_status', jid=jd[j]))
+                        elif j > 3 and j < 7:
+                            rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>\n"
+                    j += 1
 
-                if i < 2 and e !="|":
-                    e = e.replace("2qbh","1qbh")
+                if i < 2 and e != "|":
+                    e = e.replace("2qbh", "1qbh")
                     if e != "-":
-                        rows += "<td class=dt-justify><nobr><a href='http://www.pdb.org/pdb/explore/explore.do?structureId=%s' target='_blank'><i class='fa fa-external-link'></i> %s</a></nobr></td>" % (e,e.upper())
+                        rows += "<td class=dt-justify><nobr><a href='http://www.pdb.org/pdb/explore/explore.do?structureId=%s' target='_blank'><i class='fa fa-external-link'></i> %s</a></nobr></td>\n" % (e, e.upper())
                     else:
-                        rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>"
+                        rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>\n"
                 elif e != "|":
                     if e == '-':
-                        rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>"
+                        rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>\n"
                     else:
-                        rows += "<td class=dt-right>%s</td>" % e
+                        rows += "<td class=dt-right>%s</td>\n" % e
 
                 i += 1
-            rows += "</tr>\n"
+            rows += "</tr>\n\n"
     return render_template('benchmark.html', table=rows)
 
 
