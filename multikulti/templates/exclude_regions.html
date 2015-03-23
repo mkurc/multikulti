@@ -130,7 +130,10 @@ Mark the protein residues, which are unlikely to bind the peptide. The
 marked residues will be unattractive for binding - technically, their
 interaction forces with the peptide will be switched off.
                 
-                </small></h3>
+                </small>
+                <a href="#" data-container="body" data-toggle="popover" data-placement="bottom" data-content='See the tutorial section <a target=_blank href="{{url_for('tutorial')}}#r122">here</a>'><i class="fa fa-question-circle"></i></a>
+            
+            </h3>
             <hr>
         </div>
     </div>
@@ -322,6 +325,7 @@ interaction forces with the peptide will be switched off.
         }
     }
 $(document).ready(function() {
+$('[data-toggle="popover"]').popover({html:true});
 {% for row in  jmol_color %}
     {{row|safe}}
 {% endfor %}

@@ -14,11 +14,15 @@
     </div>
 {% endmacro %}
 
-{% macro render_checkbox_field(field) %}
+{% macro render_checkbox_field(field, R='') %}
     <div class="checkbox">
         <label>
-            {{ field(type='checkbox', **kwargs) }} {{ field.label }}
+            {% if R=='' %}
+            {{ field(type='checkbox', **kwargs) }} {{ field.label }} 
         </label>
+            {% else %}
+            {{ field(type='checkbox', **kwargs) }} {{ field.label }} </label> <span data-container="body" data-toggle="popover" data-placement="bottom" data-content='{{R|safe}}'><i class="fa fa-question-circle"></i> </span>
+            {% endif %}
     </div>
 {% endmacro %}
 {% macro render_radio_field(field) %}

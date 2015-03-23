@@ -145,7 +145,10 @@ Mark the protein regions, which are likely to be flexible. The backbone
 of marked residues will be treated as moderately or fully flexible
 (depending on your choice), while the rest of protein backbone will be
 weakly flexible.
-                </small></h3>
+                </small>
+                <a href="#" data-container="body" data-toggle="popover" data-placement="bottom" data-content='See the tutorial section <a target=_blank href="{{url_for('tutorial')}}#r121">here</a>'><i class="fa fa-question-circle"></i></a>
+                
+            </h3>
             <hr>
         </div>
     </div>
@@ -359,6 +362,7 @@ weakly flexible.
         }
     }
 $(document).ready(function() {
+$('[data-toggle="popover"]').popover({html:true});
 {% for row in  jmol_color %}
     {{row|safe}}
 {% endfor %}

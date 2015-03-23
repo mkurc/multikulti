@@ -572,6 +572,7 @@ def user_add_excluded():
             for r in zip(constraints, constraints_jmol):
                 query_db("INSERT INTO excluded(jid,excluded_region, excluded_jmol) \
                         VALUES(%s,%s,%s)", [jid, r[0], r[1]], insert=True)
+            return Response('OK', status=200)
 
 
 @app.route('/_add_const_toDB', methods=['POST', 'GET'])
@@ -591,6 +592,7 @@ def user_add_constraints():
                 query_db("INSERT INTO constraints(`jid`,`constraint_definition`,`force`,\
                         `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid, r[0], r[1], r[2]],
                         insert=True)
+            return Response('OK', status=200)
 
 
 @app.route('/', methods=['GET', 'POST'])

@@ -188,8 +188,8 @@
                     </div>
                 </div>
                 {{render_field(form.ligand_ss, placeholder='CCCCHHHHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
-                {{render_checkbox_field(form.add_constraints)}}
-                {{render_checkbox_field(form.excluding)}}
+                {{render_checkbox_field(form.add_constraints, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r121"><i class="fa fa-link"></i> tutorial</a>')}}
+                {{render_checkbox_field(form.excluding, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r122"><i class="fa fa-link"></i> tutorial</a>')}}
                 {{render_field(form.length)}}
                 {{render_checkbox_field(form.show)}}
 
@@ -241,6 +241,7 @@
 <script src="{{url_for('static', filename='js/bootstrap.file-input.js')}}"></script>
 <script type="text/javascript" charset="utf-8">
 $('input[type=file]').bootstrapFileInput();
+$('[data-toggle="popover"]').popover({html:true});
 function exampleData() {
     $('#collapseOne').collapse();
     document.getElementById("name").value = "Docking project";
