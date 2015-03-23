@@ -11,9 +11,10 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
-            <h3>Table below presents benchmark set 
-            (download as a <a href="{{url_for('static', filename='tabelka.txt')}}"><i class='fa fa-download'></i> text data</a>)
+            <h3>Benchmark set 
+                <small>(download as a <a href="{{url_for('static', filename='tabelka.txt')}}"><i class='fa fa-download'></i> text data</a>)</small>
             </h3>
+            <p>CABS-dock performance for 103 bound cases and 68 unbound cases (listed in rows) in 3 independent prediction runs (shown in separate columns). The table shows the lowest ligand-RMSD values (calculated on the peptide only after superimposition of the receptor structures) among: all 10,000 models (all), top 1000 models (top 1k, selected during filtering and clustering procedure), top 100 models (top 100, selected through further clustering) and top 10 final models (top 10). Last column shows the lowest RMSD values obtained in three prediction runs.</p>
             <p>Legend:
             <div style='font-weight:bold'>High-quality prediction: RMSD &lt; 3 Å</div>
             <div style='color:#333'>Medium-quality prediction: 3 Å ≤  RMSD ≤  5.5 Å </div>
@@ -22,7 +23,6 @@
             <div><i class="fa fa-external-link"></i> - link to the input structure (<span class='capi'>pdb</span>)</div>
             <div><i class="fa fa-close text-danger"></i> - bounded structure not found in the <span class='capi'>pdb</span></div>
             <h6>The RMSD is calculated on the peptide only, after superimposition of the receptor structures.  We’ve decided to set up an arbitrary cut-off of 5.5 Å (between low and medium accuracy models) on the basis of the work benchmarking the Rosetta FlexPepDock protocol for the refinement of coarse models of protein-peptide complexes (<a href="onlinelibrary.wiley.com/doi/10.1002/prot.22716/abstract">Raveh, B., London, N. and Schueler-Furman, O. (2010), Sub-angstrom modeling of complexes between flexible peptides and globular proteins. Proteins, 78: 2029–2040. doi: 10.1002/prot.22716</a>) . In that work, the authors defined an effective “basin of attraction” of 5.5 Å resolution, from which the FlexPepDock protocol is able to reliably recover near-native protein - peptide models (in 91% o f bound docking cases). Importantly, low-quality prediction (as defined by the 5.5 Å cut-off) doesn’t mean that the obtained models are useless for further refinement. In the FlexPepDock benchmark, starting the refinement from structures of 6.5 – 7.5 Å resolution resulted in near-native models in 48% of cases of bound docking (op. cit.).
-                <br>CABS-dock performance for 103 bound cases and 68 unbound cases (listed in rows) in 3 independent prediction runs (shown in separate columns). The table shows the lowest ligand-RMSD values (calculated on the peptide only after superimposition of the receptor structures) among: all 10,000 models (all), top 1000 models (top 1k, selected during filtering and clustering procedure), top 100 models (top 100, selected through further clustering) and top 10 final models (top 10). Last column shows the lowest RMSD values obtained in three prediction runs.
             </h6>
 
             <table id="benchmarks" class="table hover compact order-column row-border dt-body-right dt-head-center" width="100%" cellspacing="0">
@@ -130,7 +130,7 @@ $(document).ready(function() {
                     }
                   } ]
     });
-    new $.fn.dataTable.FixedHeader(b);
+    var fh = new $.fn.dataTable.FixedHeader(b, {"offsetTop": 50});
 
 } );
 </script>
