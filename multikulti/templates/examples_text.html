@@ -86,7 +86,8 @@ Peptide sequence
 
 <a id="fig1"></a><p style="text-align:justify"><small><strong>
 Figure 1. 
-CABS-dock modeling with default settings – an example when accurate model is top ranked.</strong>  The figure shows experimental protein peptide-bound form (receptor in colored in gray, peptide in magenta, PDB ID: 1T7R) together with CABS-dock-predicted peptide poses (colored in cyan). Top 10 CABS-dock models are presented, which were docked in five potential binding sites (one of the peptide models is not visible because is docked at the opposite receptor surface). In the native binding site (marked in the rectangle), two models were docked. One of these models (which is the top-ranked 1<sup>st</sup> model, representative of the top ranked cluster, see <a href="#tab1">Clustering table 1</a>) is presented on the right with the experimental peptide structure. The RMSD (root-mean-square deviation) between 1<sup>st</sup> model and the experimental peptide structure is 2.22 Angstroms.
+CABS-dock modeling with default settings – an example when accurate model is top ranked.</strong>  The figure shows experimental protein peptide-bound form (receptor in colored in gray, peptide in magenta, PDB ID: 1T7R) together with CABS-dock-predicted peptide poses (colored in cyan). Top 10 CABS-dock models are presented, which were docked in five potential binding sites (one of the peptide models is not visible because is docked at the opposite receptor surface). In the native binding site (marked in the rectangle), two models were docked. One of these models (which is the top-ranked 1<sup>st</sup> model, representative of the top ranked cluster, see <a href="#tab1">Clustering table 1</a>) is presented on the right with the experimental peptide structure. The RMSD (root-mean-square deviation)
+between 1<sup>st</sup> model and the experimental peptide structure is 2.22 Angstroms.
 </small></p>
 <p align="center"><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/example1.png')}}">
 </p>
@@ -195,7 +196,8 @@ Peptide sequence
 
 
 <a id="fig2"></a><p style="text-align:justify"><small><strong>
-Figure 2. CABS-dock modeling with default settings - an example when medium accuracy model is top ranked, and high accuracy model exists in trajectory.</strong> The figure shows experimental protein peptide-bound form (receptor in colored in gray, peptide in magenta, PDB ID: 2B9H), together with CABS-dock-predicted peptide poses (colored in cyan) and the most accurate prediction from the entire trajectory (in green). Top ranked 10 models have peptides docked in five different areas. One of these areas is the native binding site (marked in the rectangle) with medium-accuracy model (model number 2, RMSD to the experimental structure is 4.16 Angstroms). On the right, native binding site is shown with the most accurate prediction from all simulation data (RMSD between predicted and experimental peptide structure is 2.33 Angstroms).
+Figure 2. CABS-dock modeling with default settings - an example when medium accuracy model is top ranked, and high accuracy model exists in trajectory.</strong> The figure shows experimental protein peptide-bound form (receptor in colored in gray, peptide in magenta, PDB ID: 2B9H), together with CABS-dock-predicted peptide poses (colored in cyan) and the most accurate prediction from the entire trajectory (in green). Top ranked 10 models have peptides docked in five different areas. One of these areas is the native binding site (marked in the rectangle) with medium-accuracy model (model number 2, RMSD to the experimental structure is 4.16 Angstroms). On the right, native binding site is shown with the most accurate prediction from all simulation data (RMSD between predicted and experimental
+peptide structure is 2.33 Angstroms).
 </small></p>
 <p align="center"><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/example2.png')}}">
 </p>
@@ -250,11 +252,11 @@ Clustering table 2. Details of structural clustering for the presented case (tab
 <a id="r21"></a><h4>2.1	Modeling with full flexibility for selected protein fragments</h4>
 
 <p align="justify">
-In the previous subsection, we described examples obtained using the default server settings, however some optional features may be used. One of them is the possibility of increasing the flexibility for the selected protein fragment. This option is available from the main page by checking the “Mark flexible regions” option (see also the appropriate <a target="_blank" href="{{url_for('tutorial')}}#r121" target="_blank">tutorial section</a>).
+In the previous subsection, we described examples obtained using the default server settings, however some optional features may be used. One of them is the possibility of increasng the flexibility for the selected protein fragment. This option is available from the main page by checking the “Mark flexible regions” option (see also the appropriate <a target="_blank" href="{{url_for('tutorial')}}#r121" target="_blank">tutorial section</a>).
 <br><br>
 For each selected residue, the user may choose from two preset settings: moderate or full flexibility. Technically this is achieved by changing the default distance restrains (used to keep the receptor structure near to the input conformation). Assignment of moderate flexibility decreases strength of restrains, while assignment of full flexibility removes all the restraints imposed on the selected residue. 
 <br><br>
-Below, we describe practical example of using “Mark flexible regions” option. According to the <a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/9405158?dopt=Abstract"> experimental studies</a> unbound form of Biotin Binding Protein 2RTM has flexible loop close to the binding site. We selected 10 residues (from 45<sup>th</sup> to 54<sup>th</sup>) constituting the flexible loop and assigned “fully flexible” option.
+Below, we describe practical example of using “Mark flexible regions” option. According to the <a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/9405158?dopt=Abstract"><i class="fa fa-external-link"></i> experimental studies</a> unbound form of Biotin Binding Protein 2RTM has flexible loop close to the binding site. We selected 10 residues (from 45<sup>th</sup> to 54<sup>th</sup>) constituting the flexible loop and assigned “fully flexible” option.
 </p>
 
 
@@ -324,7 +326,8 @@ Peptide sequence
 
 
 <a id="fig3"></a><p style="text-align:justify"><small><strong>
-Figure 3. CABS-dock modeling with full flexibility of protein loop region close to the binding site. (a)</strong> Comparison of experimental protein structure in peptide-unbound form (colored in green, being the CABS-dock input structure, PDB ID: 2RTM) with peptide-bound experimental complex (in magenta, PDB ID: 1KL3) and CABS-dock-predicted complex (in pale cyan). Peptide backbones are presented in thick lines, while loop backbones in thin lines. The RMSD (root-mean-square deviation) between predicted and experimental peptide structure is 2.03 Angstroms. <strong>(b)</strong> Loop region flexibility during CABS-dock modeling. Protein structures from CABS-dock predicted models (in pale green) are compared with the unbound protein form (in green). The flexible loop region (that has been designated to be fully flexible during docking) is marked in red (residues from 45<sup>th</sup> to 54<sup>th</sup>, constituting region of 10 residues length).
+Figure 3. CABS-dock modeling with full flexibility of protein loop region close to the binding site. (a)</strong> Comparison of experimental protein structure in peptide-unbound form (colored in green, being the CABS-dock input structure, PDB ID: 2RTM) with peptide-bound experimental complex (in magenta, PDB ID: 1KL3) and CABS-dock-predicted complex (in pale cyan). Peptide backbones are presented in thick lines, while loop backbones in thin lines. The RMSD (root-mean-square deviation) between predicted and experimental peptide structure is 2.03 Angstroms. <strong>(b)</strong> Loop region flexibility during CABS-dock modeling. Protein structures from CABS-dock predicted models (in pale green) are compared with the unbound protein form (in green). The flexible loop region (that has been designated
+to be fully flexible during docking) is marked in red (residues from 45<sup>th</sup> to 54<sup>th</sup>, constituting region of 10 residues length).
 </small></p>
 <p align="center"><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/example3.png')}}">
 </p>
@@ -341,8 +344,8 @@ CABS-dock allows peptides to explore entire receptor surface. However, in many m
 In CABS-dock it can be done in two ways:
 </p>
 <ol>
-<li><p align="justify">by listing the residues to be excluded (available from the main page by checking the “Mark unlikely to bind regions” option, more details in the appropriate <a target="_blank" href="{{url_for('tutorial')}}#r122" target="_blank">tutorial section</a>)</p></li> 
-<li><p align="justify">by re-submitting previously run job (resubmit button is available in ‘Project information’ tab) and marking models (binding modes) to be excluded from future results (see also the appropriate <a target="_blank" href="{{url_for('tutorial')}}#r4" target="_blank">tutorial section</a>). </p></li>
+<li><p align="justify">by listing the residues to be excluded (available from the main page by checking the “Mark unlikely to bind regions” option, more details in the appropriate <a target="_blank" href="{{url_for('tutorial')}}#r122" target="_blank"><i class="fa fa-question-circle"></i>tutorial section</a>)</p></li> 
+<li><p align="justify">by re-submitting previously run job (resubmit button is available in ‘Project information’ tab) and marking models (binding modes) to be excluded from future results (see also the appropriate <a target="_blank" href="{{url_for('tutorial')}}#r4" target="_blank"><i class="fa fa-question-circle"></i>tutorial section</a>). </p></li>
 </ol>
 <p align="justify">
  Thus, in practice, excluding option can be also used to force the CABS-dock algorithm to search for additional binding sites that were didn’t find in the previous runs. 
@@ -410,7 +413,7 @@ First simulation run resulted in 10 top-ranked models having peptides bound most
 
  
 <a id="fig4"></a><p style="text-align:justify"><small><strong>
-Figure 4. CABS-dock modeling with excluding binding modes from previous prediction runs. </strong>Experimental structure (PDB ID: 1CZY; receptor shown as surface, ligand as magenta line). Prediction of binding modes from the previous simulation are shown in red (8 excluded poses) and green (2 not excluded poses). Resulting peptide conformations obtained as a result of the re-submitted job are shown in cyan. 
+Figure 4. CABS-dock modeling with excluding binding modes from previous prediction runs.</strong> Experimental structure (PDB ID: 1CZY; receptor shown as surface, ligand as magenta line). Prediction of binding modes from the previous simulation are shown in red (8 excluded poses) and green (2 not excluded poses). Resulting peptide conformations obtained as a result of the re-submitted job are shown in cyan. 
 In the native binding site (marked in the rectangle), two models were docked. One of these models (which is the top-ranked 1<sup>st</sup> model, representative of the top ranked cluster)  is presented on the right with the experimental peptide structure. The RMSD (root-mean-square deviation) between 1<sup>st</sup> model and the experimental peptide structure is 2.89 Angstroms.
 
 </small></p>

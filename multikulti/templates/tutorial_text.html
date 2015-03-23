@@ -1,4 +1,3 @@
-
 <!-- ------------------------------------------początek działań Maćka -->
 <div class="row">
     <div class="col-md-12">
@@ -12,7 +11,8 @@
  <a href="#r31">3.1 Docking predictions results tab </a><br>
  <a href="#r32">3.2 Clustering details tab</a><br>
  <a href="#r33">3.3 Contact maps tab</a><br>
- <a href="#r34">3.4 Viewing structures and simulation trajectory in Pymol</a><br>
+ <a href="#r34">3.4 Download all files</a><br>
+ <a href="#r35">3.5 Viewing structures and simulation trajectory in Pymol</a><br>
 <a href="#r4">4. Resubmiting job – excluding binding modes from previous runs</a><br>
 <a href="#r5">5. Example results page</a><hr>
 
@@ -97,10 +97,12 @@ In “optional” settings tab you can:
     <div class="col-md-12">
 <hr>
 <a id="r121"></a><h4>1.2.1 Selecting flexible regions</h4>
+<p align="justify">
+<a target="_blank" href="{{url_for('examples')}}#r21" target="_blank"><i class="fa fa-folder-open-o"></i>See an example</a>
+<br><br>
 If “Mark flexible regions” is checked, after clicking “submit button” you will be redirected to the panel shown below:
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit_flex.png')}}"></center><br>
 
-<p align="justify">
 The panel enables removing distance restraints that keep the receptor structure in a near native
 conformation For each selected residue, the user may choose from two preset settings: moderate or full flexibility.
 </p>
@@ -120,7 +122,11 @@ conformation For each selected residue, the user may choose from two preset sett
 
 
 <hr>
-<a id="r121"></a><h4>1.2.2 Selecting unlikely to bind regions</h4>
+<a id="r122"></a><h4>1.2.2 Selecting unlikely to bind regions</h4>
+
+<p align="justify">
+<a target="_blank" href="{{url_for('examples')}}#r22" target="_blank"><i class="fa fa-folder-open-o"></i>See an example</a>
+<br><br>
 
 If “Mark unlikely to bind regions” is checked you will be redirected to the panel which is similar to one described in the previous subsection:
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit_excl.png')}}"></center><br>
@@ -204,7 +210,40 @@ and the receptor. An interactive chart shows a contact map between the peptide a
   
 <hr> 
 
-<a id="r34"></a><h4>3.4 Viewing structures and simulation trajectory in Pymol </h4>
+
+<a id="r34"></a><h4>3.4 Download all files </h4>
+
+<p align="justify">
+From “Docking predictions results” tab, you may download a compressed archive with the output data. The archive file contains the following data:
+<ul>
+<li><code>model_*.pdb</code> - 10 final models (in the PDB format and all-atom representation)</li>
+<li><code>cluster_*.pdb</code> - cluster models (groups of models that have been classified in structural clustering to particular clusters; in the PDB format and C-alpha representation)
+Cluster numbering correspond to models numbering i.e. <code>model_7.pdb</code> is a representative model of models grouped in the seventh (ranked as seventh) cluster (<code>cluster_7.pdb</code>).</li> 
+<li><code>trajectory_*.pdb</code> - complete trajectories (in the PDB format and C-alpha representation)</li> 
+<li><code>top1000.pdb</code> - top 1000 models (in the PDB format and C-alpha representation)</li>
+<li><code>input.pdb</code>  - the input structure of the receptor 
+<li><code>README</code> - a log file with all information to recreate the simulation</li>
+<li><code>energy.txt</code> - log file from the simulation with energy and its distribution; the 
+columns contain the following data:</li>
+<ul>
+<li>trajectory (replica) index </li>
+<li>trajectory (replica) frame index</li>
+<li>temperature (the parameter in the CABS model controlling the acceptance of new conformations – based on Monte Carlo method)</li>
+<li>energy for protein receptor only (from CABS model)</li>
+<li>energy for peptide only (from CABS model)</li>
+<li>protein-peptide interaction energy (from CABS model)</li>
+<li>protein-peptide total energy (from CABS model)</li>
+</ul>
+</ul>
+<hr>
+
+
+
+
+
+
+
+<a id="r35"></a><h4>3.5 Viewing structures and simulation trajectory in Pymol </h4>
 
 <p align="justify">
 All downloadable <span class='capi'>pdb</span> files (models, clusters, and trajectories available from the ‘Docking predictions results’ tab) can be easily viewed using molecular visualization software, like Pymol. <br><br>
@@ -235,7 +274,11 @@ See an example movie prepared in Pymol:
 <iframe width="640" height="480" src="https://www.youtube.com/embed/EOqRF-JOTFg?rel=0" frameborder="0" allowfullscreen></iframe>
 </center>
 <hr>
-<a id="r5"></a><h4>5. Resubmiting job – excluding binding modes from previous runs</h4>
+
+
+
+
+<a id="r4"></a><h4>4. Resubmiting job – excluding binding modes from previous runs</h4>
 <p align="justify">
 You may resubmit your job with  changed job parameters. To do so go to the “Project information” tab and press <u>Re-submit project</u>.
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit1.png')}}"></center><br>
@@ -244,8 +287,15 @@ You will be redirected to resubmission panel where you may define “optional se
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit2.png')}}"></center><br>
 </p>
 <hr>
-<a id="r4"></a><h4>5. Example results page</h4>
+<a id="r5"></a><h4>5. Example results page</h4>
+<p align="justify">
+
 An example result page can be accessed <a href="{{url_for('job_status', jid=config['EXAMPLE_JOB'])}}"><i class="fa fa-external-link"></i> here</a>.
+<br><br>
+See also an <a target="_blank" href="{{url_for('examples')}}" target="_blank"><i class="fa fa-folder-open-o"></i>"Examples" section</a>
+<br><br>
+
+</p>
     </div>
 </div>
 
