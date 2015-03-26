@@ -25,7 +25,15 @@ This help page provides example CABS-dock results together with their interpreta
 In the <a target="_blank" href="http://arxiv.org/abs/1503.02032"><i class="fa fa-external-link"></i>work describing the CABS-dock server </a> we presented 
 <a href="{{url_for('benchmark')}}" target="_blank">the CABS-dock performance (with default server settings)</a>
  over the large dataset of peptide-protein complexes, including docking to bound and unbound (when available) forms of protein receptors. For over 80% of bound and unbound cases we obtained high or medium accuracy models. 
-<br><br>
+<br>
+<a id="fig0"></a><p style="text-align:justify"><small><strong>
+Figure. CABS-dock performance summary for 103 bound and 68 unbound benchmark cases. Quality assessment criteria are based on the RMSD (root-mean-square deviation) between predicted model and the experimental peptide structure (high accuracy: RMSD<3 Å; medium accuracy: 3 Å ≤ RMSD ≤ 5.5 Å; low accuracy: RMSD > 5.5 Å). The percentages are reported over all generated models (all: 10,000 models) and top 10 selected models. 
+</small></p>
+<p align="center"><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/example0.png')}}">
+</p>
+<br>
+
+
 Below, we present detailed analysis for two modeling examples, for which high accuracy models were obtained.
 </p>
 
