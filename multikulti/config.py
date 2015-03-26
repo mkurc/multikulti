@@ -129,3 +129,22 @@ def alphanum_key(s):
         "z23a" -> ["z", 23, "a"]
     """
     return [ tryint(c) for c in re.split('([0-9]+)', s) ]
+
+
+if __name__ == '__main__':
+# send mail if job is running longer than 12h
+    rv = MySQLdb.connect(host="localhost", user=config['MYSQL_USER'], 
+                         cursorclass=MySQLdb.cursors.DictCursor,
+                         passwd=config['MYSQL_PASS'], 
+                         db=config['MYSQL_DATA'], 
+                         charset='utf8')
+    cur = rv.cursor()
+    cur.execute("select status_init,jid from user_queue where status='running' and status_init < now() - interval 12 hour", [])
+    q = cur.fetchall()
+    cur.close()
+    body = "Zadania liczace sie ponad 12 godzin:\n\n"
+    for r in q:
+        body += "zadanie: %s rozpoczecie: %s\n" % (r['jid'], r['status_init'])
+    body += "Moze warto sprawdzic co z tymi zadaniami, ew wyslac tellJobError, by jutro nie dostac tego maila"
+    send_mail(to='', subject="Zadania liczace sie ponad 12h", body=body)
+
