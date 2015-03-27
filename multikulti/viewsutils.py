@@ -66,6 +66,9 @@ def learn_more():
 def tutorial():
     return render_template('_tutorial.html')
 
+@app.route('/fullAtom.py')
+def scriptModeller():
+    return send_from_directory(os.path.join(config['STATIC']), "fullAtom.py")
 
 @app.route('/benchmark')
 def benchmark():
