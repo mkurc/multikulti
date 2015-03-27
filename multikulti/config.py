@@ -146,5 +146,6 @@ if __name__ == '__main__':
     for r in q:
         body += "zadanie: %s rozpoczecie: %s\n" % (r['jid'], r['status_init'])
     body += "Moze warto sprawdzic co z tymi zadaniami, ew wyslac tellJobError, by jutro nie dostac tego maila"
-    send_mail(to='', subject="Zadania liczace sie ponad 12h", body=body)
+    if len(q) > 0:
+        send_mail(to='', subject="Zadania liczace sie ponad 12h", body=body)
 
