@@ -35,6 +35,7 @@ config = \
          MAX_CONTENT_LENGTH=625 * 1024 * 1024,  # 225MB
          ADMIN_EMAILS=["michal@yerbamate.com.pl",
                        "sebastian.kmiecik@gmail.com",
+                       "maciejblasz@gmail.com",
                        "mkurcinski@gmail.com"],
          # admin mails. Send errors, info about new knots, etc.
          SMTP_SERVER="localhost",
