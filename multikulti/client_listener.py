@@ -35,7 +35,7 @@ def delete_old():
     return Response("HEIL ERIS!", mimetype='text/plain')
 
 
-@app.route('/_server_talking/<secret_key>/<jid>/<task>/',methods=['POST', 'GET'])
+@app.route('/_server_talking/<secret_key>/<jid>/<task>/', methods=['POST', 'GET'])
 def parse_server_talking(task, secret_key, jid):
     k = config['REMOTE_SERVER_SECRET_KEY']
     if k == secret_key and request.remote_addr in config['REMOTE_SERVER_IP']:

@@ -16,8 +16,8 @@ from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail, connect_db
 
 
-from flask import render_template, url_for, request, flash, Response, \
-    redirect, send_from_directory, jsonify,g
+from flask import render_template, url_for, request, flash, Response, g, \
+    redirect, send_from_directory, jsonify
 from flask.ext.uploads import UploadSet
 
 from flask_wtf import Form
@@ -36,10 +36,10 @@ app.secret_key = 'multikultitosmierdzcywilizacjieurpejzkij'
 input_pdb = UploadSet('inputpdbs', extensions=app.config['ALLOWED_EXTENSIONS'],
                       default_dest=app.config['UPLOAD_FOLDER'])
 
+
 @app.before_request
 def before_request():
     g.sqlite_db = connect_db()
-
 
 
 def url_for_other_page(**kwargs):
@@ -116,7 +116,8 @@ def structure_pdb_validator(form, field):
                         4 residues')
             if len(seq) > 500:
                 raise ValidationError('CABSdock allows max 500 receptor \
-                                       residues. Provided file contains %d' % (len(seq)))
+                                       residues. Provided file contains \
+                                       %d' % (len(seq)))
             if missing > 5:
                 raise ValidationError('Missing atoms within protein (M+N = %d). \
                         Protein must fullfill M+N<6, where M - number of \
@@ -125,9 +126,11 @@ def structure_pdb_validator(form, field):
 
 
 def pdb_input_validator(form, field):
-    if len(form.pdb_receptor.data) < 4 and len(form.receptor_file.data.filename) < 5:
+    if len(form.pdb_receptor.data) < 4 \
+            and len(form.receptor_file.data.filename) < 5:
         raise ValidationError('PDB code or PDB file is required')
-    if len(form.pdb_receptor.data) < 4 and form.receptor_file.data: # parse only if pdbcode empty
+    if len(form.pdb_receptor.data) < 4 \
+            and form.receptor_file.data:  # parse only if pdbcode empty
         p = PdbParser(form.receptor_file.data.stream)
         missing = p.getMissing()
         seq = p.getSequence()
@@ -151,7 +154,9 @@ def pdb_input_validator(form, field):
 
 def pdb_input_code_validator(form, field):
     if len(field.data) < 4 and not form.receptor_file.data.filename:
-        raise ValidationError('Protein code must be 4-letter (2PCY) or >5 letters (2PCY:A or 2PCY:AB ...). Leave empty only if PDB file is provided')
+        raise ValidationError('Protein code must be 4-letter (2PCY) or >5 \
+                letters (2PCY:A or 2PCY:AB ...). Leave empty only if PDB \
+                file is provided')
     if not form.pdb_receptor.data and not form.receptor_file.data:
         raise ValidationError('Protein PDB code or PDB file is required')
 
@@ -174,11 +179,10 @@ class MyForm(Form):
                           validators=[NumberRange(5, 200)])
 
 
-
 @app.route('/exclude_regions/<jid>/<final>/', methods=['GET', 'POST'])
 def index_excluding(jid, final="True"):
-    d = query_db("SELECT ligand_sequence,status \
-            FROM user_queue WHERE jid=%s AND status='pending'", [jid], one=True)
+    d = query_db("SELECT ligand_sequence,status FROM user_queue WHERE \
+                 jid=%s AND status='pending'", [jid], one=True)
     ligand_sequence = d['ligand_sequence']
     status = d['status']
     jmol_string = 'Jmol.script(jmolApplet0,"select %s; color "+colors_jmol[%d]+"");'
@@ -198,23 +202,24 @@ def index_excluding(jid, final="True"):
 @app.route('/add_constraints/<jid>/<final>/', methods=['GET', 'POST'])
 def index_constraints(jid, final="True"):
     d = query_db("SELECT ligand_sequence,status, constraints_scaling_factor \
-            FROM user_queue WHERE jid=%s AND status='pending'", [jid], one=True)
+            FROM user_queue WHERE jid=%s AND \
+            status='pending'", [jid], one=True)
     ligand_sequence = d['ligand_sequence']
     status = d['status']
     scaling = d['constraints_scaling_factor']
     jmol_string = 'Jmol.script(jmolApplet0,"select %s; color "+colors_jmol[%d]+"");'
     jmol_l = []
 
-    constraints = query_db("SELECT `constraint_definition`,`force`,`constraint_jmol` FROM \
-            constraints WHERE jid=%s", [jid])
+    constraints = query_db("SELECT `constraint_definition`,`force`,\
+                            `constraint_jmol` FROM constraints \
+                            WHERE jid=%s", [jid])
     for i in range(len(constraints)):
         jmol_l.append(jmol_string % (constraints[i]['constraint_jmol'], i))
     di = {'0.0': '<option value="0.0" selected>full</option><option \
           value="0.5">moderate</option>', '0.5': '<option value="0.5" selected>moderate</option>'}
 
-
-    return render_template('add_constraints.html', jid=jid, status=status,
-                           scaling=scaling, constr=constraints, di=di, fin=final,
+    return render_template('add_constraints.html', jid=jid, status=status, di=di,
+                           scaling=scaling, constr=constraints, fin=final,
                            ligand_seq=ligand_sequence, jmol_color=jmol_l)
 
 
@@ -277,8 +282,14 @@ def add_init_data_to_db(form, final=False):
                                         sim_length], insert=True)
     if form.resubmit.data == "True":  # if there is resubmit, skip parsing pdb
         old_jid = form.jid.data
-        query_db("insert into constraints(`jid`,`constraint_definition`,`constraint_definition1`, `constraint_jmol`, `force`) SELECT %s,`constraint_definition`,`constraint_definition1`, `constraint_jmol`, `force` FROM constraints WHERE jid=%s", [jid, old_jid], insert=True)
-        query_db("insert into excluded(jid,excluded_region,excluded_region1,excluded_jmol) SELECT %s,excluded_region,excluded_region1,excluded_jmol FROM excluded WHERE jid=%s", [jid, old_jid], insert=True)
+        query_db("insert into constraints(`jid`,`constraint_definition`,\
+                  `constraint_definition1`, `constraint_jmol`, `force`) \
+                  SELECT %s,`constraint_definition`,`constraint_definition1`, \
+                  `constraint_jmol`, `force` FROM constraints \
+                  WHERE jid=%s", [jid, old_jid], insert=True)
+        query_db("insert into excluded(jid,excluded_region,excluded_region1,\
+                  excluded_jmol) SELECT %s,excluded_region,excluded_region1,\
+                  excluded_jmol FROM excluded WHERE jid=%s", [jid, old_jid], insert=True)
     return (jid, receptor_seq, ligand_seq, form.name.data, form.email.data)
 
 
@@ -319,10 +330,10 @@ def parse_out(q):
 def queue_page_json(page=1):
     before = (page - 1) * app.config['PAGINATION']
     # TODO przy searchu to nie bedzie dzialac, z lenistwa
-    q = query_db("SELECT project_name, jid,status, date_format(status_date, \"%%Y-%%m-%%d %%H:%%i:%%s\") \
-            datet FROM user_queue WHERE hide=0 \
-            AND status!='pending' ORDER BY status_date DESC LIMIT %s,%s",
-                 [before, app.config['PAGINATION']])
+    q = query_db("SELECT project_name, jid,status, \
+            date_format(status_date, \"%%Y-%%m-%%d %%H:%%i:%%s\") \
+            datet FROM user_queue WHERE hide=0 AND status!='pending' ORDER BY \
+            status_date DESC LIMIT %s,%s", [before, app.config['PAGINATION']])
     out = parse_out(q)
     return jsonify({'data': out, 'page': page})
 
@@ -344,13 +355,12 @@ def queue_page(page=1):
         search = request.args.get('q', '')
         if search != '':
             flash("Searching results for %s ..." % (search), 'warning')
-            q = query_db("SELECT project_name, jid,status, \
-                    status_date datet \
+            q = query_db("SELECT project_name, jid,status, status_date datet \
                     FROM user_queue WHERE project_name LIKE %s OR jid=%s \
                     ORDER BY status_date DESC LIMIT %s,%s",
                     ["%"+search+"%", search, before, app.config['PAGINATION']])
-            q_all = query_db("SELECT count(*) l FROM user_queue WHERE project_name \
-                    LIKE %s OR jid=%s", ["%"+search+"%", search])
+            q_all = query_db("SELECT count(*) l FROM user_queue WHERE \
+                    project_name LIKE %s OR jid=%s", ["%"+search+"%", search])
             # jesli jest szukanie po nazwie projektu to ukrywanie zadan przestaje miec sens TODO
             out = parse_out(q)
             if len(out) == 0:
@@ -368,10 +378,9 @@ def queue_page(page=1):
     q = query_db("SELECT project_name, jid,status, status_date datet FROM \
                  user_queue WHERE hide=0 AND status!='pending' ORDER BY \
                  status_date DESC LIMIT %s,%s", [before, app.config['PAGINATION']])
-    out = parse_out(q)
 
-    return render_template('queue.html', queue=out, total_rows=qall[0],
-                           page=page)
+    return render_template('queue.html', queue=parse_out(q),
+                           total_rows=qall[0], page=page)
 
 
 class FormResubmit(MyForm):
@@ -412,7 +421,7 @@ def resubmit(jid):
 
             for to_exclude in request.form.getlist('excluded'):
                 udir_path = os.path.join(app.config['USERJOB_DIRECTORY'],
-                                         jid, "clusters", to_exclude.replace("model","cluster"))
+                                         jid, "clusters", to_exclude.replace("model", "cluster"))
                 with gzip.open(udir_path, "rb") as fr:
                     query_db("INSERT INTO models_skip(`jid`, `prev_jid`, `model_id`, \
                               `removed_model`) VALUES(%s,%s,%s,%s)",
@@ -474,7 +483,7 @@ def resubmit(jid):
 
 @app.route('/job/<jid>/')
 def job_status(jid):
-    if jid=='REPLACE': # to skip 500 if robots use javascript links
+    if jid == 'REPLACE':  # to skip 500 if robots use javascript links
         return Response("null model", status=200, mimetype='text/plain')
 
     jid = os.path.split(jid)[-1]
@@ -484,9 +493,9 @@ def job_status(jid):
             (select status_date from user_queue where jid=%s) \
             and jid=%s", [app.config['EXAMPLE_JOB'], jid], one=True)
     if bench is not None:
-        botlab=True
+        botlab = True
     else:
-        botlab=False
+        botlab = False
 
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
             status_date, date_add(status_date, interval  %s day) del, \
@@ -496,7 +505,7 @@ def job_status(jid):
     constraints = query_db("SELECT `constraint_definition`,`force` FROM \
             constraints WHERE jid=%s", [jid])
     exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
-    if 'status' in system_info: # google bot
+    if 'status' in system_info:  # google bot
         status = status_color(system_info['status'])
     else:
         status = 'undefined'
@@ -539,7 +548,6 @@ def job_status(jid):
     else:
         pie = []
         clust_details = []
-        
 
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
@@ -554,11 +562,13 @@ def job_status(jid):
                            lig_txt=ligand_txt, botlab=botlab,
                            clu_det=clust_details, rec_txt=receptor_txt)
 
+
 @app.route('/examples')
 def examples():
-    clu_det1 = cluster_stats("7f0bda72050182")
-    clu_det2 = cluster_stats("ccec04fc40c4c2e")
-    return render_template('_examples.html', clu_det1=clu_det1, clu_det2=clu_det2)
+    c1 = cluster_stats("7f0bda72050182")
+    c2 = cluster_stats("ccec04fc40c4c2e")
+    return render_template('_examples.html', clu_det1=c1, clu_det2=c2)
+
 
 @app.route('/_add_excluded', methods=['POST', 'GET'])
 def user_add_excluded():
@@ -598,7 +608,8 @@ def user_add_constraints():
 @app.route('/', methods=['GET', 'POST'])
 def index_page():
     # get remote server load. If delay 50 minut - OFLAJN
-    q = query_db("SELECT `load` FROM server_load where id=0 AND status_date + interval 50 minute > now()", one=True)
+    q = query_db("SELECT `load` FROM server_load where id=0 AND \
+                 status_date + interval 50 minute > now()", one=True)
     if q and 'load' not in q:
         comp_status = '<span class="label label-danger">offline</span>'
         send_mail(subject="cabsdock comp server offline?")
@@ -634,34 +645,34 @@ def index_page():
 
 def simulation_parameters(jid):
     with gzip.open(os.path.join(app.config['USERJOB_DIRECTORY'], jid,
-                           "README.txt"), "w") as fw:
+                                "README.txt"), "w") as fw:
         q = query_db("SELECT ligand_sequence, ligand_ss, receptor_sequence, \
-                      project_name, status_date \
-                      submitted, status_init finished, \
-                      constraints_scaling_factor FROM user_queue where jid=%s",
-                     [jid], one=True)
+                      project_name, status_date submitted, status_init \
+                      finished, constraints_scaling_factor FROM user_queue \
+                      where jid=%s", [jid], one=True)
         fw.write("CABSdock simulation results. Kolinski's lab homepage: http://biocomp.chem.uw.edu.pl\n")
         fw.write("======================================================================================\n")
         fw.write("%28s : %s\n" % ("job_identifier", jid))
         for k in q.keys():
             fw.write("%28s : %s\n" % (k, q[k]))
         fw.write("\nFLEXIBLE:\n")
-        for row in query_db("SELECT `constraint_definition`, `force` FROM constraints WHERE jid=%s", [jid]):
+        for row in query_db("SELECT `constraint_definition`, `force` FROM \
+                            constraints WHERE jid=%s", [jid]):
             fw.write("%40s force: %5.2f\n" % (row['constraint_definition'], float(row['force'])))
         fw.write("\nEXCLUDED:\n")
         for row in query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid]):
             fw.write("%40s \n" % (row['excluded_region']))
         legend = '''
-        LEGEND:
-        input.pdb        - input structure of the receptor
-        trajectory_*.pdb - trajectories in CA-only representation
-        cluster_*.pdb    - models grouped into clusters in CA-only representation
-        model_*.pdb      - final models in all-atom representation
-        top1000.pdb      - top 1000 models
-        energy.txt       - log file from the simulation with energy and its distribution; 
-                           following columns contain:
-                           replica frame temperature Energy(receptor) Energy(ligand) 
-                           Energy(interaction) Energy(total)
+LEGEND:
+input.pdb        - input structure of the receptor
+trajectory_*.pdb - trajectories in CA-only representation
+cluster_*.pdb    - models grouped into clusters in CA-only representation
+model_*.pdb      - final models in all-atom representation
+top1000.pdb      - top 1000 models
+energy.txt       - log file from the simulation with energy and its distribution;
+                    following columns contain:
+                    replica frame temperature Energy(receptor) Energy(ligand)
+                    Energy(interaction) Energy(total)
         '''
         fw.write(legend)
 
@@ -680,10 +691,12 @@ def send_unzipped(jobid, model_name, models):
         r.headers.add('Content-Disposition', 'attachment', filename=out_name)
         return r
 
+
 def get_model(fo, model_idx):
     te = re.compile(r'MODEL.{6}'+str(model_idx)+'.*?ENDMDL',flags=re.DOTALL)
     out = te.search(fo.read()).group(0)
     return Response(out, status=200, mimetype='chemical/x-pdb')
+
 
 def get_model_old(fo, model_idx):
     te = re.compile(r"^MODEL\s+"+str(model_idx)+"$")
@@ -713,7 +726,7 @@ def send_cluster_model(jobid, model_idx, cluster_idx):
 
 @app.route('/job/<jobid>/models/<model_idx>/<rep_idx>/model.pdb')
 def send_unzipped_cluster(jobid, model_idx, rep_idx):
-    if rep_idx == 'REPIDX' or model_idx == 'IDX': # google bot
+    if rep_idx == 'REPIDX' or model_idx == 'IDX':  # google bot
         return Response("null model", status=200, mimetype='text/plain')
 
     jobid = jobid.replace("/", "")  # niby zabezpieczenie przed ../ ;-)
@@ -742,7 +755,8 @@ def make_zip(jid):
         if not os.path.exists(os.path.join(dir_o, d)):
                 os.makedirs(os.path.join(dir_o, d))
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(".")
-             for f in filenames if f != "klastry.txt" and dp != "CABSdock_"+jid and f != "input.pdb" and f != 'energy.txt']
+             for f in filenames if f != "klastry.txt" and
+             dp != "CABSdock_"+jid and f != "input.pdb" and f != 'energy.txt']
     for file in files:
         file2 = os.path.basename(file)
 
@@ -756,7 +770,7 @@ def make_zip(jid):
         inp = os.path.join(app.config['USERJOB_DIRECTORY'], jid,  k)
         out = os.path.join(app.config['USERJOB_DIRECTORY'], jid, dir_o, k)
         if os.path.isfile(inp):
-            copy(inp,out)
+            copy(inp, out)
 
     zf = zipfile.ZipFile("CABSdock_"+jid+".zip", "w", zipfile.ZIP_DEFLATED)
     files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(dir_o)

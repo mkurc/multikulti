@@ -66,9 +66,11 @@ def learn_more():
 def tutorial():
     return render_template('_tutorial.html')
 
+
 @app.route('/fullAtom.py')
 def scriptModeller():
     return send_from_directory(os.path.join(config['STATIC']), "fullAtom.py")
+
 
 @app.route('/benchmark')
 def benchmark():
@@ -79,6 +81,12 @@ def benchmark():
             jid[d[0]+d[1]] = d[2:5] + [''] + d[5:]
 
     rows = ""
+    c = "<td class=dt-center><a href='%s' target=_blank>\
+            <i class='fa fa-flask'></i></a></td>\n"
+    c2 = "<td class=dt-center><i class='fa fa-close text-danger'></i></td>\n"
+    c3 = "<td class=dt-justify><nobr><a href='http://www.pdb.org/pdb/explore/explore.do?structureId=%s' \
+            target='_blank'><i class='fa fa-external-link'></i> %s</a></nobr></td>\n"
+
     with open(os.path.join(config['STATIC'], "tabelka.txt"), "r") as tab_txt:
         for line in tab_txt:
             rows += "<tr>"
@@ -93,15 +101,15 @@ def benchmark():
                     if k in jid:
                         jd = jid[k]
                         if len(jd) > j and j != 3:
-                            rows += "<td class=dt-center><a href='%s' target=_blank><i class='fa fa-flask'></i></a></td>\n" % (url_for('job_status', jid=jd[j]))
+                            rows += c % (url_for('job_status', jid=jd[j]))
                         elif j > 3 and j < 7:
-                            rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>\n"
+                            rows += c2
                     j += 1
 
                 if i < 2 and e != "|":
                     e = e.replace("2qbh", "1qbh")
                     if e != "-":
-                        rows += "<td class=dt-justify><nobr><a href='http://www.pdb.org/pdb/explore/explore.do?structureId=%s' target='_blank'><i class='fa fa-external-link'></i> %s</a></nobr></td>\n" % (e, e.upper())
+                        rows += c3 % (e, e.upper())
                     else:
                         rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>\n"
                 elif e != "|":
