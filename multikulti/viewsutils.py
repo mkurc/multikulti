@@ -88,12 +88,14 @@ def benchmark():
             target='_blank'><i class='fa fa-external-link'></i> %s</a></nobr></td>\n"
 
     with open(os.path.join(config['STATIC'], "tabelka.txt"), "r") as tab_txt:
+        lab = ['10k', '1k', '100', '10']
         for line in tab_txt:
             rows += "<tr>"
             d = line.split()
             bound = d[0]
             unbound = d[1]
             i = 0
+            kk = 0
             j = 0
             for e in d:
                 if e == "|":
@@ -102,6 +104,7 @@ def benchmark():
                         jd = jid[k]
                         if len(jd) > j and j != 3:
                             rows += c % (url_for('job_status', jid=jd[j]))
+                            jjid = jd[j]
                         elif j > 3 and j < 7:
                             rows += c2
                     j += 1
@@ -116,7 +119,10 @@ def benchmark():
                     if e == '-':
                         rows += "<td class=dt-center><i class='fa fa-close text-danger'></i></td>\n"
                     else:
-                        rows += "<td class=dt-right>%s</td>\n" % e
+                        rows += "<td data-val='%s' data-num='%s' class=dt-right>%s</td>\n" % (jjid, lab[kk], e)
+                        kk += 1
+                        if kk > 3:
+                            kk = 0
 
                 i += 1
             rows += "</tr>\n\n"

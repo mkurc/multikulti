@@ -8,6 +8,13 @@
 
 
 {% block body %}
+<!-- :::::::::::::::::::::::::::::::::::::::: INFO FOR H4CK3RS ::::::::::::: -->
+<!-- if you want do download all data, extract job identifiers (strings like -->
+<!-- lksjdf340219412riw) - for example from data-val='jid', and              -->
+<!-- use these links: {{url_for('static', filename='benchmark/CHANGE', _external=True)}} -->
+<!-- changing CHANGE to bestrms_jid_{10,100,1k,10k}.pdb                      -->
+<!-- (to get best rmsd models) and  jid_{10,100}.pdb to get full-atom subset -->
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
@@ -22,6 +29,7 @@
             <div><i class="fa fa-flask"></i> - link to the project</div>
             <div><i class="fa fa-external-link"></i> - link to the input structure (<span class='capi'>pdb</span>)</div>
             <div><i class="fa fa-close text-danger"></i> - bounded structure not found in the <span class='capi'>pdb</span></div>
+            <div><i>Click on the <span=capi>rmsd</span> values to download particular model or full-atom structures (only for subsets 100 and 10)</i></div>
             <h6>The RMSD is calculated on the peptide only, after superimposition of the receptor structures.  We’ve decided to set up an arbitrary cut-off of 5.5 Å (between low and medium accuracy models) on the basis of the work benchmarking the Rosetta FlexPepDock protocol for the refinement of coarse models of protein-peptide complexes (<a href="http://onlinelibrary.wiley.com/doi/10.1002/prot.22716/abstract"><i class="fa fa-external-link"></i> Raveh, B., London, N. and Schueler-Furman, O. (2010), Sub-angstrom modeling of complexes between flexible peptides and globular proteins. Proteins, 78: 2029–2040. doi: 10.1002/prot.22716</a>) . In that work, the authors defined an effective “basin of attraction” of 5.5 Å resolution, from which the FlexPepDock protocol is able to reliably recover near-native protein - peptide models (in 91% o f bound docking cases). Importantly, low-quality prediction (as defined by the 5.5 Å cut-off) doesn’t mean that the obtained models are useless for further refinement. In the FlexPepDock benchmark, starting the refinement from structures of 6.5 – 7.5 Å resolution resulted in near-native models in 48% of cases of bound docking (op. cit.).
             </h6>
 
@@ -97,6 +105,30 @@
         </div>
     </div>
 </div>
+
+
+<!-- Small modal -->
+
+<div id='modal' class="modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class='modal-header'>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="ModalLabel"><i class='fa fa-flask'></i> Details</h4>
+        </div>
+        <div class='modal-body'>
+            <p><a href="#" target=_blank id=project_url ><i class="fa fa-flask"></i> View project page of this run</a></p>
+            <p><a href="#" target=_blank id=rmsd_url><i class="fa fa-download"></i> Download model with best <nobr><span class=capi>rmsd</rmsd> (<span id=rmsd></span> Å)</nobr></a></p>
+            <p id="fullatom"><a href="#" target=_blank id=sto_url><i class="fa fa-download"></i> Download set of full-atom models</a></p>
+        </div>
+
+        <div class='modal-footer'>
+            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 {%block below_js%}
 <script src="{{url_for('static', filename='js/jquery.dataTables.min.js')}}"></script>
@@ -131,6 +163,30 @@ $(document).ready(function() {
                   } ]
     });
     var fh = new $.fn.dataTable.FixedHeader(b, {"offsetTop": 50});
+    $('#benchmarks tbody').on('click', 'td', function () { 
+        var rmsd = $(this).html();
+        var num = $(this).data('num');
+        var jid = $(this).data('val');
+        var url_template = "{{url_for('static', filename='benchmark/CHANGE')}}";
+        var url_job_template = "{{url_for('job_status', jid='REPLACE')}}";
+        var url_model = url_template.replace("CHANGE", "bestrms_"+jid+"_"+num+".pdb");
+        var url_100 = url_template.replace("CHANGE", jid+"_"+num+".pdb");
+        var url_project = url_job_template.replace("REPLACE", jid);
+        //priject_url, rmsd_url, sto_url
+        if (num=="10k" || num=="1k") {
+            $("#fullatom").hide();
+        }
+        else {
+            $("#fullatom").show();
+        }
+
+        $("#rmsd_url").prop("href", url_model);
+        $("#sto_url").prop("href", url_100);
+        $("#project_url").prop("href", url_project);
+        $('#rmsd').text(rmsd);
+
+        $('#modal').modal();
+    });
 
 } );
 </script>
