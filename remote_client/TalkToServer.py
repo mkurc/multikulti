@@ -200,7 +200,7 @@ class TalkToServer:
 
     def saySomething(self, msg):
         try:
-            d = {'msg': msg+" "+self.remoteuri}
+            d = {'msg': msg}
             r = requests.post(self.remoteuri+"/MSG/", data=d)
             if r.status_code == requests.codes.ok:
                 print("set "+msg+" %d" % (r.status_code))
