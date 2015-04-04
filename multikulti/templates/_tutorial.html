@@ -23,7 +23,7 @@ $('#container').highcharts({
     chart: { zoomType: 'xy' },
     title: { text: 'Time between submission and finish date' },
     xAxis: { title: { text: 'simulation cycles*(receptor length + ligand length)/50', } },
-    yAxis: { title: { text: 'Waiting time (hours)' } }, 
+    yAxis: { min:0, title: { text: 'Waiting time (hours)' } }, 
     tooltip: { crosshairs: true, shared: true, valueSuffix: 'h' },
         legend: { },
         series: [{
