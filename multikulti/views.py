@@ -896,12 +896,4 @@ def comp_time():
         avge = int(ceil(mean(histogram[e])))
         rangs.append([int(e), mine, maxe])
         avgs.append([int(e), avge])
-
-
     return json.dumps({'avg': avgs, 'ranges': rangs})
-
-@app.route('/comp_time')
-def comp_time_t():
-    return render_template('t.html')
-
-
