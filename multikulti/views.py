@@ -11,6 +11,7 @@ from glob import glob
 from StringIO import StringIO
 import gzip
 from shutil import rmtree, copy
+from numpy import min, max, mean, ceil
 
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail, connect_db
@@ -867,3 +868,40 @@ def sendzippackage(jobid):
     return send_from_directory(os.path.join(app.config['USERJOB_DIRECTORY'],
                                jobid), "CABSdock_"+jobid+".zip",
                                mimetype='application/x-zip')
+
+
+@app.route('/_comp_time')
+def comp_time():
+    q = query_db("select ceil(timestampdiff(minute,status_date, \
+                  status_init)/60) h, ceil(simulation_length*(length(\
+                  ligand_sequence)+length(receptor_sequence))/50) l from \
+                  user_queue where status='done' and status_date>(select \
+                  status_date from user_queue where jid=%s)",
+                 [app.config['EXAMPLE_JOB']])
+    histogram = {}
+    for row in q:
+        tim_l = int(row['h'])
+        seq_l = int(row['l'])
+        if seq_l in histogram:
+            histogram[seq_l].append(tim_l)
+        else:
+            histogram[seq_l] = [tim_l]
+    avgs = []
+    rangs = []
+    elements = histogram.keys()
+    elements.sort()
+    for e in elements:
+        mine = int(ceil(min(histogram[e])))
+        maxe = int(ceil(max(histogram[e])))
+        avge = int(ceil(mean(histogram[e])))
+        rangs.append([int(e), mine, maxe])
+        avgs.append([int(e), avge])
+
+
+    return json.dumps({'avg': avgs, 'ranges': rangs})
+
+@app.route('/comp_time')
+def comp_time_t():
+    return render_template('t.html')
+
+
