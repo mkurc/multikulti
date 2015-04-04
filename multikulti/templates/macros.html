@@ -3,8 +3,12 @@
 
     <div class="form-group {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }}">
         {% if (field.type != 'HiddenField' or field.type !='CSRFTokenField') and label_visible %}
-        <label for="{{ field.id }}" class="control-label">{{ field.label }} {{R|safe}}</label>
+        <label for="{{ field.id }}" class="control-label">{{ field.label }} 
         {% endif %}
+            {% if R!='' %}
+            <span data-container="body" data-toggle="popover" data-placement="bottom" data-content='{{R|safe}}'><i class="fa fa-question-circle"></i></span>
+            {%endif %}
+        </label>
         {{ field(class_='form-control', rows="2", **kwargs) }}
         {% if field.errors %}
             {% for e in field.errors %}
