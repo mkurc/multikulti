@@ -649,18 +649,18 @@ def simulation_parameters(jid):
                                 "README.txt"), "w") as fw:
         q = query_db("SELECT ligand_sequence, ligand_ss, receptor_sequence, \
                       project_name, status_date submitted, status_init \
-                      finished, constraints_scaling_factor FROM user_queue \
+                      finished, simulation_length macrocycles FROM user_queue \
                       where jid=%s", [jid], one=True)
-        fw.write("CABSdock simulation results. Kolinski's lab homepage: http://biocomp.chem.uw.edu.pl\n")
-        fw.write("======================================================================================\n")
+        fw.write("CABS-dock simulation results. Kolinski's lab homepage: http://biocomp.chem.uw.edu.pl\n")
+        fw.write("======================-oo8OO8oo-====================================================\n")
         fw.write("%28s : %s\n" % ("job_identifier", jid))
         for k in q.keys():
             fw.write("%28s : %s\n" % (k, q[k]))
-        fw.write("\nFLEXIBLE:\n")
+        fw.write("\nflexible regions:\n")
         for row in query_db("SELECT `constraint_definition`, `force` FROM \
                             constraints WHERE jid=%s", [jid]):
             fw.write("%40s force: %5.2f\n" % (row['constraint_definition'], float(row['force'])))
-        fw.write("\nEXCLUDED:\n")
+        fw.write("\nexcluded regions:\n")
         for row in query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid]):
             fw.write("%40s \n" % (row['excluded_region']))
         legend = '''
@@ -671,9 +671,9 @@ cluster_*.pdb    - models grouped into clusters in CA-only representation
 model_*.pdb      - final models in all-atom representation
 top1000.pdb      - top 1000 models
 energy.txt       - log file from the simulation with energy and its distribution;
-                    following columns contain:
-                    replica frame temperature Energy(receptor) Energy(ligand)
-                    Energy(interaction) Energy(total)
+                   following columns contain:
+                   replica frame temperature Energy(receptor) Energy(ligand)
+                   Energy(interaction) Energy(total)
         '''
         fw.write(legend)
 
