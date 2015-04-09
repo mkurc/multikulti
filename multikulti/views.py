@@ -503,6 +503,10 @@ def job_status(jid):
             ligand_chain, status_init status_change, project_name, status, \
             constraints_scaling_factor, ligand_ss, ss_psipred FROM user_queue \
             WHERE jid=%s", [todel, jid], one=True)
+
+    if not system_info:
+        return (render_template('page_not_found.html', code="404"), 404)
+
     constraints = query_db("SELECT `constraint_definition`,`force` FROM \
             constraints WHERE jid=%s", [jid])
     exclu = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [jid])
