@@ -10,6 +10,9 @@ body{padding-top: 70px;}
 
 .popover { max-width: 400px; width: auto; }
 span.capi { font-variant: small-caps; }
+td.sm { font-size: 80%; }
+th.sm { font-size: 80%; }
+tr.sm { font-size: 80%; }
 .tab-pane {
 
     border-left: 1px solid #ddd;
