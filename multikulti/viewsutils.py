@@ -131,6 +131,9 @@ def benchmark():
 
 @app.route('/job/<jobid>/<filetype>/<filename>')
 def sendfile(jobid, filetype, filename):
+    if filename == 'TOREPACE':  # google bot
+        return Response("null model", status=200, mimetype='text/plain')
+
     filename = os.path.split(filename)[-1]
     jobid = os.path.split(jobid)[-1]  # zabezp przed ../ ?
     udir_path = os.path.join(app.config['USERJOB_DIRECTORY'], jobid)
