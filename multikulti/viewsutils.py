@@ -119,7 +119,7 @@ def benchmark():
                     if e == '-':
                         rows += "<td class='dt-center sm'><i class='fa fa-close text-danger'></i></td>\n"
                     else:
-                        rows += "<td data-val='%s' data-num='%s' class='sm dt-right'>%s</td>\n" % (jjid, lab[kk], e)
+                        rows += "<td data-val='%s' data-num='%s' class='pointer sm dt-right'>%s</td>\n" % (jjid, lab[kk], e)
                         kk += 1
                         if kk > 3:
                             kk = 0

@@ -19,6 +19,9 @@
     <div class="row">
         <div class="col-md-12">
             <h3>Benchmark set </h3>
+
+            <div class="row">
+                <div class="col-md-8">
             <p>CABS-dock performance for 103 bound cases and 68 unbound cases (listed in rows) in 3 independent prediction runs (shown in separate columns). The table shows the lowest ligand-<span class=capi>rmsd</span> values (calculated on the peptide only after superimposition of the receptor structures) among: all 10,000 models (all), top 1000 models (top 1k, selected during filtering and clustering procedure), top 100 models (top 100, selected through further clustering) and top 10 final models (top 10). Last column shows the lowest <span class=capi>rmsd</span> values obtained in three prediction runs.</p>
             <p>Legend:
             <div style='font-weight:bold'>High-quality prediction: <span class=capi>rmsd</span> &lt; 3 Å</div>
@@ -27,14 +30,39 @@
             <div><i class="fa fa-flask"></i> - link to the project</div>
             <div><i class="fa fa-external-link"></i> - link to the input structure (<span class='capi'>pdb</span>)</div>
             <div><i class="fa fa-close text-danger"></i> - bounded structure not found in the <span class='capi'>pdb</span></div>
-            <div><i>Click on the <span class=capi>rmsd</span> values to download particular model or all-atom structures (only for subsets 1k, 100 and 10)</i>.
-                
+            </p>
+                </div>
+                <div class="col-md-4">
+            <h5 class="alert alert-warning">The <span class=capi>rmsd</span> is calculated on the peptide only, after superimposition of the receptor structures.  We’ve decided to set up an arbitrary cut-off of 5.5 Å (between low and medium accuracy models) on the basis of the work benchmarking the Rosetta FlexPepDock protocol for the refinement of coarse models of protein-peptide complexes (<a href="http://onlinelibrary.wiley.com/doi/10.1002/prot.22716/abstract"><i class="fa fa-external-link"></i> Raveh, B., London, N. and Schueler-Furman, O. (2010), Sub-angstrom modeling of complexes between flexible peptides and globular proteins. Proteins, 78: 2029–2040. doi: 10.1002/prot.22716</a>) . In that work, the authors defined an effective “basin of attraction” of 5.5 Å resolution, from which the FlexPepDock protocol is able to reliably recover near-native protein - peptide models (in 91% o f bound docking cases). Importantly, low-quality prediction (as defined by the 5.5 Å cut-off) doesn’t mean that the obtained models are useless for further refinement. In the FlexPepDock benchmark, starting the refinement from structures of 6.5 – 7.5 Å resolution resulted in near-native models in 48% of cases of bound docking (op. cit.).
+            </h5>
+                </div>
             </div>
-            <h6>The <span class=capi>rmsd</span> is calculated on the peptide only, after superimposition of the receptor structures.  We’ve decided to set up an arbitrary cut-off of 5.5 Å (between low and medium accuracy models) on the basis of the work benchmarking the Rosetta FlexPepDock protocol for the refinement of coarse models of protein-peptide complexes (<a href="http://onlinelibrary.wiley.com/doi/10.1002/prot.22716/abstract"><i class="fa fa-external-link"></i> Raveh, B., London, N. and Schueler-Furman, O. (2010), Sub-angstrom modeling of complexes between flexible peptides and globular proteins. Proteins, 78: 2029–2040. doi: 10.1002/prot.22716</a>) . In that work, the authors defined an effective “basin of attraction” of 5.5 Å resolution, from which the FlexPepDock protocol is able to reliably recover near-native protein - peptide models (in 91% o f bound docking cases). Importantly, low-quality prediction (as defined by the 5.5 Å cut-off) doesn’t mean that the obtained models are useless for further refinement. In the FlexPepDock benchmark, starting the refinement from structures of 6.5 – 7.5 Å resolution resulted in near-native models in 48% of cases of bound docking (op. cit.).
-            </h6>
+                
 
-            <h4>    <a href="{{url_for('static', filename='tabelka.txt')}}"><i class='fa fa-download'></i> Download</a> table as a text file. <a href="{{url_for('static', filename='benchmark/CABSdock_benchmark.tar.xz')}}"><i class='fa fa-download'></i> Download</a> all benchmark models (all-atom representation, ~75GB decompressed).</h4>
+            <p>
+            For each prediction run presented in the table below, sets of top scored
+            models (1000, 100 and 10) and the lowest <span class=capi>rmsd</span> models are available for
+            download in all-atom resolution. These data can be download:</p>
+            <ul>
+                <li> for the chosen prediction run - this is possible by left-clicking in the
+            table below on the appropriate <span class=capi>rmsd</span> value to download sets of 1k, 100 or 10
+            models; or the models with the lowest <span class=capi>rmsd</span> value (from sets of 10k, 1k, 100
+            or 10 models).</li>
+                <li><a href="{{url_for('static', filename='benchmark/CABSdock_benchmark.tar.xz')}}"><i class='fa fa-download'></i>  for entire benchmark set</a> - all the models are stored in the archive file
+            that has a size of ~8GB (~75GB after decompressing from tar.xz archive).
+            The archive can be uncompressed using 7-zip software for example. </li>
+        </ul>
+        <p>Note that in the data for download, each prediction run is labeled by an
+            unique identifier of CABS-dock server job. The identifiers can be also used
+            for a quick display of the job results in the server interface ( {{url_for('job_status', jid='job_identifier',_external=True)}} ).
+            Additionally, each set of models is supplied with <span class=capi>rmsd</span> statistics and
+            CABSdock energy values (available in <code>table.txt</code> files, see attached <code>README</code>
+            file for the table legend).
+            </p>
 
+
+
+            </div>
             <table id="benchmarks" class="table hover compact order-column row-border dt-body-right dt-head-center" width="100%" cellspacing="0">
                 <thead>
                     <tr>
@@ -103,6 +131,7 @@
                     {{table|safe}}
                 </tbody>
             </table>
+            <h6>    <a href="{{url_for('static', filename='tabelka.txt')}}"><i class='fa fa-download'></i> Download</a> table as a text file. </h6>
 
         </div>
     </div>
