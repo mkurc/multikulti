@@ -876,8 +876,8 @@ def sendzippackage(jobid):
 
 @app.route('/_comp_time')
 def comp_time():
-    q = query_db("select ceil(timestampdiff(minute,status_date, \
-                  status_init)/60) h, ceil(simulation_length*(length(\
+    q = query_db("select (timestampdiff(minute,status_date, \
+                  status_init)/60) h, (simulation_length*(length(\
                   ligand_sequence)+length(receptor_sequence))/50) l from \
                   user_queue where status='done' and status_date>(select \
                   status_date from user_queue where jid=%s)",
@@ -885,7 +885,7 @@ def comp_time():
     histogram = {}
     for row in q:
         tim_l = int(row['h'])
-        seq_l = int(row['l'])
+        seq_l = 10*ceil(int(row['l'])/10.0)
         if seq_l in histogram:
             histogram[seq_l].append(tim_l)
         else:
