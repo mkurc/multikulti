@@ -102,7 +102,7 @@
                         <img class="img-responsive" style="height:150px" src={{url_for('static',filename='img/CABSdock.svg')}}>
                     </div>
                     <div class="col-md-8">
-                <p> 
+                <p class='hyphenate'> 
                 Given a protein receptor structure and a peptide sequence, CABS-dock
                 performs docking search for the binding site allowing for full flexibility
                 of the peptide and small fluctuations of the receptor backbone.
@@ -120,7 +120,7 @@
 
                                 <i class="fa fa-edit fa-4x" style="padding:15px"></i> 
                                     </td>
-                                    <td style="padding:20px">
+                                    <td class='hyphenate' style="padding:20px">
                                         Mateusz Kurcinski, Michal Jamroz, Maciej Blaszczyk, Andrzej Kolinski, Sebastian Kmiecik, <strong>CABS-dock web server for flexible docking of peptides to proteins without prior knowledge of the binding site</strong>, Nucleic Acids Research, <i>submitted</i> (<a href="http://arxiv.org/abs/1503.02032v1">arXiv preprint arXiv:1503.02032v1</a>)
                                     </td>
                                 </tr>
@@ -233,6 +233,7 @@
 {%block jsdata %}
 <script src="{{url_for('static', filename='js/jquery.js')}}"></script>
 <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/hyp.js')}}"></script>
 {%endblock %}
 
 {%block below_js%}
