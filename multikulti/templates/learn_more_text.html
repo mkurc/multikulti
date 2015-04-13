@@ -41,9 +41,10 @@ Movie 1. In the movie, the assembly of major histocompatibility complex (MHC)-pe
 
 <p style="text-align:justify">These studies showed that the method is able to predict complex arrangements close to the native structure. Importantly, in all the validation tests mentioned above, peptides were allowed to be fully flexible and no information about the binding site or peptide conformation was used. 
 The CABS-dock protocol consists of the following steps (see also <a href="#fig1">Figure&nbsp;1</a> and <a href="#fig2">Figure&nbsp;2</a>): </p>
-<a id="fig2"></a><p style="text-align:center"><small><strong>
-Figure 2. CABS-dock flow-chart</strong></small></p>
-<p align="center"><img class="img-thumbnail img-responsive" src="{{url_for('static', filename='img/about2.png')}}"></p>
+<a id="fig2"></a><p style="text-align:center">
+
+<div class="row">
+    <div class="col-md-7">
 <ol>
 <li><p style="text-align:justify"><b>Generating random structures.</b> Random structures of the peptide are generated and randomly placed on the surface of the sphere centered at the receptor’s geometrical center (the radius of the sphere is the receptor dimension in the longest direction + 20 angstroms).</p></li>
 <li><p style="text-align:justify"><b>Simulation of binding and docking.</b> The CABS-dock procedure utilizes Replica Exchange Monte Carlo dynamics with 10 replicas uniformly spread on the temperature scale. Additionally the temperatures of the replicas constantly decrease as the simulation proceeds to end on the bottom of the energy minima. On output the procedure produces 10 trajectories (one for each replica), each consisting of 1000 time-stamped simulation snapshots for a combined total of 10,000 models. During the simulation, the receptor molecule is kept in near-native conformations by a set of distance restraints binding pairs of C-alpha atoms. The restraints are selected from the distance map calculated on the input structure based on the following conditions: only C-alpha atoms located
@@ -57,6 +58,15 @@ within a 5-15 Å range from each other are restrained; the minimum sequence gap 
 </li>
 <li><p style="text-align:justify"><b>Reconstruction of the final models.</b> Final models are reconstructed from the C-alpha trace to an all-atom representation and subsequently undergo optimization process.</p></li>
 </ol>
+
+    </div>
+    <div class="col-md-5">
+<small><strong> Figure 2. CABS-dock flow-chart</strong></small></p>
+<img class="img-thumbnail img-responsive" src="{{url_for('static', filename='img/about2.png')}}">
+    </div>
+    </div>
+
+
 <hr>
 <a id="ref"></a><h3>References</h3>
 <ol>

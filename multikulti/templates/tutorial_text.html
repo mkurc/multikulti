@@ -4,6 +4,11 @@
 <a href="#r1">1. Submitting  new job </a><br>
  <a href="#r11">1.1 Required input </a><br>
  <a href="#r12">1.2 Advanced options</a><br>
+<ul>
+    <li><a href="#r121"> Selecting flexible regions</a></li>
+    <li><a href="#r122"> Selecting unlikely to bind regions</a></li>
+    <li><a href="#r123"> Simulation time</a></li>
+</ul>
 <a href="#r2">2. Interpreting job status </a><br>
 <a href="#r3">3. Interpreting results data </a><br>
  <a href="#r31">3.1 Docking predictions results tab </a><br>
@@ -14,6 +19,7 @@
 <a href="#r4">4. Resubmiting job – excluding binding modes from previous runs</a><br>
 <a href="#r5">5. Example results page</a><hr>
 
+<a id="r1"></a><h3>1. Submitting new job</h3>
 <a id="r11"></a><h4>1.1 Required input</h4>
     </div>
 </div>
@@ -65,8 +71,8 @@ In “optional” settings tab you can:
 <ul>
     <li>specify project name, for better organization of your work: project names appear in the queue page.</li>
     <li>provide your e-mail address, so we can inform you about your job status</li>
-    <li>mark "unlikely to bind regions" option to allow for the higher flexibility of selected receptor fragments (see --- subsection form more details)</li>
-    <li>mark "flexible regions" option to select receptor residues that are unlikely to interact with the peptide (see --- subsection form more details)</li>
+    <li>mark "unlikely to bind regions" option to allow for the higher flexibility of selected receptor fragments (see <a href="#r122">1.2.2</a> subsection form more details)</li>
+    <li>mark "flexible regions" option to select receptor residues that are unlikely to interact with the peptide (see <a href="#r121">1.2.1</a> subsection form more details)</li>
     <li>increase simulation length. You may increase the default (50) number of Monte Carlo macrocycles to be performed (the maximum number is 200). Increasing this number
 		may be beneficial in more difficult modeling cases (e.g. for large receptor structures or for
 		long peptides of more than 20 residues). 
@@ -96,7 +102,7 @@ In “optional” settings tab you can:
 <hr>
 <a id="r121"></a><h4>1.2.1 Selecting flexible regions</h4>
 <p align="justify">
-<a target="_blank" href="{{url_for('examples')}}#r21" target="_blank"><i class="fa fa-folder-open-o"></i>See an example</a>
+<a target="_blank" href="{{url_for('examples')}}#r21" target="_blank"><i class="fa fa-folder-open-o"></i> See an example</a>
 <br><br>
 If “Mark flexible regions” is checked, after clicking “submit button” you will be redirected to the panel shown below:
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit_flex.png')}}"></center><br>
@@ -123,7 +129,7 @@ conformation For each selected residue, the user may choose from two preset sett
 <a id="r122"></a><h4>1.2.2 Selecting unlikely to bind regions</h4>
 
 <p align="justify">
-<a target="_blank" href="{{url_for('examples')}}#r22" target="_blank"><i class="fa fa-folder-open-o"></i>See an example</a>
+<a target="_blank" href="{{url_for('examples')}}#r22" target="_blank"><i class="fa fa-folder-open-o"></i> See an example</a>
 <br><br>
 
 If “Mark unlikely to bind regions” is checked you will be redirected to the panel which is similar to one described in the previous subsection:
@@ -135,7 +141,7 @@ Here you can  select receptor residues that are unlikely to interact with the pe
 		<strong>Step by step instruction:</strong>
 		<ul>
 <li>Select fragments by clicking amino acid symbols in the sequence</li> 
-<li>Use <kbd>Ctrl</kbd>mouse to select second region of chain (on the sequence) to use multiple selection</li>
+<li>Use <kbd>Ctrl</kbd> with mouse to select second region of chain (on the sequence) to use multiple selection</li>
 <li>After selecting proper regions, click <u>Add region button</u></li>
 <li>You can bookmark this page to postpone flexible regions selection. Do not forget to press save <u>regions definition</u> if you made some changes</li>
 <li>When finish, just click <u>Go to the next step!</u> to send job to computational server.</li>
@@ -161,7 +167,7 @@ Under the unique link to your job you’ll find the job status updates and final
 </div>
 </p>
 
-<p>The job status information will start from the <span class="label label-warning"><i class="fa fa-spinner fa-spin"></i>job pending</span> status: </p>
+<p>The job status information will start from the <span class="label label-warning"><i class="fa fa-spinner fa-spin"></i> job pending</span> status: </p>
 <p><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status1.png')}}"></center></p>
 <p>followed by the <span class="label label-primary"><i class="fa fa-bolt"></i> running</span> status:</p>
 <p><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/status2.png')}}"></center></p>
@@ -173,7 +179,7 @@ Under the unique link to your job you’ll find the job status updates and final
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/results1.png')}}"></center><br>
 <p align="justify">
 The left panel of the "Docking prediction results" contains visualization of the predicted complex (the peptide is shown in red).  You can easily rotate and zoom the model using mouse. 
-If the model is not displayed, please check if  Web Graphics Library (webGL) is enabled in your browser (see the <a target="_blank" href="http://webglmol.sourceforge.jp/index-en.html"><i class="fa fa-external-link"></i> GLmol page</a> for more details). Alternatively, you can switch to JSmol which is an HTML5 JavaScript-only web app. </p>
+If the model is not displayed, please check if  Web Graphics Library (webGL) is enabled in your browser (see the <a target="_blank" href="https://get.webgl.org/"><i class="fa fa-external-link"></i> WebGL test page</a> for more details). Alternatively, you can switch to JSmol which is an HTML5 JavaScript-only web app. </p>
 
 <p align="justify">The right panel contains list of the resulting models. They are derived from the modeling trajectory by means of hierarchical clustering method  –  all models from the trajectory are divided into 10 groups (clusters) of similar structures. For each of the cluster one representative model is selected. Models are then ranked according to density of the clusters (<code>model_1</code> represents the most dense cluster) and reconstructed to all-atom representation.
 </p>
@@ -295,10 +301,7 @@ You will be redirected to resubmission panel where you may define “optional se
 <p align="justify">
 
 An example result page can be accessed <a href="{{url_for('job_status', jid=config['EXAMPLE_JOB'])}}"><i class="fa fa-external-link"></i> here</a>.
-<br><br>
-See also an <a target="_blank" href="{{url_for('examples')}}" target="_blank"><i class="fa fa-folder-open-o"></i>"Examples" section</a>
-<br><br>
-
+ See also an <a target="_blank" href="{{url_for('examples')}}" target="_blank"><i class="fa fa-folder-open-o"></i>"Examples" section</a>
 </p>
 
 
