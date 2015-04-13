@@ -17,7 +17,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12 hyphenate">
             <h3>Benchmark set </h3>
 
             <div class="row">
@@ -33,7 +33,7 @@
             </p>
                 </div>
                 <div class="col-md-4">
-            <h5 class="alert alert-warning">The <span class=capi>rmsd</span> is calculated on the peptide only, after superimposition of the receptor structures.  We’ve decided to set up an arbitrary cut-off of 5.5 Å (between low and medium accuracy models) on the basis of the work benchmarking the Rosetta FlexPepDock protocol for the refinement of coarse models of protein-peptide complexes (<a href="http://onlinelibrary.wiley.com/doi/10.1002/prot.22716/abstract"><i class="fa fa-external-link"></i> Raveh, B., London, N. and Schueler-Furman, O. (2010), Sub-angstrom modeling of complexes between flexible peptides and globular proteins. Proteins, 78: 2029–2040. doi: 10.1002/prot.22716</a>) . In that work, the authors defined an effective “basin of attraction” of 5.5 Å resolution, from which the FlexPepDock protocol is able to reliably recover near-native protein - peptide models (in 91% o f bound docking cases). Importantly, low-quality prediction (as defined by the 5.5 Å cut-off) doesn’t mean that the obtained models are useless for further refinement. In the FlexPepDock benchmark, starting the refinement from structures of 6.5 – 7.5 Å resolution resulted in near-native models in 48% of cases of bound docking (op. cit.).
+            <h5 class="alert alert-warning text-justify">The <span class=capi>rmsd</span> is calculated on the peptide only, after superimposition of the receptor structures.  We’ve decided to set up an arbitrary cut-off of 5.5 Å (between low and medium accuracy models) on the basis of the work benchmarking the Rosetta FlexPepDock protocol for the refinement of coarse models of protein-peptide complexes (<a href="http://onlinelibrary.wiley.com/doi/10.1002/prot.22716/abstract"><i class="fa fa-external-link"></i> Raveh, B., London, N. and Schueler-Furman, O. (2010), Sub-angstrom modeling of complexes between flexible peptides and globular proteins. Proteins, 78: 2029–2040. doi: 10.1002/prot.22716</a>) . In that work, the authors defined an effective “basin of attraction” of 5.5 Å resolution, from which the FlexPepDock protocol is able to reliably recover near-native protein - peptide models (in 91% o f bound docking cases). Importantly, low-quality prediction (as defined by the 5.5 Å cut-off) doesn’t mean that the obtained models are useless for further refinement. In the FlexPepDock benchmark, starting the refinement from structures of 6.5 – 7.5 Å resolution resulted in near-native models in 48% of cases of bound docking (op. cit.).
             </h5>
                 </div>
             </div>
@@ -162,6 +162,7 @@
 
 {% endblock %}
 {%block below_js%}
+<script src="{{url_for('static', filename='js/hyp.js')}}"></script>
 <script src="{{url_for('static', filename='js/jquery.dataTables.min.js')}}"></script>
 <script src="{{url_for('static', filename='js/dataTables.bootstrap.js')}}"></script>
 <script src="{{url_for('static', filename='js/dataTables.colVis.min.js')}}"></script> 
