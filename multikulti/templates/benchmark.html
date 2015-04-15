@@ -193,7 +193,7 @@ $(document).ready(function() {
                     }
                   } ]
     });
-    var fh = new $.fn.dataTable.FixedHeader(b, {"offsetTop": 50});
+    var fh = new $.fn.dataTable.FixedHeader(b, {});
     $('#benchmarks tbody').on('click', 'td', function () { 
         var rmsd = $(this).html();
         var num = $(this).data('num').toString();
