@@ -16,7 +16,7 @@
                     $(".rowlink").append(row);
                 for (var i=0; i< data.data.length; i++) {
                     var curr_url = url_status.replace('REPLACE', data.data[i].jid);
-                    var row = '<tr><td class="col-md-8"><a href="'+curr_url+'">'+data.data[i].project_name+'</a></td><td class="col-md-2">'+data.data[i].status+'</td><td class="col-md-2">'+data.data[i].data+'</a></td></tr>';
+                    var row = '<tr><td class="col-md-8"><a href="'+curr_url+'">'+data.data[i].project_name+'</a></td><td class="col-md-2">'+data.data[i].status+'</td><td class="col-md-2">'+data.data[i].date+'</a></td></tr>';
                     $(".rowlink").append(row);
                 }
             }
