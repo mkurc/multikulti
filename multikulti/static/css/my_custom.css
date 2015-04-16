@@ -13,6 +13,7 @@ td.sm { font-size: 80%; }
 th.sm { font-size: 80%; }
 tr.sm { font-size: 80%; }
 td.pointer{cursor:pointer;}
+span.pointer{cursor:pointer;}
 .tab-pane {
 
     border-left: 1px solid #ddd;

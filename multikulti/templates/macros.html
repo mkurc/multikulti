@@ -6,7 +6,7 @@
         <label for="{{ field.id }}" class="control-label">{{ field.label }} 
         {% endif %}
             {% if R!='' %}
-            <span data-container="body" data-toggle="popover" data-placement="bottom" data-content='{{R|safe}}'><i class="fa fa-question-circle"></i></span>
+            <span data-container="body" data-toggle="popover" class="pointer" data-placement="bottom" data-content='{{R|safe}}'><i class="fa fa-question-circle"></i></span>
             {%endif %}
         </label>
         {{ field(class_='form-control', rows="2", **kwargs) }}
@@ -25,7 +25,7 @@
             {{ field(type='checkbox', **kwargs) }} {{ field.label }} 
         </label>
             {% else %}
-            {{ field(type='checkbox', **kwargs) }} {{ field.label }} </label> <span data-container="body" data-toggle="popover" data-placement="bottom" data-content='{{R|safe}}'><i class="fa fa-question-circle"></i> </span>
+            {{ field(type='checkbox', **kwargs) }} {{ field.label }} </label> <span class="pointer" data-container="body" data-toggle="popover" data-placement="bottom" data-content='{{R|safe}}'><i class="fa fa-question-circle"></i> </span>
             {% endif %}
     </div>
 {% endmacro %}
