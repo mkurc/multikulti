@@ -883,9 +883,11 @@ def comp_time():
                   status_date from user_queue where jid=%s)",
                  [app.config['EXAMPLE_JOB']])
     histogram = {}
+    hehe = []
     for row in q:
         tim_l = int(row['h'])
-        seq_l = 10*ceil(int(row['l'])/10.0)
+        seq_l = ceil(int(row['l']))
+        hehe.append([seq_l, tim_l])
         if seq_l in histogram:
             histogram[seq_l].append(tim_l)
         else:
@@ -900,4 +902,4 @@ def comp_time():
         avge = int(ceil(mean(histogram[e])))
         rangs.append([int(e), mine, maxe])
         avgs.append([int(e), avge])
-    return json.dumps({'avg': avgs, 'ranges': rangs})
+    return json.dumps({'histogram': hehe, 'avg': avgs, 'ranges': rangs})

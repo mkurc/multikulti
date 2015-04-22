@@ -18,12 +18,13 @@
 $.getJSON('{{url_for('comp_time')}}', function (csv) {
     var ranges = csv['ranges'];
     var averages  = csv['avg'];
+    var scat = csv['histogram'];
     
 $('#container').highcharts({
     chart: { zoomType: 'xy' },
     title: { text: 'Time between submission and finish date' },
     xAxis: { title: { text: 'simulation cycles*(receptor length + ligand length)/50', } },
-    yAxis: { min:0, title: { text: 'Waiting time (hours)' } }, 
+    yAxis: { min:0, title: { text: 'Time (hours)' } }, 
     tooltip: { crosshairs: true, shared: true, valueSuffix: 'h' },
         legend: { },
         series: [{
@@ -44,7 +45,17 @@ $('#container').highcharts({
             color: Highcharts.getOptions().colors[0],
             fillOpacity: 0.3,
             zIndex: 0
-        }]
+        },
+        {
+            type: 'scatter',
+            name: 'Job running time',
+            zIndex: 3,
+            data: scat, 
+            color: Highcharts.getOptions().colors[5],
+            marker: {radius:2 }
+        }
+        
+        ]
     });
 });
 
