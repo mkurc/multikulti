@@ -144,9 +144,10 @@
                             </div>
                             <div class="col-md-6">
                                     <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
-                                        or <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
+                                        or 
+                                        <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
                                         <br><input  data-filename-placement="inside" class="btn-primary" type=file title="Browse" id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}">
-                                                                {% if form.receptor_file.errors %}
+                                                    {% if form.receptor_file.errors %}
                                             {% for e in form.receptor_file.errors %}
                                                 <p class="help-block">{{ e|safe }}</p>
                                             {% endfor %}
