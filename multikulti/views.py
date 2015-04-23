@@ -12,6 +12,7 @@ from StringIO import StringIO
 import gzip
 from shutil import rmtree, copy
 from numpy import min, max, mean, ceil
+from scipy.stats import linregress
 
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail, connect_db
@@ -883,11 +884,10 @@ def comp_time():
                   status_date from user_queue where jid=%s)",
                  [app.config['EXAMPLE_JOB']])
     histogram = {}
-    hehe = []
     for row in q:
         tim_l = int(row['h'])
-        seq_l = ceil(int(row['l']))
-        hehe.append([seq_l, tim_l])
+        seq_l = int(row['l'])
+
         if seq_l in histogram:
             histogram[seq_l].append(tim_l)
         else:
@@ -896,10 +896,11 @@ def comp_time():
     rangs = []
     elements = histogram.keys()
     elements.sort()
+
     for e in elements:
         mine = int(ceil(min(histogram[e])))
         maxe = int(ceil(max(histogram[e])))
         avge = int(ceil(mean(histogram[e])))
         rangs.append([int(e), mine, maxe])
         avgs.append([int(e), avge])
-    return json.dumps({'histogram': hehe, 'avg': avgs, 'ranges': rangs})
+    return json.dumps({'avg': avgs, 'ranges': rangs})
