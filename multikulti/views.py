@@ -616,9 +616,9 @@ def index_page():
     # get remote server load. If delay 50 minut - OFLAJN
     q = query_db("SELECT `load` FROM server_load where id=0 AND \
                  status_date + interval 50 minute > now()", one=True)
-    if q and 'load' not in q:
+    if not q or 'load' not in q:
         comp_status = '<span class="label label-danger">offline</span>'
-        send_mail(subject="cabsdock comp server offline?")
+        #send_mail(subject="cabsdock comp server offline?")
     elif q and int(q['load']) > 85:
         comp_status = '<span class="label label-warning">high load</span>'
     else:
