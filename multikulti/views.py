@@ -886,7 +886,7 @@ def comp_time():
     histogram = {}
     for row in q:
         tim_l = int(row['h'])
-        seq_l = int(row['l'])
+        seq_l = 10*round(int(row['l'])/10)
 
         if seq_l in histogram:
             histogram[seq_l].append(tim_l)
