@@ -117,7 +117,7 @@ def structure_pdb_validator(form, field):
                 raise ValidationError('File without chain or chain shorter than \
                         4 residues')
             if len(seq) > 500:
-                raise ValidationError('CABSdock allows max 500 receptor \
+                raise ValidationError('CABS-dock allows max 500 receptor \
                                        residues. Provided file contains \
                                        %d' % (len(seq)))
             if missing > 5:
@@ -146,7 +146,7 @@ def pdb_input_validator(form, field):
             raise ValidationError('File without chain or chain shorter than \
                                    4 residues')
         if len(seq) > 500:
-            raise ValidationError('CABSdock allows max 500 receptor residues. \
+            raise ValidationError('CABS-dock allows max 500 receptor residues. \
                                    Provided file contains %d' % (len(seq)))
         if missing > 5:
             raise ValidationError('Missing atoms within receptor (M+N = %d). \

@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="CABS-dock treats peptide backbone as fully flexible, while the flexibility of receptor proteins is limited to near-native backbone fluctuations." />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        {% block indexuniq %}<title> CABSdock: server for protein-peptide docking</title>{% endblock %}
+        {% block indexuniq %}<title> CABS-dock: server for protein-peptide docking</title>{% endblock %}
     <link rel="stylesheet" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap-theme.css')}}">
@@ -31,7 +31,7 @@
     </div>
     <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-left">
-              <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=25 class="img-responsive" src={{url_for('static',filename='img/CABSdock.svg')}}></a></li><li><a class="navbar-brand" href="{{url_for("index_page")}}"> CABSdock </a></li>
+              <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=25 class="img-responsive" src={{url_for('static',filename='img/CABSdock.svg')}}></a></li><li><a class="navbar-brand" href="{{url_for("index_page")}}"> CABS-dock </a></li>
             <li><a href="{{url_for('index_page')}}"><i class="fa fa-cogs"></i> Submit new job</a></li>
             <li><a href="{{url_for('queue_page')}}"><i class="fa fa-reorder"></i> Queue</a></li>
     </ul>
@@ -96,7 +96,7 @@
     <div class="row">
         <div class="col-md-7">
             <div class="jumbotron ">
-                <h2><strong>CABSdock</strong><small> server for flexible protein-peptide docking</small></h2>
+                <h2><strong>CABS-dock</strong><small> server for flexible protein-peptide docking</small></h2>
                 <div class="row">
 
                     <div class="col-md-4">
