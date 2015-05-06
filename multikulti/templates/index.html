@@ -28,23 +28,24 @@
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                         <span class="sr-only">Toggle navigation</span>
                     </button>
+                        <a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=25 class="img-responsive" src={{url_for('static',filename='img/CABSdock.svg')}}></a>
+                        <a class="navbar-brand" href="{{url_for("index_page")}}"> CABS-dock </a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-left">
-                        <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=25 class="img-responsive" src={{url_for('static',filename='img/CABSdock.svg')}}></a></li><li><a class="navbar-brand" href="{{url_for("index_page")}}"> CABS-dock </a></li>
                         <li><a href="{{url_for('index_page')}}"><i class="fa fa-cogs"></i> Submit new job</a></li>
                         <li><a href="{{url_for('queue_page')}}"><i class="fa fa-reorder"></i> Queue</a></li>
                     </ul>
-                    <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="project name search" name="q" id="q"> 
-                        </div>
-                    </form>
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="{{url_for('learn_more')}}"><i class="fa fa-cube"></i> About</a></li>
                         <li><a href="{{url_for('tutorial')}}"><i class="fa fa-question-circle"></i> Tutorial</a></li>
                         <li><a href="{{url_for('examples')}}"><i class="fa fa-folder-open-o"></i> Examples</a></li>
                         <li><a href="{{url_for('index_contact')}}"><i class="fa fa-envelope-o"></i> Contact</a></li>
+                    <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="project name search" name="q" id="q"> 
+                        </div>
+                    </form>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
@@ -93,7 +94,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-7">
-            <div class="jumbotron ">
+            <div class="jumbotron hidden-xs">
                 <h2><strong>CABS-dock</strong><small> server for flexible protein-peptide docking</small></h2>
                 <div class="row">
                     <div class="col-md-4"> <img class="img-responsive" style="margin-top: 50px; height:150px" src={{url_for('static',filename='img/CABSdock.svg')}}> </div>
@@ -105,7 +106,7 @@
                     </div>
                 </div>
             </div>
-            <div class="panel panel-default">
+            <div class="panel panel-default hidden-xs">
                 <table class="table">
                     <tr>
                         <td> <i class="fa fa-edit fa-4x" style="padding:15px"></i> </td>
@@ -182,10 +183,10 @@
                         <div class="col-md-6">
                             <a href="#" onClick="exampleData()"  class="btn btn-default btn-xs">Load example</a>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 hidden-xs">
                             <h6>Server status </h6>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 hidden-xs">
                             <h6> {{status|safe}} </h6>
                         </div>
                     </div>
