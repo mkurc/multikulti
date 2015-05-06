@@ -1,29 +1,29 @@
 {% extends "index.html" %}
 {% block header %}
-    <link rel="stylesheet" href="{{url_for('static', filename='css/jasny-bootstrap.min.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/jasny-bootstrap.min.css')}}">
 {% endblock %}
 {%block below_js%}
     <script src="{{url_for('static', filename='js/jasny-bootstrap.min.js')}}"></script>
     <script>
-    var global_page = 2;
-    function lastAddedLiveFunc()
-    {
-        $('div#lastPostsLoader').html('<center>loading...<br><i class="text-primary fa fa-1x fa-pulse fa-spinner"></i></center>');
-        var url_status = "{{url_for('job_status', jid='REPLACE')}}";
-        $.get("{{url_for('queue_page_json')}}/page/"+global_page, function(data){
-            if (data.data.length>0) {
-                var row = '<tr><td class="col-md-8"><small>Project name</small></td><td class="col-md-2"><small>Status</small></td><td class="col-md-2"><small>Date</small></td></tr>';
+        var global_page = 2;
+        function lastAddedLiveFunc()
+        {
+            $('div#lastPostsLoader').html('<center>loading...<br><i class="text-primary fa fa-1x fa-pulse fa-spinner"></i></center>');
+            var url_status = "{{url_for('job_status', jid='REPLACE')}}";
+            $.get("{{url_for('queue_page_json')}}/page/"+global_page, function(data){
+                if (data.data.length>0) {
+                    var row = '<tr><td class="col-md-8"><small>Project name</small></td><td class="col-md-2"><small>Status</small></td><td class="col-md-2"><small>Date</small></td></tr>';
                     $(".rowlink").append(row);
-                for (var i=0; i< data.data.length; i++) {
-                    var curr_url = url_status.replace('REPLACE', data.data[i].jid);
-                    var row = '<tr><td class="col-md-8"><a href="'+curr_url+'">'+data.data[i].project_name+'</a></td><td class="col-md-2">'+data.data[i].status+'</td><td class="col-md-2">'+data.data[i].date+'</a></td></tr>';
-                    $(".rowlink").append(row);
+                    for (var i=0; i< data.data.length; i++) {
+                        var curr_url = url_status.replace('REPLACE', data.data[i].jid);
+                        var row = '<tr><td class="col-md-8"><a href="'+curr_url+'">'+data.data[i].project_name+'</a></td><td class="col-md-2">'+data.data[i].status+'</td><td class="col-md-2">'+data.data[i].date+'</a></td></tr>';
+                        $(".rowlink").append(row);
+                    }
                 }
-            }
-            global_page = data.page + 1;
-            $('div#lastPostsLoader').empty();
-        });
-    }
+                global_page = data.page + 1;
+                $('div#lastPostsLoader').empty();
+            });
+        }
     </script>
 {% endblock %}
 
@@ -38,63 +38,47 @@
         <div class="col-md-12">
             <div class="panel panel-primary">
                 <div class="panel panel-heading"><i class="fa fa-reorder"></i> Submitted projects</div>
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th>Project name</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody  data-link="row" class="rowlink">
-                        {% for row in queue %}
+                <table class="table table-hover table-striped">
+                    <thead>
                         <tr>
-                            <td class="col-md-8">
-                                <a href="{{url_for('job_status', jid=row['jid'])}}">
-                                    {{row['project_name']}}
-                                </a>
-                            </td>
-                            <td class="col-md-2">
-                                    {{row['status']|safe}}
-                            </td>
-                            <td class="col-md-2">
-                                <a href="{{url_for('job_status', jid=row['jid'])}}">
-                                    {{row['date']}}
-                                </a>
-                            </td>
+                            <th>Project name</th>
+                            <th>Status</th>
+                            <th>Date</th>
                         </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class=row>
-                        <div class="col-md-5"></div>
-                        <div class="col-md-2">
-                            <hr>
-                            <center>
-                    <div id="lastPostsLoader"></div>
-                    <button class="btn btn-primary btn-sm" onClick="lastAddedLiveFunc()"><i class="fa fa-arrow-circle-o-down"></i> load more ...</button></center>
-                        </div>
-                        <div class="col-md-5"></div>
+                    </thead>
+                    <tbody  data-link="row" class="rowlink">
+                    {% for row in queue %}
+                    <tr>
+                        <td class="col-md-8">
+                            <a href="{{url_for('job_status', jid=row['jid'])}}">
+                                {{row['project_name']}}
+                            </a>
+                        </td>
+                        <td class="col-md-2">
+                                {{row['status']|safe}}
+                        </td>
+                        <td class="col-md-2">
+                            <a href="{{url_for('job_status', jid=row['jid'])}}">
+                                {{row['date']}}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class=row>
+                    <div class="col-md-5"></div>
+                    <div class="col-md-2">
+                        <hr>
+                        <center>
+                        <div id="lastPostsLoader"></div>
+                        <button class="btn btn-primary btn-sm" onClick="lastAddedLiveFunc()"><i class="fa fa-arrow-circle-o-down"></i> load more ...</button></center>
                     </div>
-
-                    <div class="panel panel-body">
-
-                        <!--                       <ul class="pager"> -->
- <!--                           {% if page_p<1: %}     <ul class="pager"> -->
- <!--                           <li class="previous disabled"><a href="#">&larr; Newer</a></li>     <ul class="pager"> -->
- <!--                           {% else %}     <ul class="pager"> -->
- <!--                               <li class="previous"><a href="{{url_for_other_page(page=page_p)}}">&larr; Newer</a></li>     <ul class="pager"> -->
- <!--                           {% endif %}     <ul class="pager"> -->
- <!--                           {% if (page_n-1)*config['PAGINATION']>total_rows: %}     <ul class="pager"> -->
- <!--                           <li class="next disabled"><a href="#">Older &rarr;</a></li>     <ul class="pager"> -->
- <!--                           {% else %}     <ul class="pager"> -->
- <!--                               <li class="next"><a href="{{url_for_other_page(page=page_n)}}">Older &rarr;</a></li>     <ul class="pager"> -->
- <!--                               {% endif %}     <ul class="pager"> -->
- <!--                       </ul>     <ul class="pager"> -->
-                    </div>
+                    <div class="col-md-5"></div>
+                </div>
+                <div class="panel panel-body"> </div>
             </div>
+        </div>
     </div>
-
-</div>
 </div>
     {% endblock %} 

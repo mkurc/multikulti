@@ -1,94 +1,92 @@
 {% from 'macros.html' import render_field %} {% from 'macros.html' import render_checkbox_field %}<!doctype html>
 <html lang='en'>
-<head>
-<meta charset="utf-8">
-<link rel="shortcut icon" type="image/svg+xml" href="{{url_for('static', filename='img/CABSdock.svg')}}">
-<link rel="icon" type="image/png" href="{{url_for('static',filename='img/favicon.png')}}" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="CABS-dock treats peptide backbone as fully flexible, while the flexibility of receptor proteins is limited to near-native backbone fluctuations." />
+    <head>
+        <meta charset="utf-8">
+        <link rel="shortcut icon" type="image/svg+xml" href="{{url_for('static', filename='img/CABSdock.svg')}}">
+        <link rel="icon" type="image/png" href="{{url_for('static',filename='img/favicon.png')}}" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="CABS-dock treats peptide backbone as fully flexible, while the flexibility of receptor proteins is limited to near-native backbone fluctuations." />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {% block indexuniq %}<title> CABS-dock: server for protein-peptide docking</title>{% endblock %}
-    <link rel="stylesheet" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap-theme.css')}}">
-    <link rel="stylesheet" href="{{url_for('static', filename='css/my_custom.css')}}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
+        <link rel="stylesheet" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap-theme.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/my_custom.css')}}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
     {% block header %}
     {% endblock %}
-</head>
-<body data-spy="scroll" data-target="#affix-nav">
-<!-- Fixed navbar -->
-<div class="navbar navbar-default" role="navigation">
-  <div class="container">
-      <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-      </button>
-    </div>
-    <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-left">
-              <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=25 class="img-responsive" src={{url_for('static',filename='img/CABSdock.svg')}}></a></li><li><a class="navbar-brand" href="{{url_for("index_page")}}"> CABS-dock </a></li>
-            <li><a href="{{url_for('index_page')}}"><i class="fa fa-cogs"></i> Submit new job</a></li>
-            <li><a href="{{url_for('queue_page')}}"><i class="fa fa-reorder"></i> Queue</a></li>
-    </ul>
-            <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="project name search" name="q" id="q"> 
+    </head>
+    <body data-spy="scroll" data-target="#affix-nav">
+        <!-- Fixed navbar -->
+        <div class="navbar navbar-default" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                    </button>
                 </div>
-            </form>
-          <ul class="nav navbar-nav navbar-right">
-              <li><a href="{{url_for('learn_more')}}"><i class="fa fa-cube"></i> About</a></li>
-              <li><a href="{{url_for('tutorial')}}"><i class="fa fa-question-circle"></i> Tutorial</a></li>
-              <li><a href="{{url_for('examples')}}"><i class="fa fa-folder-open-o"></i> Examples</a></li>
-              <li><a href="{{url_for('index_contact')}}"><i class="fa fa-envelope-o"></i> Contact</a></li>
-          </ul>
-    </div><!--/.nav-collapse -->
-  </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            {% with infos = get_flashed_messages(category_filter=["info"]) %}
-            {% if infos %}
-                    {% for message in infos %}
-                        <div class="alert alert-info alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                <i class="fa fa-thumbs-o-up"></i> 
-                                {{ message.decode('utf-8')|safe }}
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-left">
+                        <li><a class="navbar-brand" href="{{url_for("index_page")}}"> <img width=25 class="img-responsive" src={{url_for('static',filename='img/CABSdock.svg')}}></a></li><li><a class="navbar-brand" href="{{url_for("index_page")}}"> CABS-dock </a></li>
+                        <li><a href="{{url_for('index_page')}}"><i class="fa fa-cogs"></i> Submit new job</a></li>
+                        <li><a href="{{url_for('queue_page')}}"><i class="fa fa-reorder"></i> Queue</a></li>
+                    </ul>
+                    <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="project name search" name="q" id="q"> 
                         </div>
-                    {% endfor %}
-            {% endif %}
-            {% endwith %}
-
-            {% with infos = get_flashed_messages(category_filter=["warning"]) %}
-            {% if infos %}
-                    {% for message in infos %}
-                        <div class="alert  alert-warning alert-dismissable">
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                                <i class="fa fa-bullhorn"></i> 
-                                {{ message.decode('utf-8') }}
-                        </div>
-                    {% endfor %}
-            {% endif %}
-            {% endwith %}
-            {% with errors = get_flashed_messages(category_filter=["error"]) %}
-            {% if errors %}
-                <div class="alert alert-danger alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        <i class="fa fa-exclamation-triangle"></i> <strong>Warning:</strong>
-                        {% for message in errors %}
-                            {{ message.decode('utf-8')|safe }}
-                        {% endfor %}
-                </div>
-            {% endif %}
-            {% endwith %}
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="{{url_for('learn_more')}}"><i class="fa fa-cube"></i> About</a></li>
+                        <li><a href="{{url_for('tutorial')}}"><i class="fa fa-question-circle"></i> Tutorial</a></li>
+                        <li><a href="{{url_for('examples')}}"><i class="fa fa-folder-open-o"></i> Examples</a></li>
+                        <li><a href="{{url_for('index_contact')}}"><i class="fa fa-envelope-o"></i> Contact</a></li>
+                    </ul>
+                </div><!--/.nav-collapse -->
+            </div>
         </div>
-    </div>
-</div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    {% with infos = get_flashed_messages(category_filter=["info"]) %}
+                    {% if infos %}
+                            {% for message in infos %}
+                                <div class="alert alert-info alert-dismissable">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    <i class="fa fa-thumbs-o-up"></i> 
+                                    {{ message.decode('utf-8')|safe }}
+                                </div>
+                            {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    {% with infos = get_flashed_messages(category_filter=["warning"]) %}
+                    {% if infos %}
+                            {% for message in infos %}
+                                <div class="alert  alert-warning alert-dismissable">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    <i class="fa fa-bullhorn"></i> 
+                                    {{ message.decode('utf-8') }}
+                                </div>
+                            {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                    {% if errors %}
+                        <div class="alert alert-danger alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            <i class="fa fa-exclamation-triangle"></i> <strong>Warning:</strong>
+                            {% for message in errors %} {{ message.decode('utf-8')|safe }} {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
 
 {% block body %}
 
@@ -98,139 +96,119 @@
             <div class="jumbotron ">
                 <h2><strong>CABS-dock</strong><small> server for flexible protein-peptide docking</small></h2>
                 <div class="row">
-
-                    <div class="col-md-4">
-                        <img class="img-responsive" style="margin-top: 50px; height:150px" src={{url_for('static',filename='img/CABSdock.svg')}}>
-                    </div>
+                    <div class="col-md-4"> <img class="img-responsive" style="margin-top: 50px; height:150px" src={{url_for('static',filename='img/CABSdock.svg')}}> </div>
                     <div class="col-md-8">
-                <p class='hyphenate'> 
-                Given a protein receptor structure and a peptide sequence, CABS-dock
-                performs docking search for the binding site allowing for full flexibility
-                of the peptide and small fluctuations of the receptor backbone.
-
-                </p>
-
-        <p><a href="{{url_for('learn_more')}}" class="btn btn-primary btn-lg" role="button">Learn more »</a></p>
+                        <p class='hyphenate'>Given a protein receptor structure and a peptide sequence, CABS-dock
+                        performs docking search for the binding site allowing for full flexibility
+                        of the peptide and small fluctuations of the receptor backbone.  </p> 
+                        <p><a href="{{url_for('learn_more')}}" class="btn btn-primary btn-lg" role="button">Learn more »</a></p>
                     </div>
                 </div>
             </div>
-				<div class="panel panel-default">
-                            <table class="table">
-                                <tr>
-                                    <td>
-
-                                <i class="fa fa-edit fa-4x" style="padding:15px"></i> 
-                                    </td>
-                                    <td class='hyphenate' style="padding:20px">
-                                        Mateusz Kurcinski, Michal Jamroz, Maciej Blaszczyk, Andrzej Kolinski, Sebastian Kmiecik, <strong>CABS-dock web server for flexible docking of peptides to proteins without prior knowledge of the binding site</strong>, <a href="http://nar.oxfordjournals.org/content/early/2015/05/04/nar.gkv456.abstract">Nucleic Acids Research, doi: 10.1093/nar/gkv456</a>, 2015
-                                    </td>
-                                </tr>
-                            </table>
-				</div>
-
+            <div class="panel panel-default">
+                <table class="table">
+                    <tr>
+                        <td> <i class="fa fa-edit fa-4x" style="padding:15px"></i> </td>
+                        <td class='hyphenate' style="padding:20px">
+                            Mateusz Kurcinski, Michal Jamroz, Maciej Blaszczyk, Andrzej Kolinski, Sebastian Kmiecik, <strong>CABS-dock web server for flexible docking of peptides to proteins without prior knowledge of the binding site</strong>, <a href="http://nar.oxfordjournals.org/content/early/2015/05/04/nar.gkv456.abstract">Nucleic Acids Research, doi: 10.1093/nar/gkv456</a>, 2015
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
+        <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
         <div class="col-md-5">
                 <div class="panel panel-default ">
                     <div class="panel-body">
-            <form  enctype="multipart/form-data" method="POST" action="{{url_for('index_page')}}">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        Protein
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                {{render_field(form.pdb_receptor, placeholder='2IV9 or 2IV9:AB')}}
-                            </div>
-                            <div class="col-md-6">
-                                    <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
-                                        or 
-                                        <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
-                                        <br><input  data-filename-placement="inside" class="btn-primary" type=file title="Browse" id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}">
-                                                    {% if form.receptor_file.errors %}
-                                            {% for e in form.receptor_file.errors %}
-                                                <p class="help-block">{{ e|safe }}</p>
-                                            {% endfor %}
-                                        {% endif %}
+                            <div class="panel panel-primary">
+                                <div class="panel-heading"> Protein </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            {{render_field(form.pdb_receptor, placeholder='2IV9 or 2IV9:AB')}}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group {% if form.receptor_file.errors %}has-error{% endif %}">
+                                                or 
+                                                <label for="{{ form.receptor_file.id }}" class="control-label">{{form.receptor_file.label}}</label>
+                                                <br><input  data-filename-placement="inside" class="btn-primary" type=file title="Browse" id="{{ form.receptor_file.id }}" name="{{ form.receptor_file.id }}">
+                                                {% if form.receptor_file.errors %}
+                                                    {% for e in form.receptor_file.errors %} <p class="help-block">{{ e|safe }}</p> {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </div>
-
-
+                                    <small class="text-muted">Max protein size: 500 residues</small>
+                                </div>
                             </div>
+
+                            <div class="panel panel-primary">
+                                <div class="panel-heading"> Peptide </div>
+                                <div class="panel-body">
+                                    {{render_field(form.ligand_seq, placeholder='SFGDGFADF', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                                    <small class="text-muted">Peptide size: 4-30 residues</small>
+                                </div>
+                            </div>
+                            <div class="panel-group" id="accordion">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                                Optional <i class="fa fa-caret-down"></i>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapseOne" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    {{render_field(form.name, placeholder='Project name')}}
+                                                </div>
+                                                <div class="col-md-6"> {{render_field(form.email, placeholder='john@doe.com', R='If provided, the server will send an email notification about job completion.')}} </div>
+                                            </div>
+                                            {{render_field(form.ligand_ss, R='If not provided - server run <span class=capi>psipred</span> prediction', placeholder='CCCCHHHHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                                            {{render_checkbox_field(form.add_constraints, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r121"><i class="fa fa-link"></i> tutorial</a>')}}
+                                            {{render_checkbox_field(form.excluding, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r122"><i class="fa fa-link"></i> tutorial</a>')}}
+                                            {{render_field(form.length)}}
+                                            {{render_checkbox_field(form.show)}}
+
+                                        </div>
+                                    </div>
+                            </div>
+                    </div>
+                    {{form.jid}}
+                    {{form.csrf_token()}}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="#" onClick="exampleData()"  class="btn btn-default btn-xs">Load example</a>
                         </div>
-                        <small class="text-muted">Max protein size: 500 residues</small>
+                        <div class="col-md-3">
+                            <h6>Server status </h6>
+                        </div>
+                        <div class="col-md-3">
+                            <h6> {{status|safe}} </h6>
+                        </div>
+                    </div>
+
+
+                    <hr>
+                    <input type="submit" class="btn btn-lg btn-block btn-success" value="Submit">
                     </div>
                 </div>
-
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        Peptide
-                    </div>
-                    <div class="panel-body">
-                        {{render_field(form.ligand_seq, placeholder='SFGDGFADF', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
-                        <small class="text-muted">Peptide size: 4-30 residues</small>
             </div>
         </div>
-<div class="panel-group" id="accordion">
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-            Optional <i class="fa fa-caret-down"></i>
-        </a>
-      </h4>
+        </form>
     </div>
-    <div id="collapseOne" class="panel-collapse collapse">
-      <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        {{render_field(form.name, placeholder='Project name')}}
-                    </div>
-                    <div class="col-md-6"> {{render_field(form.email, placeholder='john@doe.com', R='If provided, the server will send an email notification about job completion.')}} </div>
-                </div>
-                {{render_field(form.ligand_ss, R='If not provided - server run <span class=capi>psipred</span> prediction', placeholder='CCCCHHHHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
-                {{render_checkbox_field(form.add_constraints, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r121"><i class="fa fa-link"></i> tutorial</a>')}}
-                {{render_checkbox_field(form.excluding, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r122"><i class="fa fa-link"></i> tutorial</a>')}}
-                {{render_field(form.length)}}
-                {{render_checkbox_field(form.show)}}
-
-      </div>
-    </div>
-  </div>
-</div>
-                {{form.jid}}
-                {{form.csrf_token()}}
-                <div class="row">
-                    <div class="col-md-6">
-                        <a href="#" onClick="exampleData()"  class="btn btn-default btn-xs">Load example</a>
-                    </div>
-                    <div class="col-md-3">
-                        <h6>Server status
-                        </h6>
-                    </div>
-                    <div class="col-md-3">
-                        <h6> {{status|safe}} </h6>
-                    </div>
-                </div>
-
-
-                <hr>
-                    <input type="submit" class="btn btn-lg btn-block btn-success" value="Submit">
-            </form>
-        </div>
-    </div>
-</div>
-    </div>
-</div>
 
 {% endblock %}
 {% block footer %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-    <small class="text-muted" style="float:right">Laboratory of Theory of Biopolymers 2015</small>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <small class="text-muted" style="float:right">Laboratory of Theory of Biopolymers 2015</small>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}
 {%block jsdata %}
 <script src="{{url_for('static', filename='js/jquery.js')}}"></script>
@@ -257,8 +235,6 @@ function exampleData() {
 </script>
 {%endblock%}
 
-
-
 <!-- Piwik -->
 <script type="text/javascript">
 var _paq = _paq || [];
@@ -276,5 +252,5 @@ g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.pare
 <!-- End Piwik Code -->
 
 
-<body>
+</body>
 </html>
