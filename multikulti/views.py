@@ -75,7 +75,7 @@ def status_color(status, shorter=True):
 
 def sequence_validator(form, field):
     allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N',
-                   'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
+                   'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
     for letter in re.sub("\s", "", field.data):
         if letter not in allowed_seq:
             raise ValidationError('Sequence contains non-standard aminoacid \
@@ -107,7 +107,7 @@ def structure_pdb_validator(form, field):
             missing = p.getMissing()
             seq = p.getSequence()
             allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
-                           'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+                           'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V',
                            'W', 'Y']
             for e in seq:
                 if e not in allowed_seq:
@@ -137,7 +137,7 @@ def pdb_input_validator(form, field):
         missing = p.getMissing()
         seq = p.getSequence()
         allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M',
-                       'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
+                       'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
         for e in seq:
             if e not in allowed_seq:
                 raise ValidationError('Non-standard residue in the receptor \
