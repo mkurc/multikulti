@@ -40,7 +40,7 @@ class TalkToServer:
         if r.status_code == requests.codes.ok:
             print("Results sent! %s" % (self.jid))
         else:
-            print("Results NOT sent %s" + str(r.status_code, self.jid))
+            print("Results NOT sent %s %s" + str(r.status_code, self.jid))
 
     def getStructureFile(self, output_path="input.pdb"):
         try:
