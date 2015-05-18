@@ -216,7 +216,6 @@
 <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 <script src="{{url_for('static', filename='js/hyp.js')}}"></script>
 {%endblock %}
-
 {%block below_js%}
 <script src="{{url_for('static', filename='js/bootstrap.file-input.js')}}"></script>
 <script type="text/javascript" charset="utf-8">
@@ -229,9 +228,6 @@ function exampleData() {
     document.getElementById("ligand_seq").value = "SFGDGFADF";
     document.getElementById("pdb_receptor").value = "2IV9:AB";
     var a = ["receptor_file", "show","name", "ligand_ss", "ligand_seq", "pdb_receptor"];
-    for (var i=0; i<a.length;i++){
-      //  document.getElementById(a[i]).readOnly = true;
-    }
 }
 </script>
 {%endblock%}
