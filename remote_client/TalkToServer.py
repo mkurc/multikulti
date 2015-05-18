@@ -42,12 +42,35 @@ class TalkToServer:
         else:
             print("Results NOT sent %s %s" + str(r.status_code, self.jid))
 
+    def _replace_empty_chain(self,file_handler):
+        d=file_handler.read().split("\n")
+        chain_set = set()
+
+        for line in d:
+            if len(line)>21 and line.startswith("ATOM"):
+                chain = line[21]
+                chain_set.update(chain)
+        uniq = ' ' # very rarely it stay as is
+        for e in ['X','Y','Z','I','J','K','L','M']:
+            if e not in chain_set:
+                uniq = e
+                break
+
+        o=""
+        for line in d:
+            if len(line)>21 and "ATOM" in line:
+                line = line[:21]+uniq+line[22:]+"\n"
+                
+            o += line
+
+        return o
+
     def getStructureFile(self, output_path="input.pdb"):
         try:
             with open(output_path, "wb") as out:
                 tmp = urllib2.urlopen(self.webserver+"compute_static/"
                                       + self.jid+"/input.pdb")
-                out.write(tmp.read())
+                out.write(self._replace_empty_chain(tmp))
                 tmp.close()
         except:
             print("ERROR: Nothing found!")
