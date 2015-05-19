@@ -12,7 +12,6 @@ from StringIO import StringIO
 import gzip
 from shutil import rmtree, copy
 from numpy import min, max, mean, ceil
-from scipy.stats import linregress
 
 from multikulti import app
 from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail, connect_db
@@ -113,7 +112,7 @@ def structure_pdb_validator(form, field):
                 if e not in allowed_seq:
                     raise ValidationError('Non-standard residue in the receptor \
                             structure')
-            if len(p.getBody()) < 16:
+            if len(p.getBody()) < 16 or len(seq) == 0:
                 raise ValidationError('File without chain or chain shorter than \
                         4 residues')
             if len(seq) > 500:
@@ -142,7 +141,7 @@ def pdb_input_validator(form, field):
             if e not in allowed_seq:
                 raise ValidationError('Non-standard residue in the receptor \
                                        structure')
-        if len(p.getBody()) < 16:
+        if len(p.getBody()) < 16 or len(seq) == 0:
             raise ValidationError('File without chain or chain shorter than \
                                    4 residues')
         if len(seq) > 500:
@@ -886,7 +885,7 @@ def comp_time():
     histogram = {}
     for row in q:
         tim_l = int(row['h'])
-        seq_l = 10*round(int(row['l'])/10)
+        seq_l = 50*round(int(row['l'])/50)
 
         if seq_l in histogram:
             histogram[seq_l].append(tim_l)
