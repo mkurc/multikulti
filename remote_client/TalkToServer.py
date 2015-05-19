@@ -57,11 +57,14 @@ class TalkToServer:
                 break
 
         o=""
-        for line in d:
-            if len(line)>21 and "ATOM" in line:
-                line = line[:21]+uniq+line[22:]+"\n"
-                
-            o += line
+        if " " in chain_set:
+            for line in d:
+                if len(line)>21 and "ATOM" in line and line[21]==" ":
+                    line = line[:21]+uniq+line[22:]+"\n"
+                    
+                o += line
+        else:
+            o = "\n".join(d)
 
         return o
 
