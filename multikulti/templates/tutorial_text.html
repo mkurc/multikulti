@@ -1,4 +1,4 @@
-<!-- ------------------------------------------początek działań Maćka -->
+<!--------------------------------------------początek działań Maćka -->
 <h2>CABS-dock tutorial</h2>
 
 <a href="#r1">1. Submitting  new job </a><br>
@@ -15,7 +15,10 @@
  <a href="#r32">3.2 Clustering details tab</a><br>
  <a href="#r33">3.3 Contact maps tab</a><br>
  <a href="#r34">3.4 Download all files</a><br>
- <a href="#r35">3.5 Viewing structures and simulation trajectory in Pymol</a><br>
+ <a href="#r35">3.5 Reconstruction to all-atom representation and local optimization </a><br>
+ <a href="#r36">3.6 Viewing structures and simulation trajectory in Pymol</a><br>
+ <a href="#r37">3.7 Results visualization in VMD and gnuplot</a><br>
+  
 <a href="#r4">4. Resubmiting job – excluding binding modes from previous runs</a><br>
 <a href="#r5">5. Example results page</a><hr>
 
@@ -249,11 +252,14 @@ columns contain the following data:</li>
 
 
 
-
-
-
-
-<a id="r35"></a><h4>3.5 Viewing structures and simulation trajectory in Pymol </h4>
+<a id="r35"></a><h4>3.5 Reconstruction to all-atom representation and local optimization</h4> 
+<p align="justify">
+For 10 final models, the CABS-dock server provides automated reconstruction to all-atom representation and local optimization using Modeller procedure (the optimization is done by the minimization with the DOPE, Discreet Optimized Protein Energy, statistical potential). Larger sets of CABS-dock models (1000 or 10,000, downloaded from the server) can be reconstructed by a user using standalone Modeller package.
+<br><br> 
+The script for the Modeller reconstruction and optimization procedure is available <a target="_blank" href="{{url_for('static', filename='fullAtom.py')}}" >here
+</a>.
+<hr>
+<a id="r36"></a><h4>3.6 Viewing structures and simulation trajectory in Pymol </h4>
 
 <p align="justify">
 All downloadable <span class='capi'>pdb</span> files (models, clusters, and trajectories available from the ‘Docking predictions results’ tab) can be easily viewed using molecular visualization software, like Pymol. <br><br>
@@ -285,8 +291,18 @@ See an example movie prepared in Pymol:
 </center>
 <hr>
 
+  <a id="#r37"></a><h4>3.7 Results visualization in VMD and gnuplot</h4>
+<a target="_blank" href="{{url_for('static', filename='tutorial_vmd.pdf')}}" target="_blank">Here</a> you can download a tutorial, which  describes how to:
+<ul>
+<li>load all the necessary files into the VMD molecular graphics program</li>
+<li>create simple graphic representations for viewing trajectories</li>
+<li>align models from trajectories with a known receptor structure</li>
+<li>calculate peptide RMSDs (root mean square deviation from the reference structure)</li>
+<li>create plots from calculated RMSDs vs. energies from the CABS-dock results</li>
+</ul>
+<a target="_blank" href="{{url_for('static', filename='tutorial_vmd.pdf')}}" target="_blank">Download tutorial [PDF]</a>
 
-
+<hr>
 
 <a id="r4"></a><h4>4. Resubmiting job – excluding binding modes from previous runs</h4>
 <p align="justify">
