@@ -109,11 +109,25 @@
             <div class="panel panel-default hidden-xs">
                 <table class="table">
                     <tr>
-                        <td> <i class="fa fa-edit fa-4x" style="padding:15px"></i> </td>
-                        <td class='hyphenate' style="padding:20px">
-                            Mateusz Kurcinski, Michal Jamroz, Maciej Blaszczyk, Andrzej Kolinski, Sebastian Kmiecik, <strong>CABS-dock web server for flexible docking of peptides to proteins without prior knowledge of the binding site</strong>, <a href="http://nar.oxfordjournals.org/cgi/content/abstract/gkv456">Nucleic Acids Research, doi: 10.1093/nar/gkv456</a>, 2015
+                        <td> <i class="fa fa-edit fa-4x" style="margin-left:15px;margin-right:7px;margin-top:10px"></i> </td>
+                        <td class='hyphenate' style="padding:5px">
+                            Papers describing the CABS-dock server and its example applications: 
+                            <small>
+                            <ul><li>
+ <a href="http://nar.oxfordjournals.org/cgi/content/abstract/gkv456">
+     CABS-dock web server for flexible docking of peptides to proteins without prior knowledge of the binding site</a>, 
+                            
+                            <i>Nucleic Acids Res, 2015</i>
+                            </li><li>
+                            <a href="http://arxiv.org/abs/1505.01138">
+                                Modeling of protein-peptide interactions using the CABS-dock web server for binding site search and flexible docking</a>, <i>
+                                    arXiv 1505.01138, 2015</i>
+                            </li></ul>
+                            </small>
                         </td>
                     </tr>
+
+                    <tr><td colspan=2 style="border:0px"><center><hr style="width:75%;margin:0px;align:center"><img width="75%" src="{{url_for('static',filename='img/STOPKA.png')}}" class='img-responsive'></center></td></tr>
                 </table>
             </div>
         </div>
@@ -216,6 +230,7 @@
 <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 <script src="{{url_for('static', filename='js/hyp.js')}}"></script>
 {%endblock %}
+
 {%block below_js%}
 <script src="{{url_for('static', filename='js/bootstrap.file-input.js')}}"></script>
 <script type="text/javascript" charset="utf-8">
@@ -228,6 +243,9 @@ function exampleData() {
     document.getElementById("ligand_seq").value = "SFGDGFADF";
     document.getElementById("pdb_receptor").value = "2IV9:AB";
     var a = ["receptor_file", "show","name", "ligand_ss", "ligand_seq", "pdb_receptor"];
+    for (var i=0; i<a.length;i++){
+      //  document.getElementById(a[i]).readOnly = true;
+    }
 }
 </script>
 {%endblock%}
