@@ -70,9 +70,11 @@
                     <div class="col-md-5"></div>
                     <div class="col-md-2">
                         <hr>
+                        {% if search == False %}
                         <center>
                         <div id="lastPostsLoader"></div>
                         <button class="btn btn-primary btn-sm" onClick="lastAddedLiveFunc()"><i class="fa fa-arrow-circle-o-down"></i> load more ...</button></center>
+                        {% endif %}
                     </div>
                     <div class="col-md-5"></div>
                 </div>
