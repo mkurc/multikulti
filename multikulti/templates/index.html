@@ -43,7 +43,7 @@
                         <li><a href="{{url_for('index_contact')}}"><i class="fa fa-envelope-o"></i> Contact</a></li>
                     <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="project name search" name="q" id="q"> 
+                            <input type="text" class="form-control" placeholder="project name search" name="q" id="q"> <span data-original-title="search by project name, project identifier or email address. Hidden jobs can be search only by complete query (i.e. complete email, project name or jid)." data-toggle="tooltip" rel="tooltip" data-placement="bottom" style="font-weight:normal" title=""><i class="fa fa-info-circle"></i></span>
                         </div>
                     </form>
                     </ul>
@@ -226,6 +226,9 @@
 <script src="{{url_for('static', filename='js/jquery.js')}}"></script>
 <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 <script src="{{url_for('static', filename='js/hyp.js')}}"></script>
+<script>
+$("[rel=tooltip]").tooltip();
+</script>
 {%endblock %}
 
 {%block below_js%}

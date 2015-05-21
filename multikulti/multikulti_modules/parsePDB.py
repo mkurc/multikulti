@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import gzip
-import json
 from re import compile, sub
 
 
@@ -77,7 +76,7 @@ class PdbParser:
             if ter.match(line) or counter == end:
                 self.resindexes.append(tmp)
                 tmp = []
-                self.onlycalfa += line
+                #self.onlycalfa += line # skip TER in output
             if (mod.match(line) and len(self.onlycalfa) > 1) or counter == end:
                 break
             counter += 1
@@ -117,6 +116,8 @@ class PdbParser:
         brk = []
         for j in self.numb.keys():
             indexes = self.numb[j]
+            if len(indexes) == 0: # empty chains
+                continue
             first = indexes[0]
             for i in range(1, len(indexes)):
                 if indexes[i] - 1 != first:
@@ -145,9 +146,9 @@ class PdbParser:
                 o += self.sequences[e]
             return o
         else:
-            out = ""
+            out = ''
             for k in self.sequences.keys():
-                out += "".join(self.sequences[k])
+                out += "".join(self.sequences[k])+ ' '
             return out
 
 
@@ -670,8 +671,8 @@ if __name__ == "__main__":
     from StringIO import StringIO
     from sys import argv
 
-    f = urlopen("http://www.pdb.org/pdb/files/"+argv[1]+".pdb")
-    fh = StringIO(f.read())
-    a = PdbParser(fh, chain=argv[2])
-    print a.getBody()
+    f = open("4UQI.pdb")
+    fh = f
+    a = PdbParser(fh, chain="ABM")
+    print a.isBroken()
     fh.close()

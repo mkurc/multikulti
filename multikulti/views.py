@@ -97,17 +97,26 @@ def ss_validator(form, field):
 
 
 def structure_pdb_validator(form, field):
-    if len(form.receptor_file.data.filename) < 5 and len(field.data) == 4:
-        buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+field.data+'.pdb.gz')
+    if len(form.receptor_file.data.filename) < 5 and len(field.data) >= 4:
+        d = field.data.split(":")
+        pdbcode = d[0]
+        if len(d) > 1:
+            chain = d[1]
+        else:
+            chain = ''
+        pdb_code = d[0]
+
+        buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+pdb_code+'.pdb.gz')
         b2 = buraki.read()
         ft = StringIO(b2)
+
+
         with gzip.GzipFile(fileobj=ft, mode="rb") as f:
-            p = PdbParser(f)
+            p = PdbParser(f, chain=chain)
             missing = p.getMissing()
             seq = p.getSequence()
-            allowed_seq = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
-                           'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V',
-                           'W', 'Y']
+            allowed_seq = ['A', 'C', 'D', ' ', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
+                           'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
             for e in seq:
                 if e not in allowed_seq:
                     raise ValidationError('Non-standard residue in the receptor \
@@ -357,12 +366,23 @@ def queue_page(page=1):
         if search != '':
             flash("Searching results for %s ..." % (search), 'warning')
             q = query_db("SELECT project_name, jid,status, status_date datet \
-                    FROM user_queue WHERE project_name LIKE %s OR jid=%s \
-                    ORDER BY status_date DESC LIMIT %s,%s",
-                    ["%"+search+"%", search, before, app.config['PAGINATION']])
-            q_all = query_db("SELECT count(*) l FROM user_queue WHERE \
-                    project_name LIKE %s OR jid=%s", ["%"+search+"%", search])
-            # jesli jest szukanie po nazwie projektu to ukrywanie zadan przestaje miec sens TODO
+                          FROM user_queue WHERE (project_name LIKE %s OR jid \
+                          LIKE %s or email=%s) and hide=0 UNION SELECT \
+                          project_name, jid,status, status_date datet FROM \
+                          user_queue WHERE (project_name=%s OR jid=%s or \
+                          email=%s) and hide=1 ORDER BY datet DESC LIMIT \
+                          %s,%s", ["%"+search+"%", "%"+search+"%",
+                                   "%"+search+"%", search,search, search,
+                                   before, app.config['PAGINATION']])
+
+            q_all = query_db("SELECT count(*) l FROM (SELECT id FROM user_queue \
+                              WHERE (project_name LIKE %s OR jid LIKE %s or \
+                              email=%s) and hide=0 UNION SELECT id FROM \
+                              user_queue WHERE (project_name=%s OR jid=%s or \
+                              email=%s) and hide=1) z",
+                              ["%"+search+"%", "%"+search+"%", "%"+search+"%",
+                               search,search, search])
+            
             out = parse_out(q)
             if len(out) == 0:
                 flash("Nothing found", "error")
