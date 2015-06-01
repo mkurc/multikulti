@@ -19,14 +19,14 @@ class PdbParser:
 
         self.canumber = 0
         self.allnumber = 0
-        seq = compile(r"^ATOM.{9}CA..(?P<seqid>.{3}).(?P<chain>.{1})(?P<resid>.{4})") # TODO zle dla alternatywnych
+        seq =       compile(r"^ATOM.{9}CA..(?P<seqid>.{3}).(?P<chain>.{1})(?P<resid>.{4})") # TODO zle dla alternatywnych
         if chain != '':
             ch = "|".join(list(chain))
-            seq_c = compile(r"^ATOM.{9}CA.( |A).{4}("+ch+")")
-            atm = compile(r"^ATOM.{9}(.{2}).( |A).{4}("+ch+")(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
+            seq_c = compile(r"^ATOM.{9}CA.( |A)(?P<seqid>.{3}).("+ch+")")
+            atm =   compile(r"^ATOM.{9}(.{3})( |A)(?P<seqid>.{3}).("+ch+")(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
         else:
-            atm = compile(r"^ATOM.{9}(.{2}).( |A).{5}(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
-            seq_c = compile(r"^ATOM.{9}CA.( |A).{4}")
+            atm =   compile(r"^ATOM.{9}(.{3})( |A)(?P<seqid>.{3})..(?P<resid>.{4})(?P<x>.{12})(?P<y>.{8})(?P<z>.{8})")
+            seq_c = compile(r"^ATOM.{9}CA.( |A)(?P<seqid>.{3})")
 
         ter = compile(r"^TER")  # TODO nie jestem pewien
         mod = compile(r"^ENDMDL")  # TODO nie jestem pewien
@@ -46,11 +46,16 @@ class PdbParser:
             #line = sub(r'^HETATM(.{10}(A| ))MSE', r'ATOM  \1MET',line)
             data = atm.match(line)
             data_seq = seq.match(line)
-            if seq_c.match(line):
+            data_seqc = seq_c.match(line)
+            
+            if data_seqc and data_seqc.group('seqid') in keys:
                 self.canumber += 1
             if data_seq:
                 seqid = data_seq.group('seqid').strip()
+                if seqid not in self.codification.keys():
+                    continue
                 chainid = data_seq.group('chain').strip()
+
                 if chainid not in chains_order:
                     chains_order.append(chainid)
                 resid = data_seq.group('resid').strip()
@@ -68,6 +73,10 @@ class PdbParser:
                     self.sequences[chainid] = s
 
             if data:
+                seqid = data.group('seqid').strip()
+                if seqid not in self.codification.keys():
+                    continue
+
                 self.allnumber += 1
                 self.onlycalfa += line
                 dg = data.groups()
@@ -143,12 +152,13 @@ class PdbParser:
         if self.chain != '':
             o = ""
             for e in list(self.chain):
-                o += self.sequences[e]
+                if e in self.sequences.keys():
+                    o += self.sequences[e]
             return o
         else:
             out = ''
             for k in self.sequences.keys():
-                out += "".join(self.sequences[k])+ ' '
+                out += "".join(self.sequences[k])
             return out
 
 
@@ -671,8 +681,8 @@ if __name__ == "__main__":
     from StringIO import StringIO
     from sys import argv
 
-    f = open("4UQI.pdb")
+    f = open("2IAD.pdb")
     fh = f
-    a = PdbParser(fh, chain="ABM")
-    print a.isBroken()
+    a = PdbParser(fh, chain='AB')
+    print a.getSequence(),a.containsOnlyCA(), a.isBroken(), a.getBody()
     fh.close()
