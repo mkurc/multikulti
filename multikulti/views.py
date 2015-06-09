@@ -371,16 +371,14 @@ def queue_page(page=1):
                           project_name, jid,status, status_date datet FROM \
                           user_queue WHERE (project_name=%s OR jid=%s or \
                           email=%s) and hide=1 ORDER BY datet DESC LIMIT \
-                          1000", ["%"+search+"%", "%"+search+"%",
-                                   search, search,search, search])
+                          1000", 2*["%"+search+"%"]+4*[search])
 
             q_all = query_db("SELECT count(*) l FROM (SELECT id FROM user_queue \
                               WHERE (project_name LIKE %s OR jid LIKE %s or \
                               email=%s) and hide=0 UNION SELECT id FROM \
                               user_queue WHERE (project_name=%s OR jid=%s or \
                               email=%s) and hide=1) z",
-                              ["%"+search+"%", "%"+search+"%", search,
-                               search,search, search], one=True)
+                              2*["%"+search+"%"]+4*[search], one=True)
             flash("Found %d results, displaying up to 1000" % (q_all['l']), 'warning')
             
             out = parse_out(q)
@@ -625,7 +623,7 @@ def user_add_constraints():
 
             for r in zip(constraints, weights, constraints_jmol):
                 query_db("INSERT INTO constraints(`jid`,`constraint_definition`,`force`,\
-                        `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid, r[0], r[1], r[2]],
+                        `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid]+r[:3],
                         insert=True)
             return Response('OK', status=200)
 
