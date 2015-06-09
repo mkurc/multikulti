@@ -372,14 +372,14 @@ def queue_page(page=1):
                           user_queue WHERE (project_name=%s OR jid=%s or \
                           email=%s) and hide=1 ORDER BY datet DESC LIMIT \
                           1000", ["%"+search+"%", "%"+search+"%",
-                                   "%"+search+"%", search,search, search])
+                                   search, search,search, search])
 
             q_all = query_db("SELECT count(*) l FROM (SELECT id FROM user_queue \
                               WHERE (project_name LIKE %s OR jid LIKE %s or \
                               email=%s) and hide=0 UNION SELECT id FROM \
                               user_queue WHERE (project_name=%s OR jid=%s or \
                               email=%s) and hide=1) z",
-                              ["%"+search+"%", "%"+search+"%", "%"+search+"%",
+                              ["%"+search+"%", "%"+search+"%", search,
                                search,search, search], one=True)
             flash("Found %d results, displaying up to 1000" % (q_all['l']), 'warning')
             
