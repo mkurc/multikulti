@@ -138,11 +138,17 @@ class PdbParser:
         return ",".join([str(i) for i in self.numb[self.chain]])
 
     def getBody(self):
-        return self.onlycalfa
+        t = []
+# remove alt indices from pdb
+        for line in self.onlycalfa.split("\n"):
+            t.append(line[:16]+" "+line[17:])
+#ATOM   3349  N   TYR B 888     -15.074  26.863  14.801  1.00 34.07           N
+#ATOM   3739  CG  LEU B 935     -22.055  16.170  12.769  1.00 39.94           C
+        return "\n".join(t)
 
     def savePdbFile(self, outfilename):
         with gzip.open(outfilename, "wb") as fw:
-            fw.write(self.onlycalfa)
+            fw.write(self.getBody())
 
     def containsChain(self, chain):
         if chain in self.sequences.keys():
@@ -681,8 +687,6 @@ if __name__ == "__main__":
     from StringIO import StringIO
     from sys import argv
 
-    f = open("2IAD.pdb")
-    fh = f
-    a = PdbParser(fh, chain='AB')
-    print a.getSequence(),a.containsOnlyCA(), a.isBroken(), a.getBody()
-    fh.close()
+    f = open("2IV9.pdb")
+    a = PdbParser(f, chain='AB')
+    print a.getBody()
