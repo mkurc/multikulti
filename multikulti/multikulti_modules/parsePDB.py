@@ -142,8 +142,6 @@ class PdbParser:
 # remove alt indices from pdb
         for line in self.onlycalfa.split("\n"):
             t.append(line[:16]+" "+line[17:])
-#ATOM   3349  N   TYR B 888     -15.074  26.863  14.801  1.00 34.07           N
-#ATOM   3739  CG  LEU B 935     -22.055  16.170  12.769  1.00 39.94           C
         return "\n".join(t)
 
     def savePdbFile(self, outfilename):
