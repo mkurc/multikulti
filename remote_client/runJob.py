@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from sys import argv, exit
+from shutil import rmtree
 from glob import glob
 import os
 from subprocess import call
@@ -43,3 +44,4 @@ for d in ["CLUST", "MODELS", "TRAFS"]:
 S.putResults()
 S.putLigandChain()
 S.tellJobDone()
+rmtree(os.path.join(working_dir, jobid)) # remove working dir if job is done (succeeded)
