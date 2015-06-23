@@ -571,6 +571,8 @@ def job_status(jid):
     else:
         pie = []
         clust_details = []
+    if system_info['status'] == 'error':
+        flash('Something went wrong. Check if your PDB file is properly formatted: <ul><li>continuous residue numbering (breaks are allowed, but chain must be numbered from N to M, where N&lt;M)</li><li>proper atom names within residues (if PDB contains MET residue - atoms must be as in methionine <small>[yes, some users tried to upload "hacks" where residue was methionine, but with uracyl atoms]</small></li><li>if your chain contains breaks (uncontinuous chain)- there is upper limit of about 5 fragments. If uploaded receptor structure has more breaks, try to rebuild missing loops</li><li>residue numbering must be unique - you cannot upload structure with the same residue indexes within the same chain</li><li>each chain must be defined with unique chain index. Empty string (" ") is chain index, and if you uploaded multichain structure without chain index column - you\'ll get error</li><li>If still something is wrong - do not hesistate to contact with us (email in <a href="'+url_for('index_contact')+'">Contact tab</a>)</li></ul>', 'error')
 
     if request.args.get('js', '') == 'js':
         return render_template('job_info.html', status=status, constr=constraints,
