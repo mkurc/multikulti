@@ -625,7 +625,7 @@ def user_add_constraints():
 
             for r in zip(constraints, weights, constraints_jmol):
                 query_db("INSERT INTO constraints(`jid`,`constraint_definition`,`force`,\
-                        `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid]+r[:3],
+                        `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid]+list(r[:3]),
                         insert=True)
             return Response('OK', status=200)
 
