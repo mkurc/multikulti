@@ -14,86 +14,108 @@
 	var glviewer2 = null;
 	var labels = [];
 
-        function styles(){
-            glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
-            glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
-            glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
-            glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
-            glviewer.zoomTo();
-            glviewer.render();
-        }
-        $(document).ready(function() {
-            var h2 = $("#confo").height();
-            $("#gldiv").height(h2);
-            $("[rel=tooltip]").tooltip({'html':'true'});
-            glviewer = $3Dmol.createViewer("gldiv", { defaultcolors : $3Dmol.rasmolElementColors });
-            glviewer.setBackgroundColor(0xffffff);
-            glviewer2 = $3Dmol.createViewer("gldiv2", { defaultcolors : $3Dmol.rasmolElementColors });
-            glviewer2.setBackgroundColor(0xffffff);
 
-            $.get("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
-                $("#moldata_pdb_large").val(data);
-                    moldata = data = $("#moldata_pdb_large").val();
-                    receptorModel =  m = glviewer.addModel(data, "pdb");
-                    receptorModel2 = m2 = glviewer2.addModel(data, "pdb");
+function styles(){
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+    glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+    glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+    glviewer.zoomTo();
+    glviewer.render();
+}
+	$(document).ready(function() {
 
-                    receptorModel.setStyle( {"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
-                    receptorModel2.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
+       var h2 = $("#confo").height();
+       $("#gldiv").height(h2);
 
-                    glviewer.addStyle( {{lig_txt|safe}}, {"stick": {"hidden": false}, cartoon:{}, "lines": {"hidden": false}});
-                    glviewer2.addStyle( {{lig_txt|safe}}, {"stick": {"hidden": false}, cartoon:{}, "lines": {"hidden": false}});
+              $("[rel=tooltip]").tooltip({'html':'true'});
 
-                    glviewer.addSurface( $3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
-                    glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
-                    glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
-                    glviewer2.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
-                    glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
-                    glviewer2.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
-                    glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
-                    glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+		glviewer = $3Dmol.createViewer("gldiv", {
+			defaultcolors : $3Dmol.rasmolElementColors
+		});
+		glviewer.setBackgroundColor(0xffffff);
+                
+		glviewer2 = $3Dmol.createViewer("gldiv2", {
+			defaultcolors : $3Dmol.rasmolElementColors
+		});
+		glviewer2.setBackgroundColor(0xffffff);
+                
 
-                    glviewer.zoomTo();
-                    glviewer.render();
-                    glviewer2.zoomTo();
-                    glviewer2.render();
+                $.get("{{url_for('send_unzipped', models='models', model_name=results['models'][0], jobid=jid)}}", null, function (data) {
+                    $("#moldata_pdb_large").val(data);
+                        moldata = data = $("#moldata_pdb_large").val();
+                        receptorModel =  m = glviewer.addModel(data, "pdb");
+                        receptorModel2 = m2 = glviewer2.addModel(data, "pdb");
 
-            }, "text");
-        });
+                        receptorModel.setStyle( {"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
+                        receptorModel2.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{color:"spectrum"}});
 
-        function loadReplicaGL(o) {
-            var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
-            fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
-            $.get(fetch_url, null, function (data) {
-                    glviewer2.clear();
-                    receptorModel2 = m = glviewer2.addModel(data, "pdb");
-                    glviewer2.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{style: 'trace', color:"spectrum"}});
-                    glviewer2.addStyle({{lig_txt|safe}},{cartoon:{style: 'trace', color: 'red', thickness: 0.2}, sphere: {radius: 0.5, color: 'red'}});
-                    glviewer2.zoomTo();//{"chain":{{rec_txt|safe}}});
-                    glviewer2.render();
-                    $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+") <br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download the model</a>");
+                        glviewer.addStyle( {{lig_txt|safe}}, {"stick": {"hidden": false}, cartoon:{}, "lines": {"hidden": false}});
+                        glviewer2.addStyle( {{lig_txt|safe}}, {"stick": {"hidden": false}, cartoon:{}, "lines": {"hidden": false}});
 
-            }, "text");
+                        glviewer.addSurface( $3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, "color": "white"},  {"chain":{{rec_txt|safe}}},{"chain":{{rec_txt|safe}}});
+                        glviewer.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+                        glviewer2.setColorByElement({}, $3Dmol.elementColors.whiteCarbon);
+                        glviewer.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+                        glviewer2.setColorByElement({{lig_txt|safe}}, $3Dmol.elementColors.Jmol);
+                        glviewer.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
+                        glviewer2.addSurface($3Dmol.SurfaceType.MS, {"opacity": 0.7, color: "red"},  {{lig_txt|safe}}, {{lig_txt|safe}});
 
-        }
-        function loadMol(o) {
-            var file = o.dataset.filename;
-            $.get(file, null, function (data) {
-                    glviewer.clear();
-                    receptorModel = m = glviewer.addModel(data, "pdb");
-                    receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
-                    glviewer.addStyle( {{lig_txt|safe}}, {cartoon:{}, "stick": {"hidden": false}, sphere:{"hidden": true}});
-                    styles();
+                        
+                        glviewer.zoomTo();
+                        glviewer.render();
+                        glviewer2.zoomTo();
+                        glviewer2.render();
 
-                    var oldidx = o.dataset.model;
-                    $("span[name^=V]").html("");
-                    $("tr[name^=R]").removeClass("info");
-                    $("tr[name='R"+oldidx+"']").addClass("info");
-                    $("span[name='V"+oldidx+"']").html("<i class='fa fa-eye'></i>");
+                       // $("#model_desc").html("Selected model: model_1.pdb (most representative model of the best cluster)");
+                        
 
-            }, "text");
+                }, "text");
+                
 
-        }
+
+
+
+	});
+
+function loadReplicaGL(o) {
+    var fetch_url ="{{url_for('send_unzipped_cluster', model_idx="IDX", rep_idx="REPIDX", jobid=jid)}}"; 
+    fetch_url = fetch_url.replace("IDX", o.x).replace("REPIDX", o.y);
+    $.get(fetch_url, null, function (data) {
+            glviewer2.clear();
+            receptorModel2 = m = glviewer2.addModel(data, "pdb");
+            glviewer2.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{style: 'trace', color:"spectrum"}});
+            glviewer2.addStyle({{lig_txt|safe}},{cartoon:{style: 'trace', color: 'red', thickness: 0.2}, sphere: {radius: 0.5, color: 'red'}});
+            glviewer2.zoomTo();//{"chain":{{rec_txt|safe}}});
+            glviewer2.render();
+            $("#model_desc").html("Selected model: "+o.x+" (trajectory: "+o.y+", cluster: "+o.series.legendItem.textStr+") <br><a href='"+fetch_url+"' target=_blank><i class='fa fa-download'></i> download the model</a>");
+
+    }, "text");
+
+}
+function loadMol(o) {
+    var file = o.dataset.filename;
+
+    $.get(file, null, function (data) {
+            glviewer.clear();
+            receptorModel = m = glviewer.addModel(data, "pdb");
+            receptorModel.setStyle({"chain":{{rec_txt|safe}}}, {cartoon:{"color":"spectrum"}, lines:{"hidden":true}});
+            glviewer.addStyle( {{lig_txt|safe}}, {cartoon:{}, "stick": {"hidden": false}, sphere:{"hidden": true}});
+            styles();
+
+            var oldidx = o.dataset.model;
+            $("span[name^=V]").html("");
+            $("tr[name^=R]").removeClass("info");
+            $("tr[name='R"+oldidx+"']").addClass("info");
+            $("span[name='V"+oldidx+"']").html("<i class='fa fa-eye'></i>");
+
+    }, "text");
+
+}
 </script>
+
+
     {% endif %}
     {% endblock %}
 
@@ -102,153 +124,190 @@
 {% block body %}
 <div class="container">
 
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
-        <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
-        {% if status_type=='done' %}
-        <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
-        <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Clustering details</a></li>
-        <li><a onClick="ddT()" href="#contacts" role="tab" data-toggle="tab"><i class="fa fa-th-large"></i> Contact maps</a></li>
-        {% endif %}
-    </ul>
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    <li {% if status_type!='done'%}class="active"{%endif%}><a href="#summary" role="tab" data-toggle="tab"><i class="fa fa-info"></i> Project information</a></li>
+{% if status_type=='done' %}
+    <li class="active"><a onClick="dT()" href="#models" role="tab" data-toggle="tab"><i class="fa fa-flask"></i> Docking prediction results</a></li>
+    <li><a onClick="dT()" href="#replicas" role="tab" data-toggle="tab"><i class="fa fa-random"></i> Clustering details</a></li>
+    <li><a onClick="ddT()" href="#contacts" role="tab" data-toggle="tab"><i class="fa fa-th-large"></i> Contact maps</a></li>
 
-    <!-- Tab panes -->
-    <div class="tab-content">
-        <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
+{% endif %}
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+    <div class="tab-pane {% if status_type!='done'%}active{%endif%}" id="summary">
             <div class="row">
                 <div class="col-md-7">
-            <h3> Project name: {{sys['project_name']}} </h3>
+            <h3>
+                Project name: {{sys['project_name']}}
+            </h3>
+
         </div>
         <div class="col-md-5">
             <h4>Status:                    {{status|safe}}</h4>
             <h6>submitted: {{sys['status_date']}}, status changed: {{sys['status_change']}}</h6>
-        </div>
-    </div>
+            </div>
 
-    <hr>
-    <div class="panel panel-default">
-        <div class="panel-heading">Project settings</div>
-        <table class="table">
-            <tr>
-                <td class="col-md-3"><strong> Protein sequence(s) </strong> </td>
-                <td class="col-md-9"> <span class='sequence'>{{sys['receptor_sequence']}}</span> </td>
-            </tr>
-            <tr>
-                <td><strong> Peptide sequence </strong> </td>
-                <td> <span class='sequence'>{{sys['ligand_sequence']}}</span> </td>
-            </tr>
-            <tr>
-                <td>
-                    <strong> Peptide secondary structure </strong>
+        </div>
+
+            <hr>
+            <div class="panel panel-default">
+                <div class="panel-heading">Project settings</div>
+
+      <table class="table">
+        <tr>
+            <td class="col-md-3"><strong>
+Protein sequence(s)
+                </strong>
+            </td>
+            <td class="col-md-9">
+                <span class='sequence'>{{sys['receptor_sequence']}}</span><span class='pull-right'><a href="{{url_for('compute_static_pdb', jobid=jid)}}"><i class="fa fa-download"></i> input <span class='capi'>pdb</span></a></span>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td><strong>
+Peptide sequence
+                </strong>
+            </td>
+            <td>
+                <span class='sequence'>{{sys['ligand_sequence']}}</span>
+            </td>
+        </tr>
+  <tr><td><strong>Simulation <span class='capi'>mc</span> cycles</strong></td><td>{{sys['macrocycles']}}</td></tr>
+        <tr>
+            <td><strong>
+                    Peptide secondary structure 
+                </strong>
                     {% if sys['ss_psipred']==1 %}
-                    <span class="label label-primary pull-right capi">psipred</span>
+                    <span class="label label-primary pull-right"><span class='capi'>psipred</span></span>
                     {% endif %} 
-                </td>
-                <td>
+            </td>
+            <td>
                     {% if sys['ligand_ss']|length != sys['ligand_sequence']|length %}
                     <small><i>waiting for PSIPRED prediction</i></small>
                     {% else %}
-                    <span class='sequence'>{{sys['ligand_ss']}}</span>
+                <span class='sequence'>{{sys['ligand_ss']}}</span>
                     {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td> <h5><strong>Flexible regions</strong></h5> </td>
-                <td>
-                    <table class="table table-bordered table-stripped">
-                        {% set break=5 %}
-                        {% set iter=0 %}
-                        <tr>
-                        {% for row in constr %}
-                            <td><small>{{row['constraint_definition']}}</small> </td>
-                            {% set iter = iter + 1 %}
-                            {% if iter==break %}
-                        </tr>
-                        <tr>
-                            {% set iter=0 %}
-                            {%endif%}
-                        {% endfor %}
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td> <h5><strong>Unlikely to bind regions</strong></h5> </td>
-                <td>
-                    <table class="table table-bordered table-stripped">
-                        {% set break=5 %}
-                        {% set iter=0 %}
-                        <tr>
-                            {% for row in ex %}
-                            <td><small>{{row['excluded_region']}}</small></td>
-                                {% set iter = iter + 1 %}
-                                {% if iter==break %}
-                                    </tr><tr>
-                                {% set iter=0 %}
-                                {%endif%}
-                            {% endfor %}
-                        </table>
-                    </td>
-                </tr>
-            </tr>
-        </table>
-    </div>
-    {% if status_type=='done' %} <a class="btn btn-sm btn-primary" href="{{url_for('resubmit', jid=jid)}}"><i class="fa fa-cogs"></i> Re-submit project</a> {% endif %}
-</div> <!-- end tab summary -->
-<div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
-{% block job_viewwindow %}
-    <div class="row">
-        <div class="col-md-8">
-            <textarea  style="display:none" id="moldata_pdb_large"></textarea>
-            <div class="alert alert-info alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-                Zoom/rotate predicted model of the complex using mouse. Click the "View" button on the right panel to load the appropriate model.
-                <small><a href="{{url_for('job_status', jid=jid)}}?js=js">View in JSmol <small>(pure <span class='capital'>html5/js</span>)</small> if you got rendering problems.</a></small>
-            </div>
-
-        </div>
-        <div class="col-md-4">
-            <div class="alert alert-dismissible alert-info">
-                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-                Models are ranked and numbered according to their occurrence in docking trajectory (1 = most probable result).
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="behind col-md-8"> 
-            <div id="gldiv" style="width: 100%; height: 54.5vh; margin: 0; padding: 0; border: 0;"> </div> </div>
-{% endblock %}
-            <div class="col-md-4">
-                <div class="panel panel-primary" id="confo">
-                    <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
-                    <div class="panel-body"> </div>
-                    {% set fir=True %}
-                    <table class="table-condensed table">
-                    {% for e in results['models'] %}
-                        {% if fir %}
-                        <tr name="R{{e}}" class="info">
-                            <td><span name="V{{e}}"><i class="fa fa-eye"></i></span></td>
-                        {% set fir=False %}
-                        {% else %}
-                        <tr name="R{{e}}">
-                            <td><span name="V{{e}}"></span></td>
-                        {% set fir=False %}
-                        {% endif %}
-                            <td>{{e.split(".")[0]}}</td>
+            </td>
+        </tr>
+      <tr>
+          <td>
+              <h5><strong>Flexible regions</strong></h5>
+      </td>
+      <td>
           
-                            <td><button onClick="loadMol(this)" data-filename="{{url_for('send_unzipped', model_name=e, models='models', jobid=jid)}}" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
-                            <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('send_unzipped', model_name=e, models='models', jobid=jid)}}"> <i class='fa fa-download'></i> Download</a></td>
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in constr %}
+          <td><small>{{row['constraint_definition']}}</small> <!-- <span class="badge">{{row['force']}}</span> -->
+          </td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
 
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
+      <tr>
+          <td>
+              <h5><strong>Unlikely to bind regions</strong></h5>
+      </td>
+      <td>
+          
+      <table class="table table-bordered table-stripped">
+          {% set break=5 %}
+          {% set iter=0 %}
+        <tr>
+          {% for row in ex %}
+          <td><small>{{row['excluded_region']}}</small></td>
+            {% set iter = iter + 1 %}
+            {% if iter==break %}
+                </tr><tr>
+            {% set iter=0 %}
+            {%endif%}
 
-                        </tr>
-                        {% endfor %}
-                    </table>
-                    &nbsp;
-                </div>
-                <hr>
-                <a class='btn btn-block btn-lg btn-success' href="{{url_for('sendzippackage', jobid=jid)}}" target=_blank><i class='fa fa-download'></i> Download all files</a>
+            
+          {% endfor %}
+      </table>
+  </td>
+  </tr>
+  </tr>
+      </table>
             </div>
-        </div>
-    </div> <!-- end tab models -->
+    {% if status_type=='done' %}
+        <a class="btn btn-sm btn-primary" href="{{url_for('resubmit', jid=jid)}}"><i class="fa fa-cogs"></i> Re-submit project</a>
+    {% endif %}
+
+
+  </div> <!-- end tab summary -->
+      <div class="tab-pane {% if status_type=='done'%}active{%endif%}" id="models">
+{% block job_viewwindow %}
+      <div class="row">
+          <div class="col-md-8">
+                <textarea  style="display:none" id="moldata_pdb_large"></textarea>
+                <div class="alert alert-info alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                    Zoom/rotate predicted model of the complex using mouse. Click the "View" button on the right panel to load the appropriate model.
+                        <small><a href="{{url_for('job_status', jid=jid)}}?js=js">View in JSmol <small>(pure <span class='capital'>html5/js</span>)</small> if you got rendering problems.</a></small>
+                </div>
+
+          </div>
+          <div class="col-md-4">
+              <div class="alert alert-dismissible alert-info">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+                  Models are ranked and numbered according to their occurrence in docking trajectory (1 = most probable result).
+              </div>
+          </div>
+      </div>
+      <div class="row">
+          <div class="behind col-md-8"> 
+              <div id="gldiv" style="width: 100%; height: 54.5vh; margin: 0; padding: 0; border: 0;"> </div> </div>
+{% endblock %}
+          <div class="col-md-4">
+              <div class="panel panel-primary" id="confo">
+                  <div class="panel-heading"><i class="fa fa-flask"></i> Representative conformations</div>
+                  <div class="panel-body">
+                  </div>
+              {% set fir=True %}
+              <table class="table-condensed table">
+      {% for e in results['models'] %}
+          {% if fir %}
+            <tr name="R{{e}}" class="info">
+          <td><span name="V{{e}}"><i class="fa fa-eye"></i></span></td>
+          {% set fir=False %}
+
+          {% else %}
+            <tr name="R{{e}}">
+          <td><span name="V{{e}}"></span></td>
+          {% set fir=False %}
+          {% endif %}
+          <td>{{e.split(".")[0]}}</td>
+          
+          <td><button onClick="loadMol(this)" data-filename="{{url_for('send_unzipped', model_name=e, models='models', jobid=jid)}}" data-model="{{e}}" class="btn btn-xs btn-success"><i class='fa fa-eye'></i> View</button></td>
+          <td><a class="btn btn-xs btn-primary" target=_blank href="{{url_for('send_unzipped', model_name=e, models='models', jobid=jid)}}">
+                  <i class='fa fa-download'></i> Download</a></td>
+
+
+      </tr>
+      {% endfor %}
+              </table>
+              &nbsp;
+              </div>
+      <hr>
+      <a class='btn btn-block btn-lg btn-success' href="{{url_for('sendzippackage', jobid=jid)}}" target=_blank><i class='fa fa-download'></i> Download all files</a>
+          </div>
+      </div>
+  </div> <!-- end tab models -->
   <div class="tab-pane" id="contacts">
       <div class="row">
         <div class="col-md-8">
@@ -478,7 +537,10 @@ chart = $('#container').highcharts({
                 cursor: 'pointer',
                     point: {
                         events: {
-                            'click': function () {  loadReplicaGL(this); }
+                            // click on a point
+                            'click': function () {  
+                                loadReplicaGL(this);
+                            }
                         }
                     },
                 events: {

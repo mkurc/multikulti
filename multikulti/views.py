@@ -519,7 +519,7 @@ def job_status(jid):
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
             status_date, date_add(status_date, interval  %s day) del, \
             ligand_chain, status_init status_change, project_name, status, \
-            constraints_scaling_factor, ligand_ss, ss_psipred FROM user_queue \
+            constraints_scaling_factor, ligand_ss, ss_psipred, simulation_length macrocycles FROM user_queue \
             WHERE jid=%s", [todel, jid], one=True)
 
     if not system_info:
