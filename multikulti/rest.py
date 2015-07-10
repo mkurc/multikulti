@@ -40,29 +40,25 @@ def status(job_id):
 @app.route('/REST/job_info/<string:job_id>', methods=['GET'])
 def job_info(job_id):
     todel = str(app.config['DELETE_USER_JOBS_AFTER'])
-    if request.method == 'POST' and request.json:
-        id = job_id
-        system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
-        status_date, date_add(status_date, interval  %s day) del, \
-        ligand_chain, status_init status_change, project_name, status, \
-        ligand_ss, ss_psipred FROM user_queue \
-        WHERE jid=%s", [todel, id], one=True)
+    id = job_id
+    system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
+    status_date, date_add(status_date, interval  %s day) del, \
+    ligand_chain, status_init status_change, project_name, status, \
+    ligand_ss, ss_psipred FROM user_queue \
+    WHERE jid=%s", [todel, id], one=True)
 
-        flexible = query_db("SELECT constraint_definition FROM constraints WHERE jid=%s", [id])
-        excluded = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [id])
+    flexible = query_db("SELECT constraint_definition FROM constraints WHERE jid=%s", [id])
+    excluded = query_db("SELECT excluded_region FROM excluded WHERE jid=%s", [id])
 
-        system_info['flexible'] = map(lambda x: x['constraint_definition'], flexible)
-        system_info['excluded'] = map(lambda x: x['excluded_region'], excluded)
+    system_info['flexible'] = map(lambda x: x['constraint_definition'], flexible)
+    system_info['excluded'] = map(lambda x: x['excluded_region'], excluded)
 
-        if not system_info:
-            return jsonify({
-                'id': id,
-                'status': 'error'})
-        else:
-            return jsonify(system_info)
-    else:
+    if not system_info:
         return jsonify({
+            'id': id,
             'status': 'error'})
+    else:
+        return jsonify(system_info)
 
 
 # pobranie pelnych wynikow
