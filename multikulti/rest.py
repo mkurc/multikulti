@@ -20,24 +20,20 @@ from glob import glob
 @app.route('/REST/status/<string:job_id>', methods=['GET'])
 def status(job_id):
     todel = str(app.config['DELETE_USER_JOBS_AFTER'])
-    if request.method == 'POST' and request.json:
-        id = job_id
-        system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
-        status_date, date_add(status_date, interval  %s day) del, \
-        ligand_chain, status_init status_change, project_name, status, \
-        ligand_ss, ss_psipred FROM user_queue \
-        WHERE jid=%s", [todel, id], one=True)
+    id = job_id
+    system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
+    status_date, date_add(status_date, interval  %s day) del, \
+    ligand_chain, status_init status_change, project_name, status, \
+    ligand_ss, ss_psipred FROM user_queue \
+    WHERE jid=%s", [todel, id], one=True)
 
-        if not system_info:
-            return jsonify({
-                'id': id,
-                'status': 'error'})
-        else:
-            return jsonify({
-                'status': system_info['status']})
+    if not system_info:
+        return jsonify({
+            'id': id,
+            'status': 'error'})
     else:
         return jsonify({
-            'status': 'error'})
+            'status': system_info['status']})
 
 
 # wszystko z user_quere
