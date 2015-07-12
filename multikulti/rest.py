@@ -94,6 +94,14 @@ def get_job_all(jid):
             filtered_results = filter(lambda x: float(x[value]) > float(min) and float(x[value]) <= float(max),
                                       clust_details)
             range_list = map(lambda x: x['id'], filtered_results)
+        elif value and min:
+            filtered_results = filter(lambda x: float(x[value]) > float(min),
+                                      clust_details)
+            range_list = map(lambda x: x['id'], filtered_results)
+        elif value and max:
+            filtered_results = filter(lambda x: float(x[value]) <= float(max),
+                                      clust_details)
+            range_list = map(lambda x: x['id'], filtered_results)
 
     results = []
     for i in range_list:
@@ -162,6 +170,14 @@ def get_job(jid):
         max = request.json.get('max')
         if value and min and max:
             filtered_results = filter(lambda x: float(x[value]) > float(min) and float(x[value]) <= float(max),
+                                      clust_details)
+            range_list = map(lambda x: x['id'], filtered_results)
+        elif value and min:
+            filtered_results = filter(lambda x: float(x[value]) > float(min),
+                                      clust_details)
+            range_list = map(lambda x: x['id'], filtered_results)
+        elif value and max:
+            filtered_results = filter(lambda x: float(x[value]) <= float(max),
                                       clust_details)
             range_list = map(lambda x: x['id'], filtered_results)
 
