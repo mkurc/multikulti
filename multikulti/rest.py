@@ -102,6 +102,8 @@ def get_job_all(jid):
             filtered_results = filter(lambda x: float(x[value]) <= float(max),
                                       clust_details)
             range_list = map(lambda x: x['id'], filtered_results)
+        else:
+            range_list = xrange(0, 10)
 
     results = []
     for i in range_list:
@@ -180,6 +182,8 @@ def get_job(jid):
             filtered_results = filter(lambda x: float(x[value]) <= float(max),
                                       clust_details)
             range_list = map(lambda x: x['id'], filtered_results)
+        else:
+            range_list = xrange(0, 10)
 
     results = []
     for i in range_list:
@@ -204,7 +208,7 @@ def get_job(jid):
     return jsonify(result)
 
 
-@app.route('/REST/get_cluster/<string:jid>/<string:model_id>', methods=['GET', 'POST'])
+@app.route('/REST/get_cluster/<string:jid>/<string:model_id>', methods=['GET'])
 def get_cluster(jid,model_id):
 
     model_id = int(model_id)
@@ -231,7 +235,7 @@ def get_cluster(jid,model_id):
     return jsonify(result)
 
 #dziala okej przez curla
-@app.route('/REST/get_trajectory/<string:jid>/<string:trajectory_id>', methods=['GET', 'POST'])
+@app.route('/REST/get_trajectory/<string:jid>/<string:trajectory_id>', methods=['GET'])
 def get_trajectory(jid,trajectory_id):
 
     trajectory_id = int(trajectory_id)
@@ -259,7 +263,7 @@ def get_model(content, model_idx):
     return out
 
 
-@app.route('/REST/trajectory/<string:jid>/<string:model>/<int:start>/<int:end>', methods=['GET', 'POST'])
+@app.route('/REST/trajectory/<string:jid>/<string:model>/<int:start>/<int:end>', methods=['GET'])
 def get_selected_trajectory(jid, model, start, end):
     replicas = []
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid,
