@@ -263,7 +263,7 @@ def get_model(content, model_idx):
     return out
 
 
-@app.route('/REST/trajectory/<string:jid>/<string:model>/<int:start>/<int:end>', methods=['GET'])
+@app.route('/REST/get_selected_trajectory/<string:jid>/<string:model>/<int:start>/<int:end>', methods=['GET'])
 def get_selected_trajectory(jid, model, start, end):
     replicas = []
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid,
@@ -284,6 +284,7 @@ def get_selected_trajectory(jid, model, start, end):
 def add_job():
     if request.method == 'POST':
         receptor_file = request.files.get('file')
+        print receptor_file
         try:
             if request.json is not None:
                 data = prepare_data(request.json, receptor_file)
@@ -319,9 +320,9 @@ def prepare_data(data, receptor_file):
     return data
 
 
-def check_range(file, constraints, excluded):
+def check_range(file_content, constraints, excluded):
     values_by_chain = {}
-    for match in re.findall(r'ATOM\s+\d+\s+\w+\s+\w+\s+([A-Z])\s+(\d+)', file.read()):
+    for match in re.findall(r'ATOM\s+\d+\s+\w+\s+\w+\s+([A-Z])\s+(\d+)', file_content):
         chain = match[0]
         val = int(match[1])
         if chain not in values_by_chain:
@@ -359,11 +360,7 @@ def json_bool_to_db(data):
 def add_data_to_db(data):
     jid = unique_id()
 
-    if data['receptor_file'] != None:
-        pdb = get_PDB_from_file(jid, data['receptor_file'])
-    else:
-        pdb = get_PDB_file(data['receptor_pdb_code'], jid)
-
+    pdb = read_sequence_from_content_and_save(data['file_content'], jid)
     return (query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
          ligand_sequence, ligand_ss, hide, project_name,simulation_length) \
          VALUES(%s,%s,%s,%s,%s,%s,%s,%s)", [jid, data['email'], pdb,
@@ -371,44 +368,15 @@ def add_data_to_db(data):
                                             data['simulation_cycles']], insert=True), jid)
 
 
-def get_PDB_file(pdb_code, jid):
+def read_sequence_from_content_and_save(content, jid):
     dest_directory = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
     dest_file = os.path.join(dest_directory, "input.pdb.gz")
     os.mkdir(dest_directory)
 
-    d = pdb_code.split(":")
-    pdbcode = d[0]
-    if len(d) > 1:
-        chain = d[1]
-    else:
-        chain = ''
-
-    buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/' + pdbcode + '.pdb.gz')
-    b2 = buraki.read()
-    ft = StringIO(b2)
-    with gzip.GzipFile(fileobj=ft, mode="rb") as f:
-        p = PdbParser(f, chain=chain)
-        receptor_seq = p.getSequence()
-        p.savePdbFile(dest_file)
-        gunzip(dest_file)
-
-    buraki.close()
-
-    return receptor_seq
-
-
-def get_PDB_from_file(jid, file):
-    dest_directory = os.path.join(app.config['USERJOB_DIRECTORY'], jid)
-    dest_file = os.path.join(dest_directory, "input.pdb.gz")
-    os.mkdir(dest_directory)
-
-    p = PdbParser(file)
+    p = PdbParser(StringIO(content))
     receptor_seq = p.getSequence()
     p.savePdbFile(dest_file)
     gunzip(dest_file)
-
-    if len(receptor_seq) > 500:
-        raise RestValidationError('Max protein size: 500 residues')
 
     return receptor_seq
 
@@ -437,10 +405,10 @@ def user_add_constraints(data, jid):
 
 
 def validate_data(data, receptor_file):
-    check_range(receptor_file, data['constraints'], data['excluded_regions'])
     validate_name(data.get('project_name'))
     validate_receptor_file(receptor_file)
-    validate_pdb_input(data.get('receptor_pdb_code'), receptor_file)
+    data['file_content'] = validate_pdb_input_and_return_content(data.get('receptor_pdb_code'), receptor_file)
+    check_range(data['file_content'], data.get('constraints', []), data.get('excluded_regions', []))
     validate_ligand_seq(data.get('ligand_seq'))
     validate_ligand_ss(data.get('ligand_ss'))
     if 'ligand_ss' in data:
@@ -463,18 +431,18 @@ def validate_receptor_file(receptor_file):
         raise RestValidationError('PDB file format only!')
 
 
-def validate_pdb_input(pdb_receptor, receptor_file):
+def validate_pdb_input_and_return_content(pdb_receptor, receptor_file):
     if receptor_file is not None and len(receptor_file.filename) >= 5:
-        validate_pdb_input_file(receptor_file)
-    elif pdb_receptor is not None:
-        validate_pdb_input_code(pdb_receptor)
-    else:
-        raise RestValidationError('Protein PDB code or PDB file is required')
+        return validate_pdb_input_file(receptor_file)
+    if pdb_receptor is not None:
+        return validate_pdb_input_code(pdb_receptor)
+    raise RestValidationError('Protein PDB code or PDB file is required')
 
 
 def validate_pdb_input_file(receptor_file):
     p = PdbParser(receptor_file.stream)
     check_pdb_input(p)
+    return receptor_file.stream.read()
 
 
 def validate_pdb_input_code(pdb_receptor):
@@ -491,13 +459,14 @@ def validate_pdb_input_code(pdb_receptor):
 
     buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/' + pdb_code + '.pdb.gz')
     b2 = buraki.read()
+    buraki.close()
     ft = StringIO(b2)
 
     with gzip.GzipFile(fileobj=ft, mode="rb") as f:
         p = PdbParser(f, chain=chain)
         check_pdb_input(p, allow_space=True)
-
-    buraki.close()
+        f.seek(0)
+        return f.read()
 
 
 def check_pdb_input(p, allow_space=False):
@@ -519,7 +488,7 @@ def check_pdb_input(p, allow_space=False):
                                Provided file contains %d' % len(seq))
     if missing > 5:
         raise RestValidationError('Missing atoms within receptor (M+N = %d). \
-                Protein must fullfill M+N<6, where M - number of chains, \
+                Protein must fulfill M+N<6, where M - number of chains, \
                 N - number of breaks' % missing)
 
 
