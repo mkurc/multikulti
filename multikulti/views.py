@@ -109,6 +109,7 @@ def structure_pdb_validator(form, field):
         buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/'+pdb_code+'.pdb.gz')
         b2 = buraki.read()
         ft = StringIO(b2)
+        buraki.close()
 
 
         with gzip.GzipFile(fileobj=ft, mode="rb") as f:
@@ -130,9 +131,8 @@ def structure_pdb_validator(form, field):
                                        %d' % (len(seq)))
             if missing > 5:
                 raise ValidationError('Missing atoms within protein (M+N = %d). \
-                        Protein must fullfill M+N<6, where M - number of \
+                        Protein must fulfill M+N<6, where M - number of \
                         chains, N - number of breaks' % (missing))
-        buraki.close()
 
 
 def pdb_input_validator(form, field):
@@ -158,7 +158,7 @@ def pdb_input_validator(form, field):
                                    Provided file contains %d' % (len(seq)))
         if missing > 5:
             raise ValidationError('Missing atoms within receptor (M+N = %d). \
-                    Protein must fullfill M+N<6, where M - number of chains, \
+                    Protein must fulfill M+N<6, where M - number of chains, \
                     N - number of breaks' % (missing))
 
 
