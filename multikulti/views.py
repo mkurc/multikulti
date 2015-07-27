@@ -811,12 +811,14 @@ def cluster_stats(jid):
     cluster_details = []
     path = os.path.join(app.config['USERJOB_DIRECTORY'], jid, "klastry.txt")
     with open(path, "r") as rl:
+        counter = 0
         for line in rl:
+            counter +=1
             d = line.split()
             # gestosc maxrms srednirms medoid licznosc
             # 4.918   4.067   4.918   4.067    20         cluster_2.pdb:
             row = {'cluster': d[5][:-1], 'density': d[0], 'rmsd': d[2],
-                   'counts': d[4], 'medoid': d[3][1:], 'maxrmsd': d[1]}
+                   'counts': d[4], 'medoid': d[3][1:], 'maxrmsd': d[1], 'id':counter}
             cluster_details.append(row)
     return cluster_details
 

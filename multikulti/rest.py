@@ -280,11 +280,10 @@ def get_selected_trajectory(jid, model, start, end):
     return jsonify(result)
 
 
-@app.route('/REST/add_job/', methods=['GET', 'POST'])
+@app.route('/REST/add_job/', methods=['POST'])
 def add_job():
     if request.method == 'POST':
         receptor_file = request.files.get('file')
-        print receptor_file
         try:
             if request.json is not None:
                 data = prepare_data(request.json, receptor_file)
@@ -460,13 +459,19 @@ def validate_pdb_input_code(pdb_receptor):
     buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/' + pdb_code + '.pdb.gz')
     b2 = buraki.read()
     buraki.close()
+#    if b2 is None:
+#        raise RestValidationError('Invalid %s pdb code' % pdb_code)
     ft = StringIO(b2)
-
-    with gzip.GzipFile(fileobj=ft, mode="rb") as f:
+    try:
+        f = gzip.GzipFile(fileobj=ft, mode="rb")
         p = PdbParser(f, chain=chain)
         check_pdb_input(p, allow_space=True)
         f.seek(0)
-        return f.read()
+        content = f.read()
+        f.close()
+        return content
+    except IOError:
+        raise RestValidationError("Invalid pdb code")
 
 
 def check_pdb_input(p, allow_space=False):
