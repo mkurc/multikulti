@@ -18,9 +18,15 @@
  <a href="#r35">3.5 Reconstruction to all-atom representation and local optimization </a><br>
  <a href="#r36">3.6 Viewing structures and simulation trajectory in Pymol</a><br>
  <a href="#r37">3.7 Results visualization in VMD and gnuplot</a><br>
-  
+
 <a href="#r4">4. Resubmiting job – excluding binding modes from previous runs</a><br>
-<a href="#r5">5. Example results page</a><hr>
+<a href="#r5">5. Example results page</a><br>
+<a href="#r6">6. Running CABS-dock from command line or scripts</a><br>
+ <a href="#61">6.1 Submitting job </a><br>
+ <a href="#62">6.2 Get job status</a><br>
+ <a href="#63">6.3 Get job results</a><br>
+ <a href="#64">6.4 Examples</a><br>
+<hr>
 
 <a id="r1"></a><h3>1. Submitting new job</h3>
 <a id="r11"></a><h4>1.1 Required input</h4>
@@ -36,21 +42,21 @@ The only required data is protein structure and peptide sequence. <br><br>
 
 <strong>Protein</strong> receptor structure can be provided as file in the <span class='capi'>pdb</span> format or protein <span class='capi'>pdb</span> code along with the chain identifier(s), for example: <span class='capi'>1RJK:A</span> or <span class='capi'>1CE1:HL</span> (the structure is automatically obtained from <a target="_blank" href="http://www.rcsb.org/pdb/"><i class="fa fa-external-link"></i> Protein Data Bank</a> database).
 
- 
 
-    
+
+
     <div class="alert alert-info">
      The following requirements apply to the input <span class='capi'>pdb</span> files:
-     <ul> <li>single or multi-chain proteins are accepted (chains must be up to 500 amino acids in length); 
-     <li>each residue in the provided <span class='capi'>pdb</span> file should have a complete set of backbone atoms (i.e.: N, Cα, C and&nbsp;O); 
-     <li>side chain atoms may be missing. 
+     <ul> <li>single or multi-chain proteins are accepted (chains must be up to 500 amino acids in length);
+     <li>each residue in the provided <span class='capi'>pdb</span> file should have a complete set of backbone atoms (i.e.: N, Cα, C and&nbsp;O);
+     <li>side chain atoms may be missing.
      <li>non-standard amino acids are automatically changed to their standard counterparts.
-</ul>    
+</ul>
     </div>
-    
-    <p align="justify"><strong>Peptide</strong> sequence should be entered  in single-letter amino acid code. Allowed size of the peptide is 3-30 amino acids. 
+
+    <p align="justify"><strong>Peptide</strong> sequence should be entered  in single-letter amino acid code. Allowed size of the peptide is 3-30 amino acids.
 <br><br>
-After providing protein structure and peptide sequence, you can simply run simulation by clicking “Submit” button.  However, it is possible to set some more parameters in “Optional” tab (see below for more details). 
+After providing protein structure and peptide sequence, you can simply run simulation by clicking “Submit” button.  However, it is possible to set some more parameters in “Optional” tab (see below for more details).
 </p>
     </div>
     <div class="col-md-4">
@@ -78,19 +84,19 @@ In “optional” settings tab you can:
     <li>mark "flexible regions" option to select receptor residues that are unlikely to interact with the peptide (see <a href="#r121">1.2.1</a> subsection form more details)</li>
     <li>increase simulation length. You may increase the default (50) number of Monte Carlo macrocycles to be performed (the maximum number is 200). Increasing this number
 		may be beneficial in more difficult modeling cases (e.g. for large receptor structures or for
-		long peptides of more than 20 residues). 
+		long peptides of more than 20 residues).
 		<div class="alert alert-info">
 		An alternative way for dealing with such more demanding cases is to run independent simulation runs, and to analyze the results jointly.
 		</div>
-		
-		
+
+
 		</li>
     <li>define peptide secondary structure  (if not, the <span class='capi'>psipred</span> method is automatically used). The secondary structure should be defined for each residue in a three letter code: H, a helix; E, an extended state (beta sheet); and C, a coil (less regular structures).
 		<div class="alert alert-info">
-		Note that overpredictions of the regular secondary structure (H or E) are more dangerous for the quality of the results than underpredictions (i.e. for residues with 			ambiguous secondary structure prediction assignment it is better to assign coil (C) than the regular (H or E) structure). 
-		</div>    
+		Note that overpredictions of the regular secondary structure (H or E) are more dangerous for the quality of the results than underpredictions (i.e. for residues with 			ambiguous secondary structure prediction assignment it is better to assign coil (C) than the regular (H or E) structure).
+		</div>
     </li>
-    
+
 </ul>
 
     </div>
@@ -116,7 +122,7 @@ conformation For each selected residue, the user may choose from two preset sett
 <div class="panel panel-default ">
 		<strong>Step by step instruction:</strong>
 		<ul>
-<li>Select fragments by clicking amino acid symbols in the sequence</li> 
+<li>Select fragments by clicking amino acid symbols in the sequence</li>
 <li>Use <kbd>Ctrl</kbd> with mouse to select second region of chain (on the sequence) to increase flexibility</li>
 <li>After selecting proper regions, click <u>Add region button</u></li>
 <li>Select flexibility level (default is <i>none</i>, i.e. fully flexible, unconstrained fragment).</li>
@@ -138,12 +144,12 @@ conformation For each selected residue, the user may choose from two preset sett
 If “Mark unlikely to bind regions” is checked you will be redirected to the panel which is similar to one described in the previous subsection:
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/submit_excl.png')}}"></center><br>
 <p align="justify">
-Here you can  select receptor residues that are unlikely to interact with the peptide to exclude some binding modes from the results. 
+Here you can  select receptor residues that are unlikely to interact with the peptide to exclude some binding modes from the results.
 </p>
 <div class="panel panel-default ">
 		<strong>Step by step instruction:</strong>
 		<ul>
-<li>Select fragments by clicking amino acid symbols in the sequence</li> 
+<li>Select fragments by clicking amino acid symbols in the sequence</li>
 <li>Use <kbd>Ctrl</kbd> with mouse to select second region of chain (on the sequence) to use multiple selection</li>
 <li>After selecting proper regions, click <u>Add region button</u></li>
 <li>You can bookmark this page to postpone flexible regions selection. Do not forget to press save <u>regions definition</u> if you made some changes</li>
@@ -155,7 +161,7 @@ Note that the information about selected “Unlikely to bind regions” will be 
 </div>
 <hr>
 <a id="r123"></a><h4>1.2.3 Simulation time</h4>
-Due to the fact that CABS-dock runs on our Department cluster, sometimes jobs performs slower (they waiting for free resources, with status <span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>). Plot below presents averaged time (in hours) and min/max times for currently submitted jobs in a function of system (receptor + ligand) size, normalized by default number of simulation cycles (50). 
+Due to the fact that CABS-dock runs on our Department cluster, sometimes jobs performs slower (they waiting for free resources, with status <span class="label label-info"><i class="fa fa-sliders"></i> in queue</span>). Plot below presents averaged time (in hours) and min/max times for currently submitted jobs in a function of system (receptor + ligand) size, normalized by default number of simulation cycles (50).
 
 <div id="container"></div>
 
@@ -165,7 +171,7 @@ Due to the fact that CABS-dock runs on our Department cluster, sometimes jobs pe
 
 <p align="justify">After clicking the Submit button, you will be redirected to project information page.
 <div class="alert alert-info">
-If you have chosen “Do not show my job on the queue page” it is important to save the link to your job, otherwise your job will be accessible from the queue page. 
+If you have chosen “Do not show my job on the queue page” it is important to save the link to your job, otherwise your job will be accessible from the queue page.
 Under the unique link to your job you’ll find the job status updates and finally the job results.
 </div>
 </p>
@@ -181,7 +187,7 @@ Under the unique link to your job you’ll find the job status updates and final
 <a id="r31"></a><h4>3.1 Docking predictions results tab</h4>
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/results1.png')}}"></center><br>
 <p align="justify">
-The left panel of the "Docking prediction results" contains visualization of the predicted complex (the peptide is shown in red).  You can easily rotate and zoom the model using mouse. 
+The left panel of the "Docking prediction results" contains visualization of the predicted complex (the peptide is shown in red).  You can easily rotate and zoom the model using mouse.
 If the model is not displayed, please check if  Web Graphics Library (webGL) is enabled in your browser (see the <a target="_blank" href="https://get.webgl.org/"><i class="fa fa-external-link"></i> WebGL test page</a> for more details). Alternatively, you can switch to JSmol which is an HTML5 JavaScript-only web app. </p>
 
 <p align="justify">The right panel contains list of the resulting models. They are derived from the modeling trajectory by means of hierarchical clustering method  –  all models from the trajectory are divided into 10 groups (clusters) of similar structures. For each of the cluster one representative model is selected. Models are then ranked according to density of the clusters (<code>model_1</code> represents the most dense cluster) and reconstructed to all-atom representation.
@@ -192,18 +198,18 @@ If the model is not displayed, please check if  Web Graphics Library (webGL) is 
 
 <hr>
 
-<a id="r32"></a><h4>3.2 Clustering details tab</h4>  
+<a id="r32"></a><h4>3.2 Clustering details tab</h4>
 <p align="justify">
 Under the “Clustering details” tab (see the screenshot below) you are provided with
 thorough insight into structural clustering data.
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/results2.png')}}"></center><br>
-An interactive chart shows the composition of clusters of models vs. their trajectory affiliation. By clicking on the points representing models in the chart, you may view in 3D and download particular models in the <span class='capi'>pdb</span> format. 
+An interactive chart shows the composition of clusters of models vs. their trajectory affiliation. By clicking on the points representing models in the chart, you may view in 3D and download particular models in the <span class='capi'>pdb</span> format.
 <br><br>The tab also contains a table summarizing basic information on clusters:
 </p>
 <ul>
-<li><u>Cluster</u> id and its <u>medoid</u> - the model which average dissimilarity to all models in a cluster is minimal). Files can be downloaded in  <span class='capi'>pdb</span> format.</li> 
+<li><u>Cluster</u> id and its <u>medoid</u> - the model which average dissimilarity to all models in a cluster is minimal). Files can be downloaded in  <span class='capi'>pdb</span> format.</li>
 <li><u>Cluster density</u> values (number of elements divided by average cluster <span class='capi'>rmsd</span>>)</li>
-<li><u>Average <span class='capi'>rmsd</span></u> (average pairwise Cα <span class='capi'>rmsd</span> value between models grouped in a cluster)</li> 
+<li><u>Average <span class='capi'>rmsd</span></u> (average pairwise Cα <span class='capi'>rmsd</span> value between models grouped in a cluster)</li>
 <li><u>Max <span class='capi'>rmsd</span></u> (maximum pairwise Cα <span class='capi'>rmsd</span> value between models grouped in a cluster) </li>
 <li><u>Number of elements</u> (number of models grouped in a cluster)</li>
 <li><u>Average cluster <span class='capi'>rmsd</span></u> (average pairwise Cα <span class='capi'>rmsd</span> value between models grouped in a cluster)</li>
@@ -211,7 +217,7 @@ An interactive chart shows the composition of clusters of models vs. their traje
 
 
 
-<hr> 
+<hr>
 <a id="r33"></a><h4>3.3 Contact maps tab</h4>
 
 
@@ -220,8 +226,8 @@ The “Contact maps” tab allows to investigate the interaction interface betwe
 and the receptor. An interactive chart shows a contact map between the peptide and the receptor residues. You may define the value of the contact cutoff distance i.e. distance between the closest heavy atoms of the residues (default value is 4.5 Å). At the bottom of the page a text list of the contacts shown on the maps.
 </p>
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/results3.png')}}"></center><br>
-  
-<hr> 
+
+<hr>
 
 
 <a id="r34"></a><h4>3.4 Download all files </h4>
@@ -231,12 +237,12 @@ From “Docking predictions results” tab, you may download a compressed archiv
 <ul>
 <li><code>model_*.pdb</code> - 10 final models (in the PDB format and all-atom representation)</li>
 <li><code>cluster_*.pdb</code> - cluster models (groups of models that have been classified in structural clustering to particular clusters; in the PDB format and C-alpha representation)
-Cluster numbering correspond to models numbering i.e. <code>model_7.pdb</code> is a representative model of models grouped in the seventh (ranked as seventh) cluster (<code>cluster_7.pdb</code>).</li> 
-<li><code>trajectory_*.pdb</code> - complete trajectories (in the PDB format and C-alpha representation)</li> 
+Cluster numbering correspond to models numbering i.e. <code>model_7.pdb</code> is a representative model of models grouped in the seventh (ranked as seventh) cluster (<code>cluster_7.pdb</code>).</li>
+<li><code>trajectory_*.pdb</code> - complete trajectories (in the PDB format and C-alpha representation)</li>
 <li><code>top1000.pdb</code> - top 1000 models (in the PDB format and C-alpha representation)</li>
-<li><code>input.pdb</code>  - the input structure of the receptor 
+<li><code>input.pdb</code>  - the input structure of the receptor
 <li><code>README</code> - a log file with all information to recreate the simulation</li>
-<li><code>energy.txt</code> - log file from the simulation with energy and its distribution; the 
+<li><code>energy.txt</code> - log file from the simulation with energy and its distribution; the
 columns contain the following data:</li>
 <ul>
 <li>trajectory (replica) index </li>
@@ -252,10 +258,10 @@ columns contain the following data:</li>
 
 
 
-<a id="r35"></a><h4>3.5 Reconstruction to all-atom representation and local optimization</h4> 
+<a id="r35"></a><h4>3.5 Reconstruction to all-atom representation and local optimization</h4>
 <p align="justify">
 For 10 final models, the CABS-dock server provides automated reconstruction to all-atom representation and local optimization using Modeller procedure (the optimization is done by the minimization with the DOPE, Discreet Optimized Protein Energy, statistical potential). Larger sets of CABS-dock models (1000 or 10,000, downloaded from the server) can be reconstructed by a user using standalone Modeller package.
-<br><br> 
+<br><br>
 The script for the Modeller reconstruction and optimization procedure is available <a target="_blank" href="{{url_for('static', filename='fullAtom.py')}}" >here
 </a>.
 <hr>
@@ -309,7 +315,7 @@ See an example movie prepared in Pymol:
 You may resubmit your job with  changed job parameters. To do so go to the “Project information” tab and press <u>Re-submit project</u>.
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit1.png')}}"></center><br>
 
-You will be redirected to resubmission panel where you may define “optional settings” (see <a href="#r12">section 1.2</a>). You may also select models (binding modes) to be excluded from future results. Technically, receptor residues making the most persistent contacts in the selected binding mode will be excluded from making favorite interactions with the peptide. In order to start computations click <u>re-submit</u> button. 
+You will be redirected to resubmission panel where you may define “optional settings” (see <a href="#r12">section 1.2</a>). You may also select models (binding modes) to be excluded from future results. Technically, receptor residues making the most persistent contacts in the selected binding mode will be excluded from making favorite interactions with the peptide. In order to start computations click <u>re-submit</u> button.
 <br><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/resubmit2.png')}}"></center><br>
 </p>
 <hr>
@@ -321,4 +327,667 @@ An example result page can be accessed <a href="{{url_for('job_status', jid=conf
 </p>
 
 
-<!----------------------------------------------------------koniec działań Maćka -->            
+<!----------------------------------------------------------koniec działań Maćka -->
+
+<!---------------------------------------------------------start Konrada -->
+
+        <hr>
+<a id="r6"></a><h3>6. Running CABS-dock from command line or scripts (RESTFull)</h3>
+
+<p>CABS-dock webserver may be operated throught RESTful services, using following URIs:
+<ul>
+    <li><code>{{url_for('status',job_id='somejobidentifier',_external=True)}}</code> check job status only</li>
+    <li><code>{{url_for('job_info',job_id='somejobidentifier',_external=True)}}</code> check information about
+        submitted job
+    </li>
+    <li><code>{{url_for('add_job',_external=True)}}</code> submit new job
+        <ul>Required json-formatted parameters:
+            <li><code>receptor_pdb_code</code> PDB code of receptor with or without chain info</li>
+            OR <code>receptor_file</code> Send your PDB file with receptor
+            <li><code>ligand_seq</code> Ligand sequence</li>
+        </ul>
+        <ul>Optional json-formatted parameters:
+            <li><code>project_name</code> project name</li>
+            <li><code>email</code> email (info about job will be send to this email)</li>
+            <li><code>ligand_ss</code> Ligand secondary structure</li>
+            <li><code>simulation_cycles</code> Number of simulation cycles (max 200)</li>
+            <li><code>show_job</code> (<code>"True"</code> or <code>"False"</code>) if False - do not show job on the
+                queue page
+            </li>
+            <li><code>excluded_regions</code> Array of excluded regions. You can select receptor residues that are
+                unlikely to interact with the peptide.(start position, end position, chain)
+            </li>
+            <li><code>flexible_regions</code> Array of flexible regions (removing distance restraints that keep the receptor
+                structure in a near native conformation). (start position, end position, chain, flexibility (full / moderate))
+            </li>
+        </ul>
+    </li>
+
+    <li><code>{{url_for('get_job_all',jid='somejobidentifier',_external=True)}}</code> Get full results for
+        job. Optional filter for attribute (min/max/range)
+    </li>
+    <ul>Optional json-formatted parameters:
+        <li><code>value</code> Attribute</li>
+        <li><code>min</code> Minimal value</li>
+        <li><code>max</code> Maximum value</li>
+    </ul>
+    <ul>Parameters:
+        <li><code>density</code>cluster density</li>
+        <li><code>rmsd</code> Average RMSD</li>
+        <li><code>maxrmsd</code> Max RMSD</li>
+        <li><code>counts</code> Number of elements</li>
+    </ul>
+
+    <li><code>{{url_for('get_job',jid='somejobidentifier',_external=True)}}</code> Get results for job
+        (most interesting informations). Optional filter for attribute (min/max/range)
+    </li>
+    <ul>Optional json-formatted parameters:
+        <li><code>value</code> Attribute</li>
+        <li><code>min</code> Minimal value</li>
+        <li><code>max</code> Maximum value</li>
+    </ul>
+    <ul>Parameters:
+        <li><code>density</code>cluster density</li>
+        <li><code>rmsd</code> Average RMSD</li>
+        <li><code>maxrmsd</code> Max RMSD</li>
+        <li><code>counts</code> Number of elements</li>
+    </ul>
+    <li><code>{{url_for('get_cluster',jid='somejobidentifier',model_id='cluster_number',_external=True)}}</code> Get
+        cluster results.
+    </li>
+    <li><code>{{url_for('get_trajectory',jid='somejobidentifier',trajectory_id='trajectory_number',_external=True)}}</code> Get
+        trajectory.
+    </li>
+    <li><code>{{url_for('get_selected_trajectory',jid='somejobidentifier',model='cluster_number',start='start',end='end',_external=True)}}</code>
+        Get selected part of trajectory. Start and end must be in the range (1,1000)
+    </li>
+</ul>
+
+<a id="61"></a><h3>6.1 Submitting job </h3>
+<Br>
+<h4>6.1.1 Submitting job from the command line with PDB code</h4>
+
+<p>Submit job for XYZ protein and SFDG ligand sequence, using cURL, with default parameters : <br>
+    <kbd> curl -H "Content-Type: application/json" -X POST -d '{"receptor_pdb_code":"XYZ", "ligand_seq":"SFGD"}'
+        {{url_for('add_job',_external=True)}}</kbd>. </p>
+
+<p>User should get output like:
+<pre>
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 30
+Server: Werkzeug/0.10.4 Python/2.7.6
+Date: Wed, 20 Jul 2015 19:53:23 GMT
+
+{
+  "jid": "a6433216640dcb3"
+}
+</pre>
+
+where <code>jid</code> is job identifier assigned to the just submitted job. Otherwise (for example if pdbcode
+doesn't exists or input data doesn't fullfill requirements), user should get output similar to:
+<pre>
+HTTP/1.0 404 NOT FOUND
+Content-Type: text/html; charset=utf-8
+Content-Length: 5521
+Server: Werkzeug/0.9.6 Python/2.7.8
+Date: Wed, 12 Nov 2014 13:56:48 GMT
+[...]
+</pre>
+or raise error
+<pre>
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 165
+Server: Werkzeug/0.10.4 Python/2.7.6
+Date: Wed, 22 Jul 2015 20:02:41 GMT
+
+{
+  "error": "Protein code must be 4-letter (2PCY) or >5 letters (2PCY:A or 2PCY:AB ...)"
+}
+</pre>
+</p>
+
+<p>To override default parameters, user may post additional options, i.e.:
+    <kbd>curl -H "Content-Type: application/json" -X POST -d '{"receptor_pdb_code":"2IV9",
+        "ligand_seq":"SFGD","project_name":"my_project1", "email":"mail@host.com", "ligand_ss":"CCHHC",
+        "simulation_cycles":"100", "show_job":True, "excluded_regions":[{"start":"100","end":"340","chain":"A"}],
+        "flexible_regions":[{"start":"101","end":"202","chain":"B","flexibility":"full"}]}'
+        {{url_for('add_job',_external=True)}}</kbd>
+
+<Br><br>
+<h4>6.1.2 Submitting job from the command line with PDB file</h4>
+
+<kbd>curl -X POST -F data='{"ligand_seq":"SFGDDD","email":"mail@host.com","show":"False",
+    "excluded_regions":[{"start":"100","end":"340","chain":"A"}],
+    "flexible_regions":[{"start":"800","end":"808","chain":"B","flexibility":"full"},{"start":"707","end":"777","chain":"A","flexibility":"moderate"}]}'
+    -F file=@your_pdb_file.pdb {{url_for('add_job',_external=True)}}
+</kbd>
+
+<br><br>
+<h4>6.1.3 Submitting job from the Python script</h4>
+ <pre>
+import requests
+import json
+
+url = '{{url_for('add_job',_external=True)}}'
+files = {'file': open('your_PDB_file.pdb')} #or use PDB code in var data
+data = {
+    "receptor_pdb_code": "2IV9", #or use PDB file in var files
+    "ligand_seq": "SFGD",
+    "email": "mail@host.com",
+    "show": True,
+    "project_name":"my_project1",
+    "excluded_regions":[
+        {
+            "start": "1000",
+            "end": "2000",
+            "chain": "A"
+        }
+    ],
+    "flexible_regions":[
+        {
+            "start": "101",
+            "end": "202",
+            "chain": "A",
+            "flexibility": "full"
+        },
+        {
+            "start": "300",
+            "end": "370",
+            "chain": "B",
+            "flexibility": "moderate"
+        },
+    ]
+}
+
+response = requests.post(url, files=files, data=data) #request with file
+#response = requests.post(url, data=data) # request without file
+print response.text
+ </pre>
+
+
+<a id="62"></a><h3> 6.2 Get job status</h3><br>
+<h4> 6.2.1 Bash CURL</h4>
+To get job status send <br><kbd> curl -I {{url_for('status',job_id='somejobidentifier',_external=True)}}</kbd>
+<pre>
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 22
+Server: Werkzeug/0.10.4 Python/2.7.6
+Date: Sun, 26 Jul 2015 10:31:35 GMT
+
+{
+  "status": "done"
+}
+</pre>
+
+<ul>Possible task statuses :
+    <li><code>done</code> Job is done - results are ready</li>
+    <li><code>pending / running / pre_quere</code> Job is in progress</li>
+    <li><code>error</code> Job ID is faulty</li>
+</ul>
+<Br>
+<h4>6.2.2 Python script</h4>
+
+<pre>
+import requests
+import json
+
+url = '{{url_for('status',job_id='somejobidentifier',_external=True)}}'
+
+response = requests.get(url)
+print response.text
+</pre>
+
+<h3>Get job status with additional informations</h3><br>
+<h4>6.2.3 Bash CURL</h4>
+To get job status with additional informations send <br><kbd> curl -I {{url_for('job_info',job_id='somejobidentifier',_external=True)}}</kbd>
+<pre>
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 929
+Server: Werkzeug/0.10.4 Python/2.7.6
+Date: Sun, 26 Jul 2015 11:06:21 GMT
+
+{
+  "del": "Mon, 26 Oct 2015 19:11:32 GMT",
+  "excluded": [
+    "783:A - 937:A"
+  ],
+  "flexible": [
+    "767:A - 937:A"
+  ],
+  "ligand_chain": "A",
+  "ligand_sequence": "SFGDGFADF",
+  "ligand_ss": "CCCCHHHHC",
+  "project_name": "Docking project",
+  "receptor_sequence": "MAPGGYVAPKAVWLPAVKAKGLEISSGTFTHRQGHIYMEEMNFTNKALQHMTDFAIQFNKNSFGVIPSTPLAIHTPLMPNQSIDVSLPLNTLGPVMKMEPLNNLQVAVV",
+  "ss_psipred": 0,
+  "status": "pending",
+  "status_change": "Sun, 28 Jun 2015 19:11:32 GMT",
+  "status_date": "Sun, 28 Jun 2015 19:11:32 GMT"
+}
+</pre>
+<br>
+<h4>6.2.4 Python script</h4>
+
+<pre>
+import requests
+import json
+
+url = '{{url_for('job_info',job_id='somejobidentifier',_external=True)}}'
+
+response = requests.get(url)
+print response.text
+</pre>
+
+
+<a id="63"></a><h3>6.3 Get job results</h3><br>
+<h4>6.3.1 Get essential informations</h4>
+        <ul>Essential informations for each model included:
+
+            <li>Average RMSD</li>
+            <li>Max RMSD</li>
+            <li>Cluster density</li>
+            <li>Number of elements</li>
+            <li>Model data</li>
+            <li>Informations about submitted data</li>
+</ul>
+        If you need to get more informations, data see chapter <a href="#632">6.3.2 'Get all informations'</a>
+
+<br><Br>
+<h5><b>6.3.1.1 Bash Curl</b></h5>
+
+<p>To get result send <br><kbd> curl -i {{url_for('get_job',jid='somejobidentifier',_external=True)}} </kbd></p>
+
+<p>We strongly recommend to send curl with compression <br><kbd> curl -i -H 'Accept-Encoding: gzip,deflate'
+    {{url_for('get_job',jid='somejobidentifier',_external=True)}} </kbd></p>
+In result:
+	<pre>
+{
+  "models": [
+    {
+      "average_rmsd": "5.29163",
+      "cluster_density": "18.8978",
+      "elements": "100",
+      "info": {
+        "del": "Wed, 07 Oct 2015 21:34:27 GMT",
+        "ligand_chain": "A",
+        "ligand_sequence": "MGTEATEQVSWGHYSGDEEDAYSAEPLPEL",
+        "ligand_ss": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "project_name": "87aeb5bf523d141",
+        "receptor_sequence": "AILPIASSCCTEVSHHISRRLLERVNMCRIQRADGDCDLAAVILHVKRRRICVSPHNHTVKQWMKVQAAKKNGKGNVCHRKKHHGK",
+        "ss_psipred": 1,
+        "status": "done",
+        "status_change": "Tue, 09 Jun 2015 23:00:30 GMT",
+        "status_date": "Tue, 09 Jun 2015 21:34:27 GMT"
+      },
+      "jobid": "87aeb5bf523d141",
+      "max_rmsd": "28.8464",
+      "model": 1,
+      "model_data": "REMARK   1 secondary structure assigned by stride \nREMARK   2 stride output converted by stride2pdb version 0.01\nHELIX    1   1 ARG X   19  GLU X   23  1                                   5\nHELIX    2   2 HIS X   58  ALA X   69  1 [[....................]]"
+    },
+    {
+      "average_rmsd": "7.75161",
+      "cluster_density": "16.5127",
+      "elements": "128",
+      "info": {
+        "del": "Wed, 07 Oct 2015 21:34:27 GMT",
+        "ligand_chain": "A",
+        "ligand_sequence": "MGTEATEQVSWGHYSGDEEDAYSAEPLPEL",
+        "ligand_ss": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "project_name": "87aeb5bf523d141",
+        "receptor_sequence": "AILPIASSCCTEVSHHISRRLLERVNMCRIQRADGDCDLAAVILHVKRRRICVSPHNHTVKQWMKVQAAKKNGKGNVCHRKKHHGK",
+        "ss_psipred": 1,
+        "status": "done",
+        "status_change": "Tue, 09 Jun 2015 23:00:30 GMT",
+        "status_date": "Tue, 09 Jun 2015 21:34:27 GMT"
+      },
+      "jobid": "87aeb5bf523d141",
+      "max_rmsd": "28.2751",
+      "model": 2,
+      "model_data": "REMARK   1 secondary structure assigned by stride \nREMARK   2 stride output converted by stride2pdb version 0.01\nHELIX    1   1 ARG X   19  LEU X   22  1                                   4\nHELIX    2   2 THR X   59  ALA X   69  1                                  11\nSHEET    1   1 1 MET X  27  CYS X  28  0\nSHEET    2   2 1 LEU X  44  HIS X  45  0\nSHE [[....................]] "
+  },
+  {},{},{},....,{}
+}
+
+	</pre>
+<p>To get filtered results <br><kbd>curl -i -X POST -d '{"filter":"density","min":"10","max":"20"}'
+    {{url_for('get_job',jid='somejobidentifier',_external=True)}}</kbd></p>
+
+<br>
+<h5><b>6.3.1.2 Python script</b></h5>
+
+<pre>
+import requests
+import json
+
+url = '{{url_for('get_job',jid='somejobidentifier',_external=True)}}'
+
+#filtering is optional
+data = {
+	"value":"rmsd",
+	"min":"5",
+	"max":"12"
+	}
+
+response = requests.post(url,data=data)
+print response.text
+</pre>
+
+<Br>
+ <a id="632"></a><h4>6.3.2 Get all informations</h4>
+        <ul>All informations for each model included:
+            <li>Average RMSD</li>
+            <li>Max RMSD</li>
+            <li>Cluster density</li>
+            <li>Number of elements</li>
+            <li>Model data</li>
+            <li>Informations about submitted data</li>
+             and extra :
+            <li>Cluster data - if you need only cluster data see <a href="#633">chapter 6.3.3</a></li>
+</ul>
+
+        If you need to get a trajectory data, see <a href="634">chapter 6.3.4 </a>
+<br><br>
+<h5><b>6.3.2.1 Bash Curl</b></h5>
+
+<p>To get result send <br><kbd> curl -i {{url_for('get_job_all',jid='somejobidentifier',_external=True)}} </kbd>
+</p>
+
+<p>We strongly recommend to send curl with compression <br><kbd> curl -i -H 'Accept-Encoding: gzip,deflate'
+    {{url_for('get_job_all',jid='somejobidentifier',_external=True)}} </kbd></p>
+In result:
+<pre>
+{
+  "models": [
+    {
+      "average_rmsd": "5.29163",
+      "cluster_data": "MODEL      102\nATOM      1  CA  ALA X   3      -0.304  -0.446 -12.449  1.00  1.00           C\nATOM      2  CA  ILE X   4       2.456   1.179 -13.176  3.00  1.00           C\nATOM      3  [.....]",
+      "cluster_density": "18.8978",
+      "elements": "100",
+      "info": {
+        "del": "Wed, 07 Oct 2015 21:34:27 GMT",
+        "ligand_chain": "A",
+        "ligand_sequence": "MGTEATEQVSWGHYSGDEEDAYSAEPLPEL",
+        "ligand_ss": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+        "project_name": "87aeb5bf523d141",
+        "receptor_sequence": "AILPIASSCCTEVSHHISRRLLERVNMCRIQRADGDCDLAAVILHVKRRRICVSPHNHTVKQWMKVQAAKKNGKGNVCHRKKHHGK",
+        "ss_psipred": 1,
+        "status": "done",
+        "status_change": "Tue, 09 Jun 2015 23:00:30 GMT",
+        "status_date": "Tue, 09 Jun 2015 21:34:27 GMT"
+      },
+      "jobid": "87aeb5bf523d141",
+      "max_rmsd": "28.8464",
+      "model": 1,
+      "model_data": "REMARK   1 secondary structure assigned by stride \nREMARK   2 stride output converted by stride2pdb version 0.01\nHELIX    1   1 ARG X   19  GLU X   23  1",
+      "trajectory_data": "MODEL        1\nREMARK CABSDock Temp 6.45\nREMARK CABSDock Erec -29.49\nREMARK CABSDock Elig -29.39\nREMARK CABSDock Eint 0.00\nREMARK CABSDock Etot -58.88\nATOM      1  CA  ALA X   3      -1.057"
+    },
+    {},{},{},....,{}
+}
+</pre>
+<Br>
+<p>To get filtered results <Br> <kbd>curl -i -X POST -d '{"filter":"rmsd","min":"5","max":"12"}'
+    {{url_for('get_job_all',jid='somejobidentifier',_external=True)}}</kbd></p>
+
+<br>
+<h5><b>6.3.2.2 Python</b></h5>
+
+<pre>
+import requests
+import json
+
+url = '{{url_for('get_job_all',jid='somejobidentifier',_external=True)}}'
+#filtering is optional
+data = {
+	"value":"rmsd",
+	"min":"5",
+	"max":"12"
+	}
+
+response = requests.get(url,data=data)
+print response.text
+</pre>
+<br>
+ <a id="633"></a><h4>6.3.3 Get cluster</h4><br>
+<h5><b>6.3.3.1 Bash Curl</b></h5>
+
+<p>To get cluster send <br><kbd> curl -i
+    {{url_for('get_cluster',jid='somejobidentifier',model_id='clusterNumber',_external=True)}} </kbd><br> where clusterNumber
+    is number between [1,10] corresponding to model number.</p>
+
+<p>We strongly recommend to send curl with compression <br><kbd> curl -i -H 'Accept-Encoding:
+    gzip,deflate'  {{url_for('get_cluster',jid='somejobidentifier',model_id='clusterNumber',_external=True)}} </kbd></p>
+
+In result we get cluster data and informations about cluster:
+<pre>
+{
+  "model": [
+    {
+      "average_rmsd": "8.45027",
+      "cluster_data": "MODEL      101\nATOM      1  CA  LEU A   6      28.654  -0.817  25.718  1.00  1.00           C\nATOM      2  CA  GLY A   7      31.720  -3.251  26.268  3.00  1.00 [.......]",
+      "cluster_density": "29.3482",
+      "elements": "248",
+      "jobid": "8ae372b8e877be4",
+      "max_rmsd": "41.6541"
+    }
+  ]
+}
+</pre>
+
+<br>
+<a id="634"></a><h4>6.3.4 Get trajectory</h4><Br>
+<h5><b>6.3.4.1 Bash Curl</b></h5>
+
+<p>To get trajectory send <Br><kbd> curl -i
+    {{url_for('get_trajectory',jid='somejobidentifier',trajectory_id='modelNumber',_external=True)}} </kbd><br> where modelNumber
+    is between [1,10]</p>
+
+<p>We strongly recommend to send curl with compression<br> <kbd> curl -i -H 'Accept-Encoding: gzip,deflate'
+    {{url_for('get_trajectory',jid='somejobidentifier',trajectory_id='modelNumber',_external=True)}} </kbd></p>
+
+In result we get trajectory data:
+<pre>
+{
+  "model": [
+    {
+      "jobid": "8ae372b8e877be4",
+      "trajectory": "MODEL        1\nREMARK CABSDock Temp 6.45\nREMARK CABSDock Erec -1529.95\nREMARK CABSDock Elig -7.95\nREMARK CABSDock Eint 0.00\nREMARK CABSDock Etot -1537.90\nATOM      1  CA  LEU A   6 [.........]"
+    }
+  ]
+}
+</pre>
+
+
+<p>Additionally, you can take a section of the trajectory model <br><kbd>curl -i
+    {{url_for('get_selected_trajectory',jid='somejobidentifier',model='cluster_number',start='start',end='end',_external=True)}}</kbd>
+</p>
+
+        <br><hr><br>
+        <a id="64"></a><h3>6.4 Examples</h3><br>
+        <h4>6.4.1 Example 1 (default settings)</h4> <Br>
+        <p>
+            The example with the default CABS-dock server settings using the following data: <Br>
+            <ul>
+            <li> <b>Peptide sequence:</b> SSRFESLFAG </li>
+            <li> <b>Peptide secondary structure:</b> CHHHHHHHHC </li>
+            <li> <b>Receptor input structure:</b> PDB ID: 2AM9, crystal structure of human androgen receptor in the unbound form </li>
+    </ul>
+            </p>
+
+        <h5><b> Bash CURL </b></h5>
+        <kbd> curl -H "Content-Type: application/json" -X POST -d '{"receptor_pdb_code":"2AM9", "ligand_seq":"SSRFESLFAG", "ligand_ss":"CHHHHHHHHC"}'
+        {{url_for('add_job',_external=True)}}</kbd> <br>
+
+        <h5><b> Python script </b></h5>
+        <pre>
+            import requests
+import json
+
+url = 'http://0.0.0.0:5000/REST/add_job/'
+files = {'file': open('your_PDB_file.pdb')} #or use PDB code in var data
+data = {
+    "receptor_pdb_code": "2AM9"
+    "ligand_seq": "SSRFESLFAG",
+    "ligand_ss": "CHHHHHHHHC"
+    response = requests.post(url, data=data)
+    print response.text
+}
+
+response = requests.post(url, files=files, data=data) #request with file
+#response = requests.post(url, data=data) # request without file
+print response.text
+        </pre>
+
+
+        <br>
+        <h4>6.4.2 Example 2 (increasing the flexibility of selected receptor fragments)</h4> <Br>
+        <p>
+            For each selected residue, the user may choose from two preset settings: moderate or full flexibility. Technically this is achieved by changing the default distance restrains (used to keep the receptor structure near to the input conformation). The assignment of moderate flexibility decreases the strength of restrains, while full flexibility assigned removes all the restraints imposed on the selected residue.
+            </p> <br>
+        <p>Example: <br>
+        <ul>
+            <li> <b>Peptide sequence:</b> HPQFEK </li>
+            <li> <b>Peptide secondary structure:</b> CHHHCC </li>
+            <li> <b>Receptor input structure:</b> PDB ID: 2RTM, crystal structure of biotin binding protein in the unbound form </li>
+        </ul>
+        <br>
+        Using the CABS-dock “Mark flexible regions” option, we selected 10 residues (from 45th to 54th) forming the flexible loop and assigned the “fully flexible” setting to those residues. <br><br>
+        <strong><u>Important : Must be used numbering of PDB format.</u></strong> <Br><br>
+            </p>
+
+                <h5><b> Bash CURL </b></h5>
+        <kbd> curl -H "Content-Type: application/json" -X POST -d '{"receptor_pdb_code":"2RTM", "ligand_seq":"HPQFEK", "ligand_ss":"CHHHCC", "flexible_regions":[{"start":"45","end":"54","chain":"A","flexibility":"full"}]}'
+        {{url_for('add_job',_external=True)}}</kbd> <br>
+<br>
+        <h5><b> Python script </b></h5>
+        <pre>import requests
+import json
+
+url = 'http://0.0.0.0:5000/REST/add_job/'
+files = {'file': open('your_PDB_file.pdb')} #or use PDB code in var data
+data = {
+    "receptor_pdb_code": "2RTM"
+    "ligand_seq": "HPQFEK",
+    "ligand_ss": "CHHHCC"
+    "flexible_regions":[
+        {
+            "start": "45",
+            "end": "54",
+            "chain": "A",
+            "flexibility": "full"
+        }
+    ]
+    }
+response = requests.post(url, data=data)
+print response.text
+}
+
+response = requests.post(url, files=files, data=data) #request with file
+#response = requests.post(url, data=data) # request without file
+print response.text
+        </pre>
+        <br>
+<h4>6.4.3 Example 3 (excluding binding modes from docking search)</h4> <Br>
+        <p>
+            In the default mode, CABS-dock allows peptides to explore the entire receptor surface. However, in certain modeling cases it is known that some parts of the protein are not accessible (for example due to binding to other proteins) and therefore it could be useful to exclude these regions from the search procedure.
+            </p> <Br>
+                <p>Example: <br>
+        <ul>
+            <li> <b>Peptide sequence:</b> PQQATDD </li>
+            <li> <b>Peptide secondary structure:</b> CEECCCC </li>
+            <li> <b>Receptor input structure:</b> PDB ID: 1CZY:C, tumor necrosis factor receptor associated protein 2 in the unbound form </li>
+        </ul>
+        <br>
+        1CZY protein is a trimer and 1CZY:C makes the following contacts with 1CZY:A
+        (according to http://ligin.weizmann.ac.il/cma/ server for analysis of protein-protein interfaces)
+<br>
+
+<p><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/table1_examples.jpg')}}"></center></p><br>
+<!--        and 1CZY:C makes the following contacts with 1CZY:B <br>
+        <p><center><img class="img-responsive img-thumbnail" src="{{url_for('static', filename='img/table2_examples.jpg')}}"></center></p><br>-->
+        therefore listed above residues of C chain (the input protein) which are responsible for making contacts with A and B chains can be excluded from considering in the docking search.<br><br>
+
+
+        <h5><b> Bash CURL </b></h5>
+        <kbd> curl -H "Content-Type: application/json" -X POST -d '{"receptor_pdb_code":"1CZY:C", "ligand_seq":"PQQATDD", "ligand_ss":"CEECCCC",
+            "excluded_regions":[
+                {"start":"334","end":"335","chain":"C"},
+                {"start":"338","end":"338","chain":"C"},
+                {"start":"341","end":"342","chain":"C"},
+                {"start":"345","end":"345","chain":"C"},
+                {"start":"350","end":"350","chain":"C"},
+                {"start":"385","end":"386","chain":"C"},
+                {"start":"416","end":"418","chain":"C"},
+                {"start":"420","end":"421","chain":"C"},
+                {"start":"458","end":"458","chain":"C"}
+            ]}'
+        {{url_for('add_job',_external=True)}}</kbd> <br>
+<br>
+        <h5><b> Python script </b></h5>
+        <pre>import requests
+import json
+
+url = 'http://0.0.0.0:5000/REST/add_job/'
+files = {'file': open('your_PDB_file.pdb')} #or use PDB code in var data
+data = {
+    "receptor_pdb_code": "1CZY:C"
+    "ligand_seq": "PQQATDD",
+    "ligand_ss": "CEECCCC"
+    "excluded_regions":[
+        {
+            "start": "334",
+            "end": "335",
+            "chain": "C",
+        },
+        {
+            "start": "338",
+            "end": "338",
+            "chain": "C",
+        },
+        {
+            "start": "341",
+            "end": "342",
+            "chain": "C",
+        },
+        {
+            "start": "345",
+            "end": "345",
+            "chain": "C",
+        },
+        {
+            "start": "350",
+            "end": "350",
+            "chain": "C",
+        },
+        {
+            "start": "385",
+            "end": "386",
+            "chain": "C",
+        },
+        {
+            "start": "416",
+            "end": "418",
+            "chain": "C",
+        },
+        {
+            "start": "420",
+            "end": "421",
+            "chain": "C",
+        },
+        {
+            "start": "458",
+            "end": "458",
+            "chain": "C",
+        }
+    ]
+    }
+            
+response = requests.post(url, data=data)
+print response.text
+        </pre>
+        <br>
+
+

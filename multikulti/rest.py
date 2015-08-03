@@ -263,7 +263,7 @@ def get_model(content, model_idx):
     return out
 
 
-@app.route('/REST/get_selected_trajectory/<string:jid>/<string:model>/<int:start>/<int:end>', methods=['GET'])
+@app.route('/REST/get_selected_trajectory/<string:jid>/<string:model>/<string:start>/<string:end>', methods=['GET'])
 def get_selected_trajectory(jid, model, start, end):
     replicas = []
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid,
@@ -313,7 +313,7 @@ def prepare_data(data, receptor_file):
     data['email'] = data.get('email', '')
     data['show'] = json_bool_to_db(data.get('show_job'))
     data['excluded_regions'] = data.get('excluded_regions', [])
-    data['constraints'] = data.get('constraints', [])
+    data['flexible_regions'] = data.get('flexible_regions', [])
     data['scaling_factor'] = data.get('overall_weight', '1.0')
 
     return data
@@ -393,12 +393,17 @@ def user_add_constraints(data, jid):
     query_db("UPDATE user_queue SET constraints_scaling_factor=%s \
             WHERE jid=%s", [data['scaling_factor'], jid], insert=True)
 
-    for i in data['constraints']:
+    for i in data['flexible_regions']:
         constraint_definition = i['start'] + ':' + i['chain'] + ' ' + '-' + ' ' + i['end'] + ':' + i['chain']
-        force = i['weight']
+        force = i['flexibility']
+        force_power = 0
+        if force == "full":
+            force_power = 0
+        if force == "moderate":
+            force_power = 0.5
         constraint_jmol = i['start'] + '-' + i['end'] + ':' + i['chain']
         query_db("INSERT INTO constraints(`jid`,`constraint_definition`,`force`,\
-                `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid, constraint_definition, force, constraint_jmol],
+                `constraint_jmol`) VALUES(%s,%s,%s,%s)", [jid, constraint_definition, force_power, constraint_jmol],
                  insert=True)
     return True
 
@@ -407,7 +412,7 @@ def validate_data(data, receptor_file):
     validate_name(data.get('project_name'))
     validate_receptor_file(receptor_file)
     data['file_content'] = validate_pdb_input_and_return_content(data.get('receptor_pdb_code'), receptor_file)
-    check_range(data['file_content'], data.get('constraints', []), data.get('excluded_regions', []))
+    check_range(data['file_content'], data.get('flexible_regions', []), data.get('excluded_regions', []))
     validate_ligand_seq(data.get('ligand_seq'))
     validate_ligand_ss(data.get('ligand_ss'))
     if 'ligand_ss' in data:
@@ -432,8 +437,10 @@ def validate_receptor_file(receptor_file):
 
 def validate_pdb_input_and_return_content(pdb_receptor, receptor_file):
     if receptor_file is not None and len(receptor_file.filename) >= 5:
+        print 'fiiiile'
         return validate_pdb_input_file(receptor_file)
     if pdb_receptor is not None:
+        print 'pdb_code'
         return validate_pdb_input_code(pdb_receptor)
     raise RestValidationError('Protein PDB code or PDB file is required')
 
