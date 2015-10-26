@@ -47,7 +47,7 @@ class PdbParser:
             data = atm.match(line)
             data_seq = seq.match(line)
             data_seqc = seq_c.match(line)
-            
+
             if data_seqc and data_seqc.group('seqid') in keys:
                 self.canumber += 1
             if data_seq:
@@ -671,6 +671,7 @@ class PdbParser:
                     'VAL':'VAL',                    ##  VAL VAL
                     'VDL':'VAL',                    ##  VDL VAL  (2R,3R)-2,3-DIAMINOBUTANOIC ACID
                     'VLL':'VAL',                    ##  VLL VAL  (2S)-2,3-DIAMINOBUTANOIC ACID
+                    'HSD':'HIS',                    ##  up his
                     'VME':'VAL',                    ##  VME VAL  O- METHYLVALINE
                     'X9Q':'ALA',                    ##  X9Q ALA
                     'XX1':'LYS',                    ##  XX1 LYS  N~6~-7H-PURIN-6-YL-L-LYSINE
