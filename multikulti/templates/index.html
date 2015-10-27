@@ -39,7 +39,13 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="{{url_for('learn_more')}}"><i class="fa fa-cube"></i> About</a></li>
                         <li><a href="{{url_for('tutorial')}}"><i class="fa fa-question-circle"></i> Tutorial</a></li>
-                        <li><a href="{{url_for('examples')}}"><i class="fa fa-folder-open-o"></i> Examples</a></li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-folder-open-o"></i> Examples <span class="caret"></span></a>
+<ul class="dropdown-menu">
+                        <li><a href="{{url_for('examples')}}"><i class="fa fa-folder-open-o"></i> Example results</a></li>
+                        <li><a href="{{url_for('benchmark')}}"><i class="fa fa-list-alt"></i> Benchmark</a></li>
+</ul>
+</li>
                         <li><a href="{{url_for('index_contact')}}"><i class="fa fa-envelope-o"></i> Contact</a></li>
                     <form method="GET" action="{{url_for('queue_page')}}" class="navbar-form navbar-right" role="search">
                         <div class="form-group">
@@ -109,17 +115,17 @@
             <div class="panel panel-default hidden-xs">
                 <table class="table">
                     <tr>
-                        <td> <i class="fa fa-edit fa-4x" style="margin-left:15px;margin-right:7px;margin-top:26px"></i> </td>
+                        <td> <i class="fa fa-edit fa-4x" style="margin-left:15px;margin-right:-15px;margin-top:26px"></i> </td>
                         <td class='hyphenate' style="padding:5px">
                             Papers describing the CABS-dock server and its example applications: 
                             <ul><li>
  <a href="http://nar.oxfordjournals.org/cgi/content/abstract/gkv456">
      CABS-dock web server for flexible docking of peptides to proteins without prior knowledge of the binding site</a>, 
-        <i>Nucleic Acids Res, 2015, 43(W1): W419-W424. doi: 10.1093/nar/gkv456 </i>
+ <i><small>Nucleic Acids Res, 2015, 43(W1): W419-W424. 10.1093/nar/gkv456</small> </i>
                             </li><li>
  <a href="http://www.sciencedirect.com/science/article/pii/S1046202315300207">
     Modeling of protein-peptide interactions using the CABS-dock web server for binding site search and flexible docking</a>, 
-        <i>Methods, 2015, doi:10.1016/j.ymeth.2015.07.004</i>
+<i><small>Methods, 2015, 10.1016/j.ymeth.2015.07.004</small></i>
                             </li></ul>
                         </td>
                     </tr>
