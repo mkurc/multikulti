@@ -30,7 +30,7 @@ class TalkToServer:
     def putResults(self):
         to_send = {}
         for d in ["CLUST", "MODELS", "TRAFS"]:
-            for filename in glob(d+"/*.gz") + ["klastry.txt", "energy.txt", "top1000.pdb.gz"]:
+            for filename in glob(d+"/*.gz") + ["klastry.txt", "energy.txt", "top1000.pdb.gz", "maps.tar.gz"]:
                 fn = filename.replace("CLUST", "clusters")
                 fn = fn.replace("MODELS", "models")
                 fn = fn.replace("TRAFS", "replicas")
