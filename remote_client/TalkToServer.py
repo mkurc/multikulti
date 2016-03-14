@@ -61,7 +61,7 @@ class TalkToServer:
             for line in d:
                 if len(line)>21 and "ATOM" in line and line[21]==" ":
                     line = line[:21]+uniq+line[22:]+"\n"
-                    
+
                 o += line
         else:
             o = "\n".join(d)
@@ -113,6 +113,9 @@ class TalkToServer:
     def getExcluded(self):
         return self._getJson('/EXCLUDED/')
 
+    def getConsole(self):
+        return self._getJson('/CONSOLE/')
+
     def getModelsToRemove(self):
         j = self._getJson('/SKIPMODELS/')
         if len(j) > 0:
@@ -141,6 +144,11 @@ class TalkToServer:
             for row in r:
                 for spl in row['excluded'].split(","):
                     fw.write("%50s\n" % (spl.strip()))
+
+    def getConsoleFile(self, output_file="console.txt"):
+        with open(output_file, "w") as fw:
+            r = self.getConsole()
+            fw.write(r['console'])
 
     def getLigandInfoFile(self, output_file="ligand.txt"):
         r = self.getLigandInfo()

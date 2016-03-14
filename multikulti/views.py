@@ -14,7 +14,8 @@ from shutil import rmtree, copy
 from numpy import min, max, mean, ceil
 
 from multikulti import app
-from config import config, query_db, unique_id, gunzip, alphanum_key, send_mail, connect_db
+from config import config, query_db, unique_id, gunzip, alphanum_key, \
+        send_mail, connect_db
 
 
 from flask import render_template, url_for, request, flash, Response, g, \
@@ -111,7 +112,6 @@ def structure_pdb_validator(form, field):
         ft = StringIO(b2)
         buraki.close()
 
-
         with gzip.GzipFile(fileobj=ft, mode="rb") as f:
             p = PdbParser(f, chain=chain)
             missing = p.getMissing()
@@ -178,6 +178,7 @@ class MyForm(Form):
     receptor_file = FileField('PDB file', validators=[FileAllowed(input_pdb.extensions, 'PDB file format only!'), pdb_input_validator])
     ligand_seq = TextAreaField('Peptide sequence', validators=[Length(min=4, max=30), DataRequired(), sequence_validator])
     ligand_ss = TextAreaField('Peptide secondary structure', validators=[Length(min=4, max=30), optional(), ss_validator, eqlen_validator])
+    console = TextAreaField('cabs-Dock console', validators=[optional()])
     email = StringField('E-mail address', validators=[optional(), Email()])
     show = BooleanField('Do not show my job on the results page',
                         default=False)
@@ -285,11 +286,12 @@ def add_init_data_to_db(form, final=False):
     name = form.name.data
     if len(name) < 2:
         name = jid
+    console = form.console.data
     query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
-             ligand_sequence, ligand_ss, hide, project_name,simulation_length) \
-             VALUES(%s,%s,%s,%s,%s,%s,%s,%s)", [jid, form.email.data, receptor_seq,
-                                        ligand_seq, ligand_ss, hide, name,
-                                        sim_length], insert=True)
+             ligand_sequence, ligand_ss, hide, project_name,simulation_length, \
+             console) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)", [jid,
+             form.email.data, receptor_seq, ligand_seq, ligand_ss, hide, name,
+                                        sim_length, console], insert=True)
     if form.resubmit.data == "True":  # if there is resubmit, skip parsing pdb
         old_jid = form.jid.data
         query_db("insert into constraints(`jid`,`constraint_definition`,\
@@ -380,7 +382,7 @@ def queue_page(page=1):
                               email=%s) and hide=1) z",
                               2*["%"+search+"%"]+4*[search], one=True)
             flash("Found %d results, displaying up to 1000" % (q_all['l']), 'warning')
-            
+
             out = parse_out(q)
             if len(out) == 0:
                 flash("Nothing found", "error")
@@ -909,7 +911,7 @@ def comp_time():
         tim_l = int(row['h'])
         seq_l = 50*round(int(row['l'])/50)
         it tim_l > 40:
-            continue # skip jobs with evident lags due to machine restarts, etc. 
+            continue # skip jobs with evident lags due to machine restarts, etc.
                      # 40h should be enough for most dense system
 
         if seq_l in histogram:

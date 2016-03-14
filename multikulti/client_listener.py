@@ -134,6 +134,10 @@ def parse_server_talking(task, secret_key, jid):
                          WHERE jid=%s", [jid])
             out = [{'def': row['constraint_definition'], 'force': row['force']} for row in t]
             return Response(json.dumps(out), mimetype='application/json')
+        elif task == "CONSOLE":
+            t = query_db("SELECT console FROM user_queue WHERE jid=%s",
+                         [jid], one=True)
+            return Response(json.dumps(t), mimetype='application/json')
         elif task == "EXCLUDED":
             t = query_db("SELECT excluded_region FROM excluded \
                          WHERE jid=%s", [jid])
