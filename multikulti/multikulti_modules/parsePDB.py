@@ -93,6 +93,7 @@ class PdbParser:
 
 # chain numbering
         o = {}
+        print chains_order, len(chains_order)
         for i in range(len(chains_order)):
             o[chains_order[i]] = self.resindexes[i]
         self.numb = o
@@ -686,6 +687,6 @@ if __name__ == "__main__":
     from StringIO import StringIO
     from sys import argv
 
-    f = open("2IV9.pdb")
-    a = PdbParser(f, chain='AB')
+    f = open("hCld4r.pdb")
+    a = PdbParser(f, chain='')
     print a.getBody()

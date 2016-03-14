@@ -26,6 +26,7 @@ S.getStructureFile()
 S.getLigandInfoFile()
 S.getRestraintsFile()
 S.getExcludedFile()
+S.getConsoleFile()
 S.getModelsToRemove()
 simlen = S.getSimLength()
 

@@ -66,7 +66,7 @@ def parse_server_talking(task, secret_key, jid):
             tomail = query_db("SELECT email FROM user_queue WHERE jid=%s",
                               [jid], one=True)
             if 'email' in tomail and len(tomail['email']) > 1:
-                send_mail(to=tomail, subject="Job is running: "+jid,
+                send_mail(to=tomail['email'], subject="Job is running: "+jid,
                           body="Wait for second mail about job done (or job error).")
 
         elif task == 'S_D':

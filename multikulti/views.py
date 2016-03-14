@@ -910,7 +910,7 @@ def comp_time():
     for row in q:
         tim_l = int(row['h'])
         seq_l = 50*round(int(row['l'])/50)
-        it tim_l > 40:
+        if tim_l > 40:
             continue # skip jobs with evident lags due to machine restarts, etc.
                      # 40h should be enough for most dense system
 
