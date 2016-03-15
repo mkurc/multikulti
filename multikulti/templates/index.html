@@ -184,7 +184,7 @@
                                                 <div class="col-md-6"> {{render_field(form.email, placeholder='john@doe.com', R='If provided, the server will send an email notification about job completion.')}} </div>
                                             </div>
                                             {{render_field(form.ligand_ss, R='If not provided - server run <span class=capi>psipred</span> prediction', placeholder='CCCCHHHHC', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
-                                            {{render_field(form.console, R='Constraints console', placeholder='', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
+                                            {{render_field(form.console, R='under construction', placeholder='under construction', style='text-transform:uppercase;', onkeyup="javascript:this.value=this.value.toUpperCase();")}}
                                             {{render_checkbox_field(form.add_constraints, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r121"><i class="fa fa-link"></i> tutorial</a>')}}
                                             {{render_checkbox_field(form.excluding, R='Read more about this option in <a target=_blank href="'+url_for('tutorial')+'#r122"><i class="fa fa-link"></i> tutorial</a>')}}
                                             {{render_field(form.length)}}
