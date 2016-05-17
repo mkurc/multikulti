@@ -15,16 +15,16 @@ def createTables():
     cur.execute("DROP TABLE IF EXISTS constraints")
     cur.execute("DROP TABLE IF EXISTS user_queue")
     cur.execute('''CREATE TABLE server_load(`id` integer NOT NULL DEFAULT 0, `status_date` timestamp default CURRENT_TIMESTAMP, `load` integer, `name` varchar(20))''')
-#TODO chains/res mapping ? ur.execute("DROP TABLE IF EXISTS 
+#TODO chains/res mapping ? ur.execute("DROP TABLE IF EXISTS
     cur.execute("INSERT INTO server_load(`load`,`name`) VALUES(10,'disco')")
     cur.execute('''
-                CREATE TABLE user_queue ( 
-               `id` integer primary key auto_increment not null,   
-               `jid` varchar(150) NOT NULL, 
+                CREATE TABLE user_queue (
+               `id` integer primary key auto_increment not null,
+               `jid` varchar(150) NOT NULL,
                `email` varchar(150),
-               `ligand_sequence` tinytext NOT NULL, 
-               `ligand_ss` tinytext, 
-               `receptor_sequence` text NOT NULL, 
+               `ligand_sequence` tinytext NOT NULL,
+               `ligand_ss` tinytext,
+               `receptor_sequence` text NOT NULL,
                `hide` integer(1) DEFAULT 0,
                `status` enum('pending', 'pre_queue', 'queue', 'running', 'error', 'done')  NOT NULL DEFAULT 'pending',
                `project_name` varchar(250) NOT NULL,
@@ -32,7 +32,8 @@ def createTables():
                `simulation_length` integer(4) NOT NULL DEFAULT 50,
                `ss_psipred` integer(1) NOT NULL DEFAULT 0,
                `status_date` timestamp NOT NULL DEFAULT current_timestamp,
-               `status_init` timestamp NOT NULL DEFAULT current_timestamp, 
+               `status_init` timestamp NOT NULL DEFAULT current_timestamp,
+               `console` text null,
                `constraints_scaling_factor` float not null default 1.0
                 ) ''')
     cur.execute('''
