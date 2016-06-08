@@ -16,6 +16,13 @@ from multikulti_modules.parsePDB import PdbParser
 from views import gunzip, unique_id, cluster_stats, alphanum_key
 from glob import glob
 
+# CONSOLE_FILE_PATTERN = '/shared/CABSservices/CABSDOCKtesty/playground/{}/console.txt'
+# CONSOLE_FILE_DIRECTORY = '/shared/CABSservices/CABSDOCKtesty/playground/{}/'
+
+CONSOLE_FILE_PATTERN = '/home/konrad/workspace/{}/console.txt'
+CONSOLE_FILE_DIRECTORY = '/home/konrad/workspace/{}/'
+
+
 # tylko status
 @app.route('/REST/status/<string:job_id>', methods=['GET'])
 def status(job_id):
@@ -142,8 +149,6 @@ def get_job_all(jid):
 
 @app.route('/REST/job_results/<string:jid>', methods=['GET', 'POST'])
 def get_job(jid):
-
-
     todel = str(app.config['DELETE_USER_JOBS_AFTER'])
 
     system_info = query_db("SELECT ligand_sequence, receptor_sequence, \
@@ -209,12 +214,11 @@ def get_job(jid):
 
 
 @app.route('/REST/get_cluster/<string:jid>/<string:model_id>', methods=['GET'])
-def get_cluster(jid,model_id):
-
+def get_cluster(jid, model_id):
     model_id = int(model_id)
     clust_details = cluster_stats(jid)
 
-    cluster_name = "cluster_%s.pdb.gz" %model_id
+    cluster_name = "cluster_%s.pdb.gz" % model_id
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid,
                             "clusters", cluster_name)
     with gzip.open(path_dir) as data:
@@ -234,12 +238,12 @@ def get_cluster(jid,model_id):
 
     return jsonify(result)
 
-#dziala okej przez curla
-@app.route('/REST/get_trajectory/<string:jid>/<string:trajectory_id>', methods=['GET'])
-def get_trajectory(jid,trajectory_id):
 
+# dziala okej przez curla
+@app.route('/REST/get_trajectory/<string:jid>/<string:trajectory_id>', methods=['GET'])
+def get_trajectory(jid, trajectory_id):
     trajectory_id = int(trajectory_id)
-    trajectory_name = "replica_%s.pdb.gz" %trajectory_id
+    trajectory_name = "replica_%s.pdb.gz" % trajectory_id
 
     path_dir = os.path.join(app.config['USERJOB_DIRECTORY'], jid,
                             "replicas", trajectory_name)
@@ -283,8 +287,8 @@ def get_selected_trajectory(jid, model, start, end):
 @app.route('/REST/add_job/', methods=['POST'])
 def add_job():
     if request.method == 'POST':
-        #print request.form.keys()
         receptor_file = request.files.get('file')
+        console_file = request.files.get('console')
         try:
             if request.json is not None:
                 data = prepare_data(request.json, receptor_file)
@@ -297,9 +301,19 @@ def add_job():
         result, jid = add_data_to_db(data)
         add_excluded(data, jid)
         user_add_constraints(data, jid)
+        save_console_file(console_file, jid)
 
         return jsonify({
             'jid': jid})
+
+
+def save_console_file(console_file, jid):
+    if console_file is None:
+        return
+    console_file_path = CONSOLE_FILE_PATTERN.format(jid)
+    if not os.path.exists(CONSOLE_FILE_DIRECTORY.format(jid)):
+        os.makedirs(CONSOLE_FILE_DIRECTORY.format(jid))
+    console_file.save(console_file_path)
 
 
 def prepare_data(data, receptor_file):
@@ -364,8 +378,9 @@ def add_data_to_db(data):
     return (query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
          ligand_sequence, ligand_ss, hide, project_name,simulation_length,status) \
          VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)", [jid, data['email'], pdb,
-                                            data['ligand_seq'], data['ligand_ss'], data['show'], data['project_name'],
-                                            data['simulation_cycles'],'pre_queue'], insert=True), jid)
+                                               data['ligand_seq'], data['ligand_ss'], data['show'],
+                                               data['project_name'],
+                                               data['simulation_cycles'], 'pre_queue'], insert=True), jid)
 
 
 def read_sequence_from_content_and_save(content, jid):
@@ -438,10 +453,8 @@ def validate_receptor_file(receptor_file):
 
 def validate_pdb_input_and_return_content(pdb_receptor, receptor_file):
     if receptor_file is not None and len(receptor_file.filename) >= 5:
-        print 'fiiiile'
         return validate_pdb_input_file(receptor_file)
     if pdb_receptor is not None:
-        print 'pdb_code'
         return validate_pdb_input_code(pdb_receptor)
     raise RestValidationError('Protein PDB code or PDB file is required')
 
@@ -463,12 +476,11 @@ def validate_pdb_input_code(pdb_receptor):
     else:
         chain = ''
     pdb_code = d[0]
-
     buraki = urllib2.urlopen('http://www.rcsb.org/pdb/files/' + pdb_code + '.pdb.gz')
     b2 = buraki.read()
     buraki.close()
-#    if b2 is None:
-#        raise RestValidationError('Invalid %s pdb code' % pdb_code)
+    #    if b2 is None:
+    #        raise RestValidationError('Invalid %s pdb code' % pdb_code)
     ft = StringIO(b2)
     try:
         f = gzip.GzipFile(fileobj=ft, mode="rb")
