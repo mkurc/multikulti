@@ -19,8 +19,6 @@ from glob import glob
 # CONSOLE_FILE_PATTERN = '/shared/CABSservices/CABSDOCKtesty/playground/{}/console.txt'
 # CONSOLE_FILE_DIRECTORY = '/shared/CABSservices/CABSDOCKtesty/playground/{}/'
 
-CONSOLE_FILE_PATTERN = '/home/konrad/workspace/{}/console.txt'
-CONSOLE_FILE_DIRECTORY = '/home/konrad/workspace/{}/'
 
 
 # tylko status
@@ -298,10 +296,10 @@ def add_job():
                 data = prepare_data(request.form, receptor_file)
         except RestValidationError as e:
             return jsonify({'error': e.message})
-        result, jid = add_data_to_db(data)
+        result, jid = add_data_to_db(data, console_file)
         add_excluded(data, jid)
         user_add_constraints(data, jid)
-        save_console_file(console_file, jid)
+    #save_console_file(console_file, jid)
 
         return jsonify({
             'jid': jid})
@@ -371,16 +369,17 @@ def json_bool_to_db(data):
         return 0
 
 
-def add_data_to_db(data):
+def add_data_to_db(data, console):
     jid = unique_id()
 
     pdb = read_sequence_from_content_and_save(data['file_content'], jid)
+    console_content = console.read()
     return (query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
-         ligand_sequence, ligand_ss, hide, project_name,simulation_length,status) \
-         VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)", [jid, data['email'], pdb,
+         ligand_sequence, ligand_ss, hide, project_name,simulation_length,status,console) \
+         VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", [jid, data['email'], pdb,
                                                data['ligand_seq'], data['ligand_ss'], data['show'],
                                                data['project_name'],
-                                               data['simulation_cycles'], 'pre_queue'], insert=True), jid)
+                                               data['simulation_cycles'], 'pre_queue', console_content], insert=True), jid)
 
 
 def read_sequence_from_content_and_save(content, jid):
