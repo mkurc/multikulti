@@ -373,7 +373,8 @@ def add_data_to_db(data, console):
     jid = unique_id()
 
     pdb = read_sequence_from_content_and_save(data['file_content'], jid)
-    console_content = console.read()
+
+    console_content = console.read() if console is not None else ''
     return (query_db("INSERT INTO user_queue(jid, email, receptor_sequence, \
          ligand_sequence, ligand_ss, hide, project_name,simulation_length,status,console) \
          VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", [jid, data['email'], pdb,
