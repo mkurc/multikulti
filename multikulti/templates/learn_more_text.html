@@ -4,8 +4,8 @@
 <h3>Introduction</h3>
 
 
-<p style="text-align:justify">Protein-peptide interactions play a key role in cell functions. Their structural characterization, though challenging, is important for the discovery of new drugs. The CABS-dock web server provides an interface for modeling protein-peptide interactions using a highly efficient protocol for the flexible docking of peptides to proteins [<a href="#ref"><i class="fa fa-external-link"></i> ref 1</a>]. While other docking algorithms require pre-defined localization of the binding site, CABS-dock doesn’t require such knowledge. Given a protein receptor structure and a peptide sequence (and starting from random conformations and positions of the peptide), CABS-dock performs simulation search for the binding site allowing for full flexibility of the peptide and small
-fluctuations of the receptor backbone (see <a href="#fig1">Figure 1</a> and <a href="#mov1">Movie 1</a> below). 
+<p style="text-align:justify">Protein-peptide interactions play a key role in cell functions. Their structural characterization, though challenging, is important for the discovery of new drugs. The CABS-dock web server provides an interface for modeling protein-peptide interactions using a highly efficient protocol for the flexible docking of peptides to proteins [<a href="#ref"><i class="fa fa-external-link"></i> ref 1, 2</a>]. Some of other docking algorithms require pre-defined localization of the binding site, CABS-dock doesn’t require such knowledge. Given a protein receptor structure and a peptide sequence (and starting from random conformations and positions of the peptide), CABS-dock performs simulation search for the binding site allowing for full flexibility of the peptide and small
+fluctuations of the receptor backbone (see <a href="#fig1">Figure 1</a>,<a href="#mov1">Movie 1</a>, <a href="#mov2">Movie 2</a>, <a href="#mov1">Movie 3</a> below). Additionally, the advanced option “Mark flexible regions” enable to assign a full flexibility to a selected fragment of a protein receptor structure. This feature has been used in the study of large-scale conformational changes of MDM2 receptor to p53 peptide [<a href="#ref"><i class="fa fa-external-link"></i> ref 3</a>] (see <a href="#mov3">Movie 3</a>). Moreover, simulation contact maps, a new CABS-dock feature, have been described in the book chapter [<a href="#ref"><i class="fa fa-external-link"></i> ref 4</a>].
 
 <a id="fig1"></a><p style="text-align:justify"><small><strong>
 Figure 1. Basic stages of the CABS-dock protocol are illustrated on the example benchmark case (PDB ID: 2P1T). The protein receptor is colored in green, modeled peptide conformations in magenta and the reference experimental peptide structure in yellow. The following CABS-dock stages are visualized: (1) simulation start (from random conformations and positions of the peptide); (2) simulation result (10 trajectories comprising a set of 10,000 models); (3) filtering and clustering result (a set of models grouped in similar binding modes and similar peptide conformations); (4) final models (a set of 10 representative models). In the presented benchmark case, 7 of the 10 final models were docked in the native binding site (marked in red rectangle). Among these, the best accuracy model was within
@@ -15,24 +15,44 @@ Figure 1. Basic stages of the CABS-dock protocol are illustrated on the example 
 <br>
 
 <a id="mov1"></a><p style="text-align:justify"><small><strong>
-Movie 1. In the movie, the assembly of major histocompatibility complex (MHC)-peptide structure (PDB accession code 3BWA) is simulated. Experimental peptide structure is shown in green, while the simulated peptide in red. The movie shows 1 of 10 trajectories generated in a standard CABS-dock simulation run. The root mean square deviation of the peptide at the simulation end is within 1.83 Angstroms from the experimental structure.
+Movie 1. CABS-dock docking simulation of, the assembly of major histocompatibility complex (MHC)-peptide structure (PDB accession code 3BWA). Experimental peptide structure is shown in green, while the simulated peptide in red. The movie shows 1 of 10 trajectories generated in a standard CABS-dock simulation run. The root mean square deviation of the peptide at the simulation end is within 1.83 Angstroms from the experimental structure.
 </strong></small></p>
 <br>
 <center><iframe width="640" height="480" src="https://www.youtube.com/embed/EOqRF-JOTFg?rel=0" frameborder="0" allowfullscreen></iframe></center>
 <hr>
 
+<a id="mov2"></a><p style="text-align:justify"><small><strong>
+Movie 2. CABS-dock docking simulation of the assembly of HIV-1 protease and NC-p1 peptide. During blind search for a binding site, the peptide spontaneously inserts into the receptor cavity. The lowest RMSD model is below 1 Angstrom. The movie presents three panels showing: 1 replica of the simulated peptide - in purple - and the reference experimental structure - in green (left panel); 10 replicas of the simulated peptide in a single CABS-dock simulation run (upper right panel); RMSD of the simulated peptide versus the CABS-dock energy (lower left panel).
+</strong></small></p>
+<br>
+<center><iframe width="640" height="480" src="https://www.youtube.com/embed/dkArNVD-o0c?rel=0" frameborder="0" allowfullscreen></iframe></center>
+<hr>
+
+<a id="mov3"></a><p style="text-align:justify"><small><strong>
+Movie 3. CABS-dock docking simulation of binding of MDM2 protein receptor and p53 peptide with large-scale conformational changes of disordered MDM2 fragments [ref 3].
+</strong></small></p>
+<br>
+<center><iframe width="640" height="480" src="https://www.youtube.com/embed/xsvXdHcEmOI?rel=0" frameborder="0" allowfullscreen></iframe></center>
+<hr>
 
 <h3>Protocol overview</h3>
 
 
+<p style="text-align:justify">The CABS-dock simulations are carried out using a CABS coarse-grained protein model. The CABS design and applications have been recently reviewed (see [<a href="#ref"><i class="fa fa-external-link"></i> ref&nbsp;5</a>] and Movie 4). </p>
+<p style="text-align:justify"><small><strong>
+<a id="mov4"></a>Movie 4. Example simulation of folding and binding of an disordered peptide (from [<a href="#ref"><i class="fa fa-external-link"></i> ref 6</a>]) done using the CABS-dock simulation engine.
+</strong></small></p>
+<center><iframe width="640" height="480" src="https://www.youtube.com/embed/O0XRBlSXZrw?rel=0" frameborder="0" allowfullscreen></iframe></center>
+
 <p style="text-align:justify">The CABS-dock method was developed, optimized and validated during the following simulation experiments:</p> 
 <ol>
- <li>mechanism of folding and binding of an intrinsically disordered peptide (see [<a href="#ref"><i class="fa fa-external-link"></i>ref&nbsp;2</a>] and <a  href="#mov2">Movie&nbsp;2</a>);</li>
+<li>protein-peptide docking studies [<a href="#ref"><i class="fa fa-external-link"></i>ref&nbsp;1-2</a>] including modeling of large-scale conformational changes of protein receptor structure [<a href="#ref"><i class="fa fa-external-link"></i>ref&nbsp;7</a>]</li>
+ <li>mechanism of folding and binding of an intrinsically disordered peptide (see [<a href="#ref"><i class="fa fa-external-link"></i>ref&nbsp;6</a>] and <a  href="#mov2">Movie&nbsp;5</a>);</li>
  <li> docking of antigen-mimicking peptides to antibody [<a href="#ref"><i class="fa fa-external-link"></i> ref&nbsp;3</a>];</li>
- <li>docking of peptide co-activators to the nuclear receptors [<a href="#ref"><i class="fa fa-external-link"></i> ref&nbsp;4-5</a>]. 
+ <li>docking of peptide co-activators to the nuclear receptors [<a href="#ref"><i class="fa fa-external-link"></i> ref&nbsp;8-9</a>]. 
 </ol>
 <p style="text-align:justify"><small><strong>
-<a id="mov2"></a>Movie 2. Example simulation of folding and binding of an disordered peptide (from [<a href="#ref"><i class="fa fa-external-link"></i> ref 2</a>]) done using the CABS-dock simulation engine.
+<a id="mov5"></a>Movie 5. Example simulation of folding and binding of an disordered peptide (from [<a href="#ref"><i class="fa fa-external-link"></i> ref 6</a>]) done using the CABS-dock simulation engine.
 </strong></small></p>
 <center><iframe width="640" height="480" src="https://www.youtube.com/embed/WhS8UFaEodk?rel=0" frameborder="0" allowfullscreen></iframe></center>
 
@@ -69,18 +89,26 @@ within a 5-15 Å range from each other are restrained; the minimum sequence gap 
 
 <hr>
 <a id="ref"></a><h3>References</h3>
+
 <ol>
-<li><a target="_blank" href="http://arxiv.org/abs/1503.02032"><i class="fa fa-external-link"></i> Kurcinski M, Jamroz M, Blaszczyk M, Kolinski A, Kmiecik S. (2015) CABS-dock web server for the flexible docking of peptides to proteins without prior knowledge of the binding site. Nucleic Acids Research (submitted, arXiv:1503.02032).</a></li>
+<li><a target="_blank" href="https://doi.org/10.1093/nar/gkv456"><i class="fa fa-external-link"></i> Kurcinski, M.; Jamroz, M.; Blaszczyk, M.; Kolinski, A.; Kmiecik, S., CABS-dock web server for the flexible docking of peptides to proteins without prior knowledge of the binding site. Nucleic Acids Res 2015, 43, (W1), W419-24.</a></li>
 
+<li><a target="_blank" href="http://www.sciencedirect.com/science/article/pii/S1046202315300207"><i class="fa fa-external-link"></i>Blaszczyk, M.; Kurcinski, M.; Kouza, M.; Wieteska, L.; Debinski, A.; Kolinski, A.; Kmiecik, S., Modeling of protein-peptide interactions using the CABS-dock web server for binding site search and flexible docking. Methods 2016, 93, 72-83.</a></li>
 
-<li><a target="_blank" href="http://pubs.acs.org/doi/abs/10.1021/ct500287c"><i class="fa fa-external-link"></i> Kurcinski, M., A. Kolinski, and S. Kmiecik, Mechanism of Folding and Binding of an Intrinsically Disordered Protein As Revealed by ab Initio Simulations. Journal of Chemical Theory and Computation, 2014. 10(6): p. 2224-2231.</a></li>
+<li><a target="_blank" href="https://link.springer.com/protocol/10.1007%2F978-1-4939-6798-8_6"><i class="fa fa-external-link"></i>Ciemny, M. P.; Debinski, A.; Paczkowska, M.; Kolinski, A.; Kurcinski, M.; Kmiecik, S., Protein-peptide molecular docking with large-scale conformational changes: the p53-MDM2 interaction. Sci Rep 2016, 6, 37532.</a></li>
 
-<li><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/21455557"><i class="fa fa-external-link"></i> Horwacik, I., et al., Analysis and optimization of interactions between peptides mimicking the GD2 ganglioside and the monoclonal antibody 14G2a. Int J Mol Med, 2011. 28(1): p. 47-57. </a></li>
+<li><a target="_blank" href="https://link.springer.com/protocol/10.1007%2F978-1-4939-6798-8_6"><i class="fa fa-external-link"></i>Ciemny, M. P.; Kurcinski, M.; Kozak, K. J.; Kolinski, A.; Kmiecik, S., Highly Flexible Protein-Peptide Docking Using CABS-Dock. Methods Mol Biol 2017, 1561, 69-94.</a></li>
 
-<li><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/20398753"><i class="fa fa-external-link"></i> Kurcinski, M. and A. Kolinski, Theoretical study of molecular mechanism of binding TRAP220 coactivator to Retinoid X Receptor alpha, activated by 9-cis retinoic acid. J Steroid Biochem Mol Biol, 2010. 121(1-2): p. 124-9.</a></li>
+<li><a target="_blank" href="http://pubs.acs.org/doi/abs/10.1021/acs.chemrev.6b00163"><i class="fa fa-external-link"></i>Kmiecik, S.; Gront, D.; Kolinski, M.; Wieteska, L.; Dawid, A. E.; Kolinski, A., Coarse-Grained Protein Models and Their Applications. Chem Rev 2016, 116, (14), 7898-936.</a></li>
 
-<li><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/17241780"><i class="fa fa-external-link"></i> Kurcinski, M. and A. Kolinski, Steps towards flexible docking: modeling of three-dimensional structures of the nuclear receptors bound with peptide ligands mimicking co-activators' sequences. J Steroid Biochem Mol Biol, 2007. 103(3-5): p. 357-60.</a></li>
+<li><a target="_blank" href="http://pubs.acs.org/doi/abs/10.1021/ct500287c"><i class="fa fa-external-link"></i>Kurcinski, M.; Kolinski, A.; Kmiecik, S., Mechanism of Folding and Binding of an Intrinsically Disordered Protein As Revealed by ab Initio Simulations. J Chem Theory Comput 2014, 10, (6), 2224-31.</a></li>
 
+<li><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/21455557"><i class="fa fa-external-link"></i>Horwacik, I.; Kurcinski, M.; Bzowska, M.; Kowalczyk, A. K.; Czaplicki, D.; Kolinski, A.; Rokita, H., Analysis and optimization of interactions between peptides mimicking the GD2 ganglioside and the monoclonal antibody 14G2a. Int J Mol Med 2011, 28, (1), 47-57.</a></li>
+
+<li><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/20398753"><i class="fa fa-external-link"></i>Kurcinski, M.; Kolinski, A., Theoretical study of molecular mechanism of binding TRAP220 coactivator to Retinoid X Receptor alpha, activated by 9-cis retinoic acid. J Steroid Biochem Mol Biol 2010, 121, (1-2), 124-9.</a></li>
+
+<li><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/17241780"><i class="fa fa-external-link"></i>Kurcinski, M.; Kolinski, A., Steps towards flexible docking: modeling of three-dimensional structures of the nuclear receptors bound with peptide ligands mimicking co-activators' sequences. J Steroid Biochem Mol Biol 2007, 103, (3-5), 357-60.</a></li>
+</ol>
 
 
 <!-- --------------------------------------------------------koniec działań Maćka -->
